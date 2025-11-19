@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace nam.Server.Entities
+namespace nam.Server.Models.Entities
 {
     public class User
     {

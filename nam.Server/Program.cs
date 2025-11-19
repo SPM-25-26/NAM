@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using nam.Server.Data;
+using nam.Server.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,5 +32,6 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
+app.MapAuth();
 
 app.Run();
