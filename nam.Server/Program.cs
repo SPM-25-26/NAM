@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using nam.Server.Data;
 using nam.Server.Endpoints;
@@ -6,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 // Retrieve and configure the database connection string
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")

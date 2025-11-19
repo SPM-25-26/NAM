@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using nam.Server.Data;
 using nam.Server.Models.DTOs;
@@ -11,8 +12,16 @@ namespace nam.Server.Endpoints
     {
         public static async Task<IResult> RegisterUser(
             [FromBody] RegisterUserDto request,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IValidator<RegisterUserDto> validator)
         {
+            var validationResult = await validator.ValidateAsync(request);
+
+            if (!validationResult.IsValid)
+            {
+                return Results.ValidationProblem(validationResult.ToDictionary());
+            }
+
             var existingUser = await context.Users
             .FirstOrDefaultAsync(u => u.Email == request.Email);
 
