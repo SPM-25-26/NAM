@@ -27,7 +27,7 @@ namespace nam.Server.Endpoints
 
             if (existingUser != null)
             {
-                return Results.BadRequest("Email is already in use.");
+                return Results.Conflict("Email is already in use.");
             }
 
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
