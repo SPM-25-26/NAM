@@ -19,7 +19,7 @@ namespace nam.Server.Endpoints
 
             if (!validationResult.IsValid)
             {
-                return Results.ValidationProblem(validationResult.ToDictionary());
+                return TypedResults.ValidationProblem(validationResult.ToDictionary());
             }
 
             var existingUser = await context.Users
@@ -27,7 +27,7 @@ namespace nam.Server.Endpoints
 
             if (existingUser != null)
             {
-                return Results.Conflict("Email is already in use.");
+                return TypedResults.Conflict("Email is already in use.");
             }
 
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
@@ -40,7 +40,7 @@ namespace nam.Server.Endpoints
             context.Users.Add(newUser);
             await context.SaveChangesAsync();
 
-            return Results.Ok("User registered successfully");
+            return TypedResults.Ok("User registered successfully");
         }
     }
 }
