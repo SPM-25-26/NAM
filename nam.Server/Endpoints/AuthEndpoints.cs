@@ -68,6 +68,15 @@ namespace nam.Server.Endpoints
             // Generate Auth code
             var authCode = codeService.GenerateAuthCode();
             Console.WriteLine($"\n[DEBUG] auth generated:\n{authCode}\n");
+            var existingCode = await context.ResetPasswordAuth
+                    .FirstOrDefaultAsync(c => c.UserId == user.Id.ToString());
+
+            if (existingCode != null)
+            {
+                //delete exist code associated with user
+                context.ResetPasswordAuth.Remove(existingCode);
+                Console.WriteLine($"\n[DEBUG] Codice di reset preesistente rimosso per l'utente {user.Id}.\n");
+            }
 
             // Build a response
             var resetCode = new PasswordResetCode
@@ -107,7 +116,7 @@ namespace nam.Server.Endpoints
             Console.WriteLine($"\n[DEBUG] check reset code:\n{resetCode}\n");
             // Verify the validity of the reset code
             if (resetCode == null){
-                 Console.WriteLine($"\n[DEBUG] reset code not found");
+                 Console.WriteLine($"\n[DEBUG] reset code not found (expired or not valid)");
                 var notFoundResponse = new PasswordResetResponseDto
                 {
                     Success = false, 
@@ -128,7 +137,7 @@ namespace nam.Server.Endpoints
                     Success = false, 
                     Message = "Invalid auth code."
                 };
-                return TypedResults.BadRequest(new { Message =  notFoundUserResponse});
+                return TypedResults.BadRequest(notFoundUserResponse);
             }
 
            
@@ -140,11 +149,14 @@ namespace nam.Server.Endpoints
             context.ResetPasswordAuth.Remove(resetCode);
 
             await context.SaveChangesAsync();
-
-            return TypedResults.Ok(new {
-                Success = true, 
-                Message = "Password successfully reset." 
-                });
+           
+            return TypedResults.Ok(
+                new PasswordResetResponseDto
+                {
+                    Success = true, 
+                    Message = "Password successfully reset." 
+                }
+               );
         }
     }
 }
