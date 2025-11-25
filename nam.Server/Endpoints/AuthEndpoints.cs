@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using nam.Server.Data;
 using nam.Server.Models.DTOs;
 using nam.Server.Models.Entities;
-using System;
+using nam.Server.Models.Services.Infrastructure;
+
+
 
 namespace nam.Server.Endpoints
 {
@@ -41,6 +43,20 @@ namespace nam.Server.Endpoints
             await context.SaveChangesAsync();
 
             return TypedResults.Ok("User registered successfully");
+        }
+
+        public static async Task<IResult> GenerateToken(
+        [FromServices] IAuthService authService,
+        [FromBody] LoginCredentialsDto credentials)
+        {
+            string? token = await authService.GenerateTokenAsync(credentials);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return Results.Unauthorized();
+            }
+
+            return Results.Ok(new { token });
         }
     }
 }

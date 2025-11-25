@@ -16,7 +16,19 @@
                     return op;
                 });
 
+            // POST /api/auth/login
+            groupBuilder.MapPost("/login", AuthEndpoints.GenerateToken)
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status401Unauthorized)
+                .Produces(StatusCodes.Status500InternalServerError)
+                .WithOpenApi(op =>
+                {
+                    op.Summary = "JWT generation.";
+                    return op;
+                });
+
             return builder;
         }
+
     }
 }
