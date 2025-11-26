@@ -51,7 +51,6 @@ namespace nam.Server.Endpoints
             ICodeService codeService
             )
         {
-            Console.WriteLine($"\n[DEBUG] Input DTO Ricevuto:\n{request}\n");
             // Find a user
             var user = await context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
@@ -67,7 +66,6 @@ namespace nam.Server.Endpoints
 
             // Generate Auth code
             var authCode = codeService.GenerateAuthCode();
-            Console.WriteLine($"\n[DEBUG] auth generated:\n{authCode}\n");
             var existingCode = await context.ResetPasswordAuth
                     .FirstOrDefaultAsync(c => c.UserId == user.Id.ToString());
 
@@ -75,7 +73,6 @@ namespace nam.Server.Endpoints
             {
                 //delete exist code associated with user
                 context.ResetPasswordAuth.Remove(existingCode);
-                Console.WriteLine($"\n[DEBUG] Codice di reset preesistente rimosso per l'utente {user.Id}.\n");
             }
 
             // Build a response
@@ -86,7 +83,6 @@ namespace nam.Server.Endpoints
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(codeService.TimeToLiveMinutes) 
             };
-            Console.WriteLine($"\n[DEBUG] reset code:\n{resetCode}\n");
             
             // Save reset code in dedicated table
             context.ResetPasswordAuth.Add(resetCode);
@@ -113,10 +109,8 @@ namespace nam.Server.Endpoints
                     c.AuthCode == request.AuthCode &&
                     c.ExpiresAt > DateTime.UtcNow);
             
-            Console.WriteLine($"\n[DEBUG] check reset code:\n{resetCode}\n");
             // Verify the validity of the reset code
             if (resetCode == null){
-                 Console.WriteLine($"\n[DEBUG] reset code not found (expired or not valid)");
                 var notFoundResponse = new PasswordResetResponseDto
                 {
                     Success = false, 
@@ -128,10 +122,8 @@ namespace nam.Server.Endpoints
             // Find the user
             var user = await context.Users
                 .FirstOrDefaultAsync(u => u.Id.ToString() == resetCode.UserId);
-            Console.WriteLine($"\n[DEBUG] check user {user}");
 
             if (user == null){
-                 Console.WriteLine($"\n[DEBUG] user not found");
                 var notFoundUserResponse = new PasswordResetResponseDto
                 {
                     Success = false, 
@@ -144,7 +136,6 @@ namespace nam.Server.Endpoints
             //TODO: replace with service for encrypt data
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
 
-            Console.WriteLine($"\n[DEBUG] password hashed: {user.PasswordHash}");
            // Delete resetCode
             context.ResetPasswordAuth.Remove(resetCode);
 
