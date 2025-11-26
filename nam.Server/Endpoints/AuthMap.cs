@@ -27,8 +27,22 @@
                     return op;
                 });
 
+            // POST /api/auth/logout
+            groupBuilder.MapPost("/logout", AuthEndpoints.LogoutAsync)
+                .RequireAuthorization()
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status401Unauthorized)
+                .WithOpenApi(op =>
+                {
+                    op.Summary = "User logout (token revocation).";
+                    op.Description = "Revokes the current JWT access token by adding its jti to the blacklist.";
+                    return op;
+                });
+
             return builder;
         }
+
+
 
     }
 }

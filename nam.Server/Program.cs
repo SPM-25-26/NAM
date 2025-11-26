@@ -9,6 +9,7 @@ using nam.Server.Models.Options;
 using nam.Server.Models.Services.Infrastructure;
 using nam.Server.Models.Services.Infrastructure.Repositories;
 using Serilog;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +36,26 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
                 ValidateAudience = false,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)) // Secret key
+            };
+            options.Events = new JwtBearerEvents
+            {
+                OnTokenValidated = async context =>
+                {
+                    var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
+
+                    var jti = context.Principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+
+                    if (!string.IsNullOrEmpty(jti))
+                    {
+                        var isRevoked = await tokenService.IsTokenRevokedAsync(jti);
+
+                        if (isRevoked)
+                        {
+                            // Blocco la richiesta: questo token è in blacklist
+                            context.Fail("Token revoked");
+                        }
+                    }
+                }
             };
         });
 
@@ -88,11 +109,14 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
 
     // Register application services
     builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<ITokenService, TokenService>();
+    // Register the background service for cleaning up revoked tokens
+    builder.Services.AddHostedService<RevokedTokensCleanupService>();
 
     // Bind JWT configuration section to strongly-typed options
     builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 
-var app = builder.Build();
+    var app = builder.Build();
 
     // Configure middleware pipeline
     if (app.Environment.IsDevelopment())
