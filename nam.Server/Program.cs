@@ -9,8 +9,8 @@ using nam.Server.Models.Options;
 using nam.Server.Models.Services.Infrastructure;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
-using nam.Server.Services.Implementations;
-using nam.Server.Services;
+using nam.Server.Models.Services.Implementations;
+
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);

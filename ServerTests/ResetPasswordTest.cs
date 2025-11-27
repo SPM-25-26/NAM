@@ -4,8 +4,8 @@ using nam.Server.Data;
 using nam.Server.Endpoints;
 using nam.Server.Models.DTOs;
 using nam.Server.Models.Entities;
-using nam.Server.Services.Implementations;
-using nam.Server.Services;
+using nam.Server.Models.Services.Implementations;
+using nam.Server.Models.Services.Infrastructure;
 using nam.ServerTests.mock;
 
 namespace nam.ServerTests

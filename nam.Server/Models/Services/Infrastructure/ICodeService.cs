@@ -1,4 +1,4 @@
-namespace nam.Server.Services
+namespace nam.Server.Models.Services.Infrastructure
 {
     /// <summary>
     /// Provides functionality for generating authentication codes.
