@@ -18,6 +18,10 @@ namespace nam.Server.Models.Validators
                 .Matches(@"[a-z]").WithMessage("Password must contain at least one lowercase letter.")
                 .Matches(@"[0-9]").WithMessage("Password must contain at least one number.")
                 .Matches(@"[\!\?\*\.\@\#\$\%\^]").WithMessage("Password must contain at least one special character (!?*.@#$%^).");
+
+            RuleFor(x => x.ConfirmPassword)
+                .NotEmpty().WithMessage("Confirm password is required.")
+                .Equal(x => x.Password).WithMessage("Passwords do not match.");
         }
     }
 }

@@ -92,8 +92,8 @@ namespace nam.ServerTests
             RegisterUserDto registrationData = new()
             {
                 Email = "newuser@example.com",
-                Password = "PasswordA",
-                ConfirmPassword = "PasswordB" // Mismatch
+                Password = "ValidPasswordA123!",
+                ConfirmPassword = "ValidPasswordB123!" // Mismatch
             };
 
             // Act
