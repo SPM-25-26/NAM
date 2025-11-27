@@ -14,9 +14,9 @@ namespace nam.ServerTests
     [TestClass]
     public sealed class PasswordResetTests
     {
-        private ApplicationDbContext context;
+        private ApplicationDbContext _context = null!;
         private const string TestDbName = "TestDb_PasswordReset";
-        private IEmailService emailService = new LocalEmailService();
+        private readonly IEmailService emailService = new LocalEmailService();
         // Uses StaticCodeService for predictable codes in validation tests
         private ICodeService codeService = new StaticCodeService(); 
 
@@ -30,15 +30,15 @@ namespace nam.ServerTests
                 .UseInMemoryDatabase(databaseName: $"{TestDbName}_{Guid.NewGuid()}")
                 .Options;
         
-            context = new ApplicationDbContext(options);
+            _context = new ApplicationDbContext(options);
             codeService = new StaticCodeService(); 
         }
 
         [TestCleanup]
         public void Cleanup()
         {
-            context.Database.EnsureDeleted();
-            context.Dispose();
+            _context.Database.EnsureDeleted();
+            _context.Dispose();
         }
 
        
@@ -50,16 +50,17 @@ namespace nam.ServerTests
             var request = new PasswordResetRequestDto { Email = "nonexistent@example.com" };
 
             // Act
-            var result = await AuthEndpoints.RequestPasswordReset(request, context, emailService, codeService);
-
+            var result = await AuthEndpoints.RequestPasswordReset(request, _context, emailService, codeService);
+           
             // Assert
-            Assert.IsInstanceOfType(result, typeof(NotFound<PasswordResetResponseDto>));
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType<NotFound<PasswordResetResponseDto>>(result);
             var notFoundResult = (NotFound<PasswordResetResponseDto>)result;
-            
+            Assert.IsNotNull(notFoundResult.Value);
             Assert.IsFalse(notFoundResult.Value.Success);
             Assert.AreEqual("The email not found", notFoundResult.Value.Message);
 
-            var codesCount = await context.ResetPasswordAuth.CountAsync();
+            var codesCount = await _context.ResetPasswordAuth.CountAsync();
             Assert.AreEqual(0, codesCount, "No reset code should be created.");
         }
 
@@ -71,19 +72,18 @@ namespace nam.ServerTests
             Guid testUserId = Guid.NewGuid();
             
             // Seed: Adds an existing user
-            context.Users.Add(new User { Id = testUserId, Email = testEmail, PasswordHash = "dummyhash" });
-            await context.SaveChangesAsync();
+            _context.Users.Add(new User { Id = testUserId, Email = testEmail, PasswordHash = "dummyhash" });
+            await _context.SaveChangesAsync();
 
             var request = new PasswordResetRequestDto { Email = testEmail };
             var beforeRequest = DateTime.UtcNow;
 
             // Act
-            var result = await AuthEndpoints.RequestPasswordReset(request, context, emailService, codeService);
+            var result = await AuthEndpoints.RequestPasswordReset(request, _context, emailService, codeService);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(Ok<PasswordResetResponseDto>));
-
-            var savedCode = await context.ResetPasswordAuth
+            Assert.IsInstanceOfType<Ok<PasswordResetResponseDto>>(result);
+            var savedCode = await _context.ResetPasswordAuth
                                         .FirstOrDefaultAsync(c => c.UserId == testUserId.ToString());
 
             Assert.IsNotNull(savedCode, "A reset code must be saved.");
@@ -112,35 +112,35 @@ namespace nam.ServerTests
             Guid testUserId = Guid.NewGuid();
             
             // 1. Seed User
-            context.Users.Add(new User { Id = testUserId, Email = testEmail, PasswordHash = "dummyhash" });
+            _context.Users.Add(new User { Id = testUserId, Email = testEmail, PasswordHash = "dummyhash" });
 
             // 2. Seed OLD Code (which should be overwritten)
             var oldAuthCode = "999999"; 
             var oldExpiration = DateTime.UtcNow.AddMinutes(5); 
             
-            context.ResetPasswordAuth.Add(new PasswordResetCode 
+            _context.ResetPasswordAuth.Add(new PasswordResetCode 
             {
                 UserId = testUserId.ToString(),
                 AuthCode = oldAuthCode,
                 ExpiresAt = oldExpiration,
                 CreatedAt = DateTime.UtcNow.AddMinutes(-10)
             });
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             var request = new PasswordResetRequestDto { Email = testEmail };
             var beforeSecondRequest = DateTime.UtcNow;
 
             // Act - Second reset request
-            var result = await AuthEndpoints.RequestPasswordReset(request, context, emailService, codeService);
+            var result = await AuthEndpoints.RequestPasswordReset(request, _context, emailService, codeService);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(Ok<PasswordResetResponseDto>));
+            Assert.IsInstanceOfType<Ok<PasswordResetResponseDto>>(result);
 
             // Only ONE code should exist (the old one was updated/removed and replaced)
-            var codesCount = await context.ResetPasswordAuth.CountAsync();
+            var codesCount = await _context.ResetPasswordAuth.CountAsync();
             Assert.AreEqual(1, codesCount, "Only one reset code should exist for the user.");
 
-            var updatedCode = await context.ResetPasswordAuth.SingleAsync();
+            var updatedCode = await _context.ResetPasswordAuth.SingleAsync();
 
             // The code must be the new one (StaticAuthCode) and the date updated
             Assert.AreEqual(StaticAuthCode, updatedCode.AuthCode, "The AuthCode must have been updated.");
@@ -158,18 +158,18 @@ namespace nam.ServerTests
             Guid testUserId = Guid.NewGuid();
             
             // 1. Seed User
-            context.Users.Add(new User { Id = testUserId, Email = testEmail, PasswordHash = "dummyhash" });
+            _context.Users.Add(new User { Id = testUserId, Email = testEmail, PasswordHash = "dummyhash" });
 
             // 2. Seed MANUALLY EXPIRED Code
             var expiredTime = DateTime.UtcNow.AddMinutes(-5); // 5 minutes in the past
-            context.ResetPasswordAuth.Add(new PasswordResetCode 
+            _context.ResetPasswordAuth.Add(new PasswordResetCode 
             {
                 UserId = testUserId.ToString(),
                 AuthCode = StaticAuthCode,
                 CreatedAt = expiredTime.AddMinutes(-15),
                 ExpiresAt = expiredTime
             });
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             var request = new PasswordResetConfirmDto 
             { 
@@ -179,13 +179,13 @@ namespace nam.ServerTests
             };
 
             // Act: Call the password reset endpoint
-            var result = await AuthEndpoints.ResetPassword(request, context); 
+            var result = await AuthEndpoints.ResetPassword(request, _context); 
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(BadRequest<PasswordResetResponseDto>),
-                "Expired code must return a BadRequest error.");
-            
+            Assert.IsInstanceOfType<BadRequest<PasswordResetResponseDto>>(result, "Expired code must return a BadRequest error.");
+           
             var badRequestResult = (BadRequest<PasswordResetResponseDto>)result;
+            Assert.IsNotNull(badRequestResult.Value);
             Assert.IsFalse(badRequestResult.Value.Success);
             Assert.IsTrue(badRequestResult.Value.Message.ToLower().Contains("expired"), "The message must indicate expiration.");
         }
@@ -198,17 +198,17 @@ namespace nam.ServerTests
             Guid testUserId = Guid.NewGuid();
             const string oldHash = "old_password_hash";
             
-            context.Users.Add(new User { Id = testUserId, Email = testEmail, PasswordHash = oldHash });
+            _context.Users.Add(new User { Id = testUserId, Email = testEmail, PasswordHash = oldHash });
         
             var validTime = DateTime.UtcNow.AddMinutes(5); 
-            context.ResetPasswordAuth.Add(new PasswordResetCode 
+            _context.ResetPasswordAuth.Add(new PasswordResetCode 
             {
                 UserId = testUserId.ToString(),
                 AuthCode = StaticAuthCode,
                 ExpiresAt = validTime,
                 CreatedAt = DateTime.UtcNow
             });
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             var newPassword = "new_secure_password_123";
             var request = new PasswordResetConfirmDto 
@@ -219,23 +219,24 @@ namespace nam.ServerTests
             };
 
             // Act: Call the password reset endpoint
-            var result = await AuthEndpoints.ResetPassword(request, context); 
+            var result = await AuthEndpoints.ResetPassword(request, _context); 
 
             
             // Verify response
-            Assert.IsInstanceOfType(result, typeof(Ok<PasswordResetResponseDto>),
-                "Valid code should lead to a successful reset.");
+            Assert.IsInstanceOfType<Ok<PasswordResetResponseDto>>(result,  "Valid code should lead to a successful reset.");
             
             var okResult = (Ok<PasswordResetResponseDto>)result;
+            Assert.IsNotNull(okResult.Value);
             Assert.IsTrue(okResult.Value.Success);
             
             // Verify that the code was removed from the DB
-            var codeExists = await context.ResetPasswordAuth
+            var codeExists = await _context.ResetPasswordAuth
                                           .AnyAsync(c => c.UserId == testUserId.ToString());
             Assert.IsFalse(codeExists, "The reset code should be removed after success.");
             
             // Verify that the password hash was updated 
-            var updatedUser = await context.Users.FindAsync(testUserId);
+            var updatedUser = await _context.Users.FindAsync(testUserId);
+            Assert.IsNotNull(updatedUser);
             Assert.AreNotEqual(oldHash, updatedUser.PasswordHash, "The user's password hash must have changed.");
         }
         
@@ -246,19 +247,19 @@ namespace nam.ServerTests
             const string testEmail = "wrongcode@example.com";
             Guid testUserId = Guid.NewGuid();
             
-            context.Users.Add(new User { Id = testUserId, Email = testEmail, PasswordHash = "dummyhash" });
+            _context.Users.Add(new User { Id = testUserId, Email = testEmail, PasswordHash = "dummyhash" });
 
             // Seed CORRECT and valid Code
             var correctCode = "555555";
             var validTime = DateTime.UtcNow.AddMinutes(5); 
-            context.ResetPasswordAuth.Add(new PasswordResetCode 
+            _context.ResetPasswordAuth.Add(new PasswordResetCode 
             {
                 UserId = testUserId.ToString(),
                 AuthCode = correctCode, 
                 ExpiresAt = validTime,
                 CreatedAt = DateTime.UtcNow
             });
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             var request = new PasswordResetConfirmDto 
             { 
@@ -268,18 +269,19 @@ namespace nam.ServerTests
             };
 
             // Act: Call the password reset endpoint
-            var result = await AuthEndpoints.ResetPassword(request, context); 
+            var result = await AuthEndpoints.ResetPassword(request, _context); 
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(BadRequest<PasswordResetResponseDto>));
+            Assert.IsInstanceOfType<BadRequest<PasswordResetResponseDto>>(result);
             
             var badRequestResult = (BadRequest<PasswordResetResponseDto>)result;
+            Assert.IsNotNull(badRequestResult.Value);
             Assert.IsFalse(badRequestResult.Value.Success);
             Assert.IsTrue(badRequestResult.Value.Message.ToLower().Contains("invalid") || badRequestResult.Value.Message.ToLower().Contains("not found"), 
                 "The message must indicate that the code is invalid or not found.");
 
             // The correct code should NOT be removed upon a failed validation attempt
-            var codeExists = await context.ResetPasswordAuth.AnyAsync();
+            var codeExists = await _context.ResetPasswordAuth.AnyAsync();
             Assert.IsTrue(codeExists, "The correct code should remain in the DB after a failed attempt.");
         }
     }
