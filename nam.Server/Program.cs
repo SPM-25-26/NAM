@@ -7,11 +7,13 @@ using nam.Server.Data;
 using nam.Server.Endpoints;
 using nam.Server.Models.Options;
 using nam.Server.Models.Services.Infrastructure;
-using nam.Server.Models.Services.Infrastructure.Repositories;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 using nam.Server.Services.Implementations;
+using nam.Server.Services;
 using System.Text;
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Retrieve and configure the database connection string
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
