@@ -7,9 +7,10 @@ using nam.Server.Data;
 using nam.Server.Endpoints;
 using nam.Server.Models.Options;
 using nam.Server.Models.Services.Infrastructure;
-using nam.Server.Models.Services.Infrastructure.Repositories;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
+using nam.Server.Models.Services.Implementations;
+
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,7 +52,7 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
 
                         if (isRevoked)
                         {
-                            // Blocco la richiesta: questo token è in blacklist
+                            // Blocco la richiesta: questo token ï¿½ in blacklist
                             context.Fail("Token revoked");
                         }
                     }
@@ -66,6 +67,8 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
     builder.Services.AddRazorPages();
     builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
+    builder.Services.AddScoped<IEmailService, LocalEmailService>();
+    builder.Services.AddScoped<ICodeService, RandomCodeService>();
 
     // Register Swagger/OpenAPI
     builder.Services.AddEndpointsApiExplorer();
