@@ -12,38 +12,58 @@ namespace nam.Server.Endpoints
 {
     internal static class AuthEndpoints
     {
+
+        private static Serilog.ILogger? _logger;
+
+        public static void ConfigureLogger(Serilog.ILogger logger)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
         public static async Task<IResult> RegisterUser(
             [FromBody] RegisterUserDto request,
             IUserRepository userRepository,
             IValidator<RegisterUserDto> validator)
         {
-            var validationResult = await validator.ValidateAsync(request);
+            _logger.Information("RegisterUser called for email {Email}", request?.Email);
 
-            if (!validationResult.IsValid)
+            try
             {
-                return TypedResults.ValidationProblem(validationResult.ToDictionary());
+                var validationResult = await validator.ValidateAsync(request);
+
+                if (!validationResult.IsValid)
+                {
+                    _logger.Warning("Validation failed for email {Email}: {@Errors}", request?.Email, validationResult.ToDictionary());
+                    return TypedResults.ValidationProblem(validationResult.ToDictionary());
+                }
+
+                var existingUser = await userRepository.EmailExistsAsync(request.Email);
+                if (existingUser)
+                {
+                    _logger.Warning("Attempt to register already existing email {Email}", request.Email);
+                    return TypedResults.Conflict("Email is already in use.");
+                }
+
+                string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                var newUser = new User
+                {
+                    Email = request.Email,
+                    PasswordHash = passwordHash
+                };
+
+                await userRepository.AddAsync(newUser);
+
+                _logger.Information("User registered successfully with email {Email}", request.Email);
+                return TypedResults.Ok("User registered successfully");
             }
-
-            var existingUser = await userRepository.EmailExistsAsync(request.Email);
-
-            if (existingUser)
+            catch (Exception ex)
             {
-                return TypedResults.Conflict("Email is already in use.");
+                _logger.Error(ex, "Error while registering user with email {Email}", request?.Email);
+                return TypedResults.Problem("An error occurred while registering the user.");
             }
-
-            string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-            var newUser = new User
-            {
-                Email = request.Email,
-                PasswordHash = passwordHash
-            };
-
-            await userRepository.AddAsync(newUser);
-
-            return TypedResults.Ok("User registered successfully");
         }
 
-        
+
         public static async Task<IResult> RequestPasswordReset(
             [FromBody] PasswordResetRequestDto request,
             ApplicationDbContext context,

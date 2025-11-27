@@ -6,6 +6,7 @@ using nam.Server.Models.DTOs;
 using nam.Server.Models.Entities;
 using nam.Server.Models.Services.Infrastructure.Repositories;
 using nam.Server.Models.Validators;
+using Serilog;
 
 namespace nam.ServerTests
 {
@@ -26,13 +27,25 @@ namespace nam.ServerTests
             // 2. Create the Context and repository
             context = new ApplicationDbContext(options);
             userRepository = new UserRepository(context);
+
+            // Configure a Serilog logger for the endpoints
+            var logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            AuthEndpoints.ConfigureLogger(logger);
         }
 
         [TestCleanup]
         public void Cleanup()
         {
+            // Ensure DB cleaned up
             context.Database.EnsureDeleted();
             context.Dispose();
+
+            // Flush/close Serilog used by tests
+            Log.CloseAndFlush();
         }
 
         [TestMethod]
@@ -142,7 +155,7 @@ namespace nam.ServerTests
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ValidationProblem));
-        }    
-}
+        }
+    }
 }
 
