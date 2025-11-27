@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using nam.Server.Data;
 
@@ -11,11 +12,13 @@ using nam.Server.Data;
 namespace nam.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251126120339_AddRevokedTokens")]
+    partial class AddRevokedTokens
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
-    #pragma warning disable 612, 618
+#pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
@@ -40,32 +43,6 @@ namespace nam.Server.Migrations
                     b.ToTable("RevokedTokens");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.PasswordResetCode", b =>
-                            {
-                                b.Property<Guid>("Id")
-                                    .ValueGeneratedOnAdd()
-                                    .HasColumnType("uniqueidentifier");
-
-                                b.Property<string>("AuthCode")
-                                    .IsRequired()
-                                    .HasMaxLength(6)
-                                    .HasColumnType("nvarchar(6)");
-
-                                b.Property<DateTime>("CreatedAt")
-                                    .HasColumnType("datetime2");
-
-                                b.Property<DateTime>("ExpiresAt")
-                                    .HasColumnType("datetime2");
-
-                                b.Property<string>("UserId")
-                                    .IsRequired()
-                                    .HasColumnType("nvarchar(max)");
-
-                                b.HasKey("Id");
-
-                                b.ToTable("ResetPasswordAuth");
-                            });
-
             modelBuilder.Entity("nam.Server.Models.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -89,8 +66,7 @@ namespace nam.Server.Migrations
 
                     b.ToTable("Users");
                 });
-
-    #pragma warning restore 612, 618
+#pragma warning restore 612, 618
         }
     }
 }

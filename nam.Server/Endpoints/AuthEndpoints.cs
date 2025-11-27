@@ -6,6 +6,8 @@ using nam.Server.Models.DTOs;
 using nam.Server.Models.Entities;
 using nam.Server.Services;
 using System;
+using nam.Server.Models.Services.Infrastructure;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace nam.Server.Endpoints
 {
@@ -43,6 +45,7 @@ namespace nam.Server.Endpoints
 
             return TypedResults.Ok("User registered successfully");
         }
+
         
         public static async Task<IResult> RequestPasswordReset(
             [FromBody] PasswordResetRequestDto request,
@@ -147,7 +150,48 @@ namespace nam.Server.Endpoints
                     Success = true, 
                     Message = "Password successfully reset." 
                 }
-               );
+               );}
+
+        public static async Task<IResult> GenerateToken(
+        [FromServices] IAuthService authService,
+        [FromBody] LoginCredentialsDto credentials)
+        {
+            string? token = await authService.GenerateTokenAsync(credentials);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return Results.Unauthorized();
+            }
+
+            return Results.Ok(new { token });
+        }
+
+        // POST /logout
+        public static async Task<IResult> LogoutAsync(
+            HttpContext httpContext,
+            [FromServices] ITokenService tokenService,
+            CancellationToken cancellationToken)
+        {
+            var user = httpContext.User;
+            if (user?.Identity?.IsAuthenticated != true)
+            {
+                return Results.Unauthorized();
+            }
+
+            var jti = user.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+            var expString = user.FindFirst(JwtRegisteredClaimNames.Exp)?.Value;
+
+            if (!long.TryParse(expString, out var expSeconds))
+            {
+                return Results.BadRequest("Claim exp not valid.");
+            }
+
+            var expiresAt = DateTimeOffset.FromUnixTimeSeconds(expSeconds).UtcDateTime;
+
+            await tokenService.RevokeTokenAsync(jti, expiresAt, cancellationToken);
+
+            return Results.Ok(new { message = "Logout done, token revokated." });
+
         }
     }
 }
