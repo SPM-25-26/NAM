@@ -4,6 +4,7 @@ using nam.Server.Data;
 using nam.Server.Endpoints;
 using nam.Server.Models.DTOs;
 using nam.Server.Models.Entities;
+using nam.Server.Models.Services.Infrastructure.Repositories;
 using nam.Server.Models.Validators;
 
 namespace nam.ServerTests
@@ -12,6 +13,7 @@ namespace nam.ServerTests
     public sealed class RegistrationTests
     {
         private ApplicationDbContext context;
+        private UserRepository userRepository;
 
         [TestInitialize]
         public void Setup()
@@ -21,8 +23,9 @@ namespace nam.ServerTests
                 .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
                 .Options;
 
-            // 2. Create the Context
+            // 2. Create the Context and repository
             context = new ApplicationDbContext(options);
+            userRepository = new UserRepository(context);
         }
 
         [TestCleanup]
@@ -44,7 +47,7 @@ namespace nam.ServerTests
                 ConfirmPassword = "ValidPassword123!"
             };
 
-            var result = await AuthEndpoints.RegisterUser(registrationData, context, validator);
+            var result = await AuthEndpoints.RegisterUser(registrationData, userRepository, validator);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(Ok<string>));
@@ -78,7 +81,7 @@ namespace nam.ServerTests
             };
 
             // Act
-            var result = await AuthEndpoints.RegisterUser(registrationData, context, validator);
+            var result = await AuthEndpoints.RegisterUser(registrationData, userRepository, validator);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(Conflict<string>));
@@ -97,7 +100,7 @@ namespace nam.ServerTests
             };
 
             // Act
-            var result = await AuthEndpoints.RegisterUser(registrationData, context, validator);
+            var result = await AuthEndpoints.RegisterUser(registrationData, userRepository, validator);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ValidationProblem));
@@ -116,7 +119,7 @@ namespace nam.ServerTests
             };
 
             // Act
-            var result = await AuthEndpoints.RegisterUser(registrationData, context, validator);
+            var result = await AuthEndpoints.RegisterUser(registrationData, userRepository, validator);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ValidationProblem));
@@ -135,7 +138,7 @@ namespace nam.ServerTests
             };
 
             // Act
-            var result = await AuthEndpoints.RegisterUser(registrationData, context, validator);
+            var result = await AuthEndpoints.RegisterUser(registrationData, userRepository, validator);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ValidationProblem));

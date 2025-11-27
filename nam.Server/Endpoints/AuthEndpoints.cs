@@ -5,6 +5,7 @@ using nam.Server.Data;
 using nam.Server.Models.DTOs;
 using nam.Server.Models.Entities;
 using nam.Server.Models.Services.Infrastructure;
+using nam.Server.Models.Services.Infrastructure.Repositories;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace nam.Server.Endpoints
@@ -13,7 +14,7 @@ namespace nam.Server.Endpoints
     {
         public static async Task<IResult> RegisterUser(
             [FromBody] RegisterUserDto request,
-            ApplicationDbContext context,
+            IUserRepository userRepository,
             IValidator<RegisterUserDto> validator)
         {
             var validationResult = await validator.ValidateAsync(request);
@@ -23,10 +24,9 @@ namespace nam.Server.Endpoints
                 return TypedResults.ValidationProblem(validationResult.ToDictionary());
             }
 
-            var existingUser = await context.Users
-            .FirstOrDefaultAsync(u => u.Email == request.Email);
+            var existingUser = await userRepository.EmailExistsAsync(request.Email);
 
-            if (existingUser != null)
+            if (existingUser)
             {
                 return TypedResults.Conflict("Email is already in use.");
             }
@@ -38,8 +38,7 @@ namespace nam.Server.Endpoints
                 PasswordHash = passwordHash
             };
 
-            context.Users.Add(newUser);
-            await context.SaveChangesAsync();
+            await userRepository.AddAsync(newUser);
 
             return TypedResults.Ok("User registered successfully");
         }
