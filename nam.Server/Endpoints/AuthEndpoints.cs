@@ -128,7 +128,35 @@ namespace nam.Server.Endpoints
             };
             return TypedResults.Ok(response);
         }
+        public static async Task<IResult> VerifyAuthCode(
+                        [FromBody] ValidationCodeDto request,
+                        ApplicationDbContext context)
+        {
 
+            // Find and validation reset code
+            var resetCode = await context.ResetPasswordAuth
+                .FirstOrDefaultAsync(c =>
+                    c.AuthCode == request.AuthCode &&
+                    c.ExpiresAt > DateTime.UtcNow);
+
+            // Verify the validity of the reset code
+            if (resetCode == null)
+            {
+                return TypedResults.BadRequest(new PasswordResetResponseDto
+                {
+                    Success = false,
+                    Message = "Invalid or expired auth code."
+                });
+            }
+            else
+                return TypedResults.Ok(
+                    new PasswordResetResponseDto
+                    {
+                        Success = true,
+                        Message = "The code is valid"
+                    }
+                );
+        }
         public static async Task<IResult> ResetPassword(
             [FromBody] PasswordResetConfirmDto request,
             ApplicationDbContext context)
