@@ -1,0 +1,11 @@
+.input_field_container {
+  width: 100%;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.input_field_container .MuiInputLabel-root {
+  text-align: left; 
+  display: block; 
+  margin-bottom: 4px; /
+}
