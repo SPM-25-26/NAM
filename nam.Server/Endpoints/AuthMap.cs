@@ -1,4 +1,7 @@
-﻿namespace nam.Server.Endpoints
+﻿using Microsoft.OpenApi.Models;
+using nam.Server.Models.DTOs;
+
+namespace nam.Server.Endpoints
 {
     internal static class AuthMap
     {
@@ -8,7 +11,7 @@
             var logger = builder.ServiceProvider.GetService<Serilog.ILogger>() ?? Serilog.Log.Logger;
             AuthEndpoints.ConfigureLogger(logger);
 
-            RouteGroupBuilder groupBuilder = builder.MapGroup("/api/auth");
+            RouteGroupBuilder groupBuilder = builder.MapGroup("/api/auth").RequireCors("AllowAll");
 
             groupBuilder.MapPost("/register", AuthEndpoints.RegisterUser)
                 .Produces(StatusCodes.Status200OK)
@@ -42,7 +45,18 @@
                     op.Description = "Requires the user's email, the Auth Code, and the new password.";
                     return op;
                 });
-
+            groupBuilder.MapPost("/request-password-reset/verify-code", AuthEndpoints.VerifyAuthCode)
+                .Produces<PasswordResetResponseDto>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest)
+                .Produces(StatusCodes.Status404NotFound)
+                .Produces(StatusCodes.Status500InternalServerError)
+                .WithOpenApi(op =>
+               {
+                   op.Summary = "Verify password reset authentication code";
+                   op.Description = "Verifies the 6-digit authentication code sent to the user's email during a password reset process.";
+                   op.Tags = [new OpenApiTag { Name = "Authentication" }];
+                   return op;
+               });
             // POST /api/auth/login
             groupBuilder.MapPost("/login", AuthEndpoints.GenerateToken)
                 .Produces(StatusCodes.Status200OK)
