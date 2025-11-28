@@ -52,7 +52,7 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
 
                         if (isRevoked)
                         {
-                            // Blocco la richiesta: questo token � in blacklist
+                            // Blocco la richiesta: questo token è in blacklist
                             context.Fail("Token revoked");
                         }
                     }
@@ -69,9 +69,11 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
 
     builder.Services.AddScoped<IEmailService, LocalEmailService>();
     builder.Services.AddScoped<ICodeService, RandomCodeService>();
+    builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 
-    // Register Swagger/OpenAPI
-    builder.Services.AddEndpointsApiExplorer();
+
+// Register Swagger/OpenAPI
+builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
     // Configure Swagger to support JWT authentication
@@ -110,14 +112,27 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
     // Register Unit of Work pattern
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-    // Register application services
-    builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Register application services
+builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<ITokenService, TokenService>();
     // Register the background service for cleaning up revoked tokens
     builder.Services.AddHostedService<RevokedTokensCleanupService>();
 
     // Bind JWT configuration section to strongly-typed options
     builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+
+    // Configure CORS
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowFrontend", policy =>
+        {
+            policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        });
+    });
 
     var app = builder.Build();
 
@@ -133,6 +148,9 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
     app.UseStaticFiles();
 
     app.UseRouting();
+
+    // Enable CORS
+    app.UseCors("AllowFrontend");
 
     // Enable authentication and authorization
     app.UseAuthentication();

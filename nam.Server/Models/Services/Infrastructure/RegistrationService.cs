@@ -3,8 +3,16 @@ using nam.Server.Models.Entities;
 
 namespace nam.Server.Models.Services.Infrastructure
 {
-    public class RegistrationService(UnitOfWork unitOfWork) : IRegistrationService
+    public class RegistrationService : IRegistrationService
     {
+
+        private readonly IUnitOfWork unitOfWork;
+
+        public RegistrationService(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+
         public async Task<bool> RegisterUser(RegisterUserDto registerUserDto, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(registerUserDto);
