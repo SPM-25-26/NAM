@@ -23,5 +23,12 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories
             return await AppContext.Users
                 .AnyAsync(u => u.Email == email, cancellationToken);
         }
+
+        public async Task<bool> AddAsync(User user, CancellationToken cancellationToken = default)
+        {
+            await AppContext.Set<User>().AddAsync(user, cancellationToken);
+            var result = await AppContext.SaveChangesAsync(cancellationToken);
+            return result > 0;
+        }
     }
 }

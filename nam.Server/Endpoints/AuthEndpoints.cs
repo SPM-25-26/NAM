@@ -5,46 +5,74 @@ using nam.Server.Data;
 using nam.Server.Models.DTOs;
 using nam.Server.Models.Entities;
 using nam.Server.Models.Services.Infrastructure;
+using nam.Server.Models.Services.Infrastructure.Repositories;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace nam.Server.Endpoints
 {
     internal static class AuthEndpoints
     {
-        public static async Task<IResult> RegisterUser(
-            [FromBody] RegisterUserDto request,
-            ApplicationDbContext context,
-            IValidator<RegisterUserDto> validator)
+
+        private static Serilog.ILogger? _logger;
+
+        public static void ConfigureLogger(Serilog.ILogger logger)
         {
-            var validationResult = await validator.ValidateAsync(request);
-
-            if (!validationResult.IsValid)
-            {
-                return TypedResults.ValidationProblem(validationResult.ToDictionary());
-            }
-
-            var existingUser = await context.Users
-            .FirstOrDefaultAsync(u => u.Email == request.Email);
-
-            if (existingUser != null)
-            {
-                return TypedResults.Conflict("Email is already in use.");
-            }
-
-            string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-            var newUser = new User
-            {
-                Email = request.Email,
-                PasswordHash = passwordHash
-            };
-
-            context.Users.Add(newUser);
-            await context.SaveChangesAsync();
-
-            return TypedResults.Ok("User registered successfully");
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        
+        /// <summary>
+        /// Registers a new user.
+        /// /// Validates the incoming <paramref name="request"/>, ensures the email is not already in use,
+        /// /// hashes the password and persists the new user using <paramref name="userRepository"/>.
+        /// </summary>
+        /// <param name="request">Registration details.</param>
+        /// <param name="userRepository">Repository used to query and persist users.</param>
+        /// <param name="validator">FluentValidation validator for <see cref="RegisterUserDto"/>.</param>
+        /// <returns>An <see cref="IResult"/> representing the outcome (BadRequest, ValidationProblem, Conflict, Ok, or Problem).</returns>
+        public static async Task<IResult> RegisterUser(
+            [FromBody] RegisterUserDto request,
+            IRegistrationService registrationService,
+            IValidator<RegisterUserDto> validator)
+        {
+            _logger.Information("RegisterUser called for email {Email}", request?.Email);
+
+            ArgumentNullException.ThrowIfNull(registrationService);
+            ArgumentNullException.ThrowIfNull(validator);
+
+            try
+            {
+                if (request == null)
+                {
+                    _logger.Warning("RegisterUser called with null request");
+                    return TypedResults.BadRequest("Request body cannot be null.");
+                }
+
+                var validationResult = await validator.ValidateAsync(request);
+
+                if (!validationResult.IsValid)
+                {
+                    _logger.Warning("Validation failed for email {Email}: {@Errors}", request?.Email, validationResult.ToDictionary());
+                    return TypedResults.ValidationProblem(validationResult.ToDictionary());
+                }
+
+                var created = await registrationService.RegisterUser(request);
+                if (!created)
+                {
+                    _logger.Warning("Attempt to register already existing email {Email}", request.Email);
+                    return TypedResults.Conflict("Email is already in use.");
+                }
+
+                _logger.Information("User registered successfully with email {Email}", request.Email);
+                return TypedResults.Ok("User registered successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error while registering user with email {Email}", request?.Email);
+                return TypedResults.Problem("An error occurred while registering the user.");
+            }
+        }
+
+
         public static async Task<IResult> RequestPasswordReset(
             [FromBody] PasswordResetRequestDto request,
             ApplicationDbContext context,
@@ -56,13 +84,14 @@ namespace nam.Server.Endpoints
             var user = await context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
             // Check find a user
-            if (user == null){
+            if (user == null)
+            {
                 var notFoundResponse = new PasswordResetResponseDto
                 {
-                    Success = false, 
+                    Success = false,
                     Message = "The email not found"
                 };
-                return TypedResults.NotFound(notFoundResponse); 
+                return TypedResults.NotFound(notFoundResponse);
             }
 
             // Generate Auth code
@@ -82,19 +111,19 @@ namespace nam.Server.Endpoints
                 UserId = user.Id.ToString(),
                 AuthCode = authCode,
                 CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(codeService.TimeToLiveMinutes) 
+                ExpiresAt = DateTime.UtcNow.AddMinutes(codeService.TimeToLiveMinutes)
             };
-            
+
             // Save reset code in dedicated table
             context.ResetPasswordAuth.Add(resetCode);
             await context.SaveChangesAsync();
 
             // Send email
             await emailService.SendEmailAsync(user.Email, "Reset code", $" AuthCode: {authCode} \n expired: {resetCode.ExpiresAt}");
-            
+
             var response = new PasswordResetResponseDto
             {
-                Success = true, 
+                Success = true,
                 Message = "Please check your email; we have sent you the reset code."
             };
             return TypedResults.Ok(response);
@@ -109,12 +138,13 @@ namespace nam.Server.Endpoints
                 .FirstOrDefaultAsync(c =>
                     c.AuthCode == request.AuthCode &&
                     c.ExpiresAt > DateTime.UtcNow);
-            
+
             // Verify the validity of the reset code
-            if (resetCode == null){
+            if (resetCode == null)
+            {
                 var notFoundResponse = new PasswordResetResponseDto
                 {
-                    Success = false, 
+                    Success = false,
                     Message = "Invalid or expired auth code."
                 };
                 return TypedResults.BadRequest(notFoundResponse);
@@ -124,31 +154,33 @@ namespace nam.Server.Endpoints
             var user = await context.Users
                 .FirstOrDefaultAsync(u => u.Id.ToString() == resetCode.UserId);
 
-            if (user == null){
+            if (user == null)
+            {
                 var notFoundUserResponse = new PasswordResetResponseDto
                 {
-                    Success = false, 
+                    Success = false,
                     Message = "Invalid auth code."
                 };
                 return TypedResults.BadRequest(notFoundUserResponse);
             }
 
-           
+
             //TODO: replace with service for encrypt data
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
 
-           // Delete resetCode
+            // Delete resetCode
             context.ResetPasswordAuth.Remove(resetCode);
 
             await context.SaveChangesAsync();
-           
+
             return TypedResults.Ok(
                 new PasswordResetResponseDto
                 {
-                    Success = true, 
-                    Message = "Password successfully reset." 
+                    Success = true,
+                    Message = "Password successfully reset."
                 }
-               );}
+               );
+        }
 
         public static async Task<IResult> GenerateToken(
         [FromServices] IAuthService authService,

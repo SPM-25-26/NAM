@@ -4,6 +4,10 @@
     {
         public static IEndpointRouteBuilder MapAuth(this IEndpointRouteBuilder builder)
         {
+
+            var logger = builder.ServiceProvider.GetService<Serilog.ILogger>() ?? Serilog.Log.Logger;
+            AuthEndpoints.ConfigureLogger(logger);
+
             RouteGroupBuilder groupBuilder = builder.MapGroup("/api/auth");
 
             groupBuilder.MapPost("/register", AuthEndpoints.RegisterUser)
@@ -17,7 +21,7 @@
                 });
 
             groupBuilder.MapPost("/request-password-reset", AuthEndpoints.RequestPasswordReset)
-                .Produces(StatusCodes.Status200OK) 
+                .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status400BadRequest)
                 .Produces(StatusCodes.Status404NotFound)
                 .Produces(StatusCodes.Status500InternalServerError)
@@ -36,8 +40,8 @@
                 {
                     op.Summary = "Resets the user's password using the Auth Code sent to their email.";
                     op.Description = "Requires the user's email, the Auth Code, and the new password.";
-                     return op;
-                      });
+                    return op;
+                });
 
             // POST /api/auth/login
             groupBuilder.MapPost("/login", AuthEndpoints.GenerateToken)

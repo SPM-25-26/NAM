@@ -4,7 +4,10 @@ using nam.Server.Data;
 using nam.Server.Endpoints;
 using nam.Server.Models.DTOs;
 using nam.Server.Models.Entities;
+using nam.Server.Models.Services.Infrastructure;
+using nam.Server.Models.Services.Infrastructure.Repositories;
 using nam.Server.Models.Validators;
+using Serilog;
 
 namespace nam.ServerTests
 {
@@ -12,6 +15,8 @@ namespace nam.ServerTests
     public sealed class RegistrationTests
     {
         private ApplicationDbContext context;
+        private UserRepository userRepository;
+        IRegistrationService registrationService;
 
         [TestInitialize]
         public void Setup()
@@ -21,15 +26,29 @@ namespace nam.ServerTests
                 .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
                 .Options;
 
-            // 2. Create the Context
+            // 2. Create the Context and repository
             context = new ApplicationDbContext(options);
+            userRepository = new UserRepository(context);
+            UnitOfWork unitOfWork = new(context);
+            registrationService = new RegistrationService(unitOfWork);
+            // Configure a Serilog logger for the endpoints
+            var logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            AuthEndpoints.ConfigureLogger(logger);
         }
 
         [TestCleanup]
         public void Cleanup()
         {
+            // Ensure DB cleaned up
             context.Database.EnsureDeleted();
             context.Dispose();
+
+            // Flush/close Serilog used by tests
+            Log.CloseAndFlush();
         }
 
         [TestMethod]
@@ -44,7 +63,7 @@ namespace nam.ServerTests
                 ConfirmPassword = "ValidPassword123!"
             };
 
-            var result = await AuthEndpoints.RegisterUser(registrationData, context, validator);
+            var result = await AuthEndpoints.RegisterUser(registrationData, registrationService, validator);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(Ok<string>));
@@ -78,7 +97,7 @@ namespace nam.ServerTests
             };
 
             // Act
-            var result = await AuthEndpoints.RegisterUser(registrationData, context, validator);
+            var result = await AuthEndpoints.RegisterUser(registrationData, registrationService, validator);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(Conflict<string>));
@@ -97,7 +116,7 @@ namespace nam.ServerTests
             };
 
             // Act
-            var result = await AuthEndpoints.RegisterUser(registrationData, context, validator);
+            var result = await AuthEndpoints.RegisterUser(registrationData, registrationService, validator);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ValidationProblem));
@@ -116,7 +135,7 @@ namespace nam.ServerTests
             };
 
             // Act
-            var result = await AuthEndpoints.RegisterUser(registrationData, context, validator);
+            var result = await AuthEndpoints.RegisterUser(registrationData, registrationService, validator);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ValidationProblem));
@@ -135,11 +154,11 @@ namespace nam.ServerTests
             };
 
             // Act
-            var result = await AuthEndpoints.RegisterUser(registrationData, context, validator);
+            var result = await AuthEndpoints.RegisterUser(registrationData, registrationService, validator);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ValidationProblem));
-        }    
-}
+        }
+    }
 }
 

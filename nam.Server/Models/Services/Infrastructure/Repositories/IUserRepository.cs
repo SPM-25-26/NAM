@@ -6,5 +6,5 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories
     {
         Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
         Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default);
-    }
+        Task<bool> AddAsync(User user, CancellationToken cancellationToken = default);    }
 }
