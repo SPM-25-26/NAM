@@ -5,7 +5,6 @@ import FlightIcon from '@mui/icons-material/Flight';
 import {
     Box,
     Card,
-    TextField,
     FormControlLabel,
     Checkbox,
     Link,
@@ -14,6 +13,7 @@ import {
 } from "@mui/material";
 import MyAppBar from "../../components/appbar";
 import MyButton from "../../components/button";
+import FormBox from "../../components/FormBox";
 import { validateRegistration } from "./RegistrationValidation";
 import type { ValidationErrors } from "./RegistrationValidation";
 import { buildApiUrl } from '../../config';
@@ -192,141 +192,44 @@ const RegistrationPage: React.FC = () => {
                         {/* Form */}
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
                             {/* Email */}
-                            <Box>
-                                <Typography
-                                    variant="subtitle2"
-                                    sx={{
-                                        fontWeight: 600,
-                                        marginBottom: 1,
-                                        color: "#000",
-                                    }}
-                                >
-                                    Email Address
-                                </Typography>
-                                <TextField
-                                    fullWidth
-                                    name="email"
-                                    type="email"
-                                    placeholder="you@example.com"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    variant="outlined"
-                                    error={!!errors.email}
-                                    helperText={errors.email}
-                                    disabled={isLoading}
-                                    sx={{
-                                        backgroundColor: "#f5f5f5",
-                                        borderRadius: 1,
-                                        "& .MuiOutlinedInput-root": {
-                                            "& fieldset": {
-                                                borderColor: errors.email ? "#d32f2f" : "#e0e0e0",
-                                            },
-                                        },
-                                        // fix autofill background color issue
-                                        "& .MuiInputBase-input:-webkit-autofill": {
-                                            WebkitBoxShadow: "0 0 0 100px #f5f5f5 inset",
-                                            WebkitTextFillColor: "#000000",
-                                        },
-                                    }}
-                                    slotProps={{
-                                        input: {
-                                            startAdornment: (
-                                                <Typography sx={{ marginRight: 1 }}>
-                                                    <EmailIcon />
-                                                </Typography>
-                                            ),
-                                        },
-                                    }}
-                                />
-                            </Box>
+                            <FormBox
+                                label="Email Address"
+                                name="email"
+                                type="email"
+                                placeholder="you@example.com"
+                                value={formData.email}
+                                onChange={handleChange}
+                                error={errors.email}
+                                disabled={isLoading}
+                                icon={<EmailIcon />}
+                            />
 
                             {/* Password */}
-                            <Box>
-                                <Typography
-                                    variant="subtitle2"
-                                    sx={{
-                                        fontWeight: 600,
-                                        marginBottom: 1,
-                                        color: "#000",
-                                    }}
-                                >
-                                    Password
-                                </Typography>
-                                <TextField
-                                    fullWidth
-                                    name="password"
-                                    type="password"
-                                    placeholder="•••••••"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    variant="outlined"
-                                    error={!!errors.password}
-                                    helperText={errors.password}
-                                    disabled={isLoading}
-                                    sx={{
-                                        backgroundColor: "#f5f5f5",
-                                        borderRadius: 1,
-                                        "& .MuiOutlinedInput-root": {
-                                            "& fieldset": {
-                                                borderColor: errors.password ? "#d32f2f" : "#e0e0e0",
-                                            },
-                                        },
-                                    }}
-                                    slotProps={{
-                                        input: {
-                                            startAdornment: (
-                                                <Typography sx={{ marginRight: 1 }}>
-                                                    <LockIcon />
-                                                </Typography>
-                                            ),
-                                        },
-                                    }}
-                                />
-                            </Box>
+                            <FormBox
+                                label="Password"
+                                name="password"
+                                type="password"
+                                placeholder="•••••••"
+                                value={formData.password}
+                                onChange={handleChange}
+                                error={errors.password}
+                                disabled={isLoading}
+                                icon={<LockIcon />}
+                            />
 
                             {/* Confirm Password */}
-                            <Box>
-                                <Typography
-                                    variant="subtitle2"
-                                    sx={{
-                                        fontWeight: 600,
-                                        marginBottom: 1,
-                                        color: "#000",
-                                    }}
-                                >
-                                    Confirm Password
-                                </Typography>
-                                <TextField
-                                    fullWidth
-                                    name="confirmPassword"
-                                    type="password"
-                                    placeholder="•••••••"
-                                    value={formData.confirmPassword}
-                                    onChange={handleChange}
-                                    variant="outlined"
-                                    error={!!errors.confirmPassword}
-                                    helperText={errors.confirmPassword}
-                                    disabled={isLoading}
-                                    sx={{
-                                        backgroundColor: "#f5f5f5",
-                                        borderRadius: 1,
-                                        "& .MuiOutlinedInput-root": {
-                                            "& fieldset": {
-                                                borderColor: errors.confirmPassword ? "#d32f2f" : "#e0e0e0",
-                                            },
-                                        },
-                                    }}
-                                    slotProps={{
-                                        input: {
-                                            startAdornment: (
-                                                <Typography sx={{ marginRight: 1, color: "#999" }}>
-                                                    <LockIcon />
-                                                </Typography>
-                                            ),
-                                        },
-                                    }}
-                                />
-                            </Box>
+                            <FormBox
+                                label="Confirm Password"
+                                name="confirmPassword"
+                                type="password"
+                                placeholder="•••••••"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                error={errors.confirmPassword}
+                                disabled={isLoading}
+                                icon={<LockIcon />}
+                                iconColor="#999"
+                            />
 
                             {/* Checkbox Termini */}
                             <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
