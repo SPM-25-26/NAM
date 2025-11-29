@@ -10,6 +10,7 @@ import {
     Link,
     Typography,
     Container,
+    useTheme,
 } from "@mui/material";
 import MyAppBar from "../../components/appbar";
 import MyButton from "../../components/button";
@@ -19,6 +20,7 @@ import type { ValidationErrors } from "./RegistrationValidation";
 import { buildApiUrl } from '../../config';
 
 const RegistrationPage: React.FC = () => {
+    const theme = useTheme();
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -108,7 +110,7 @@ const RegistrationPage: React.FC = () => {
     };
 
     return (
-        <Box sx={{ backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
+        <Box sx={{ backgroundColor: theme.palette.background.default, minHeight: "100vh" }}>
             <MyAppBar title={"Sign up"} backUrl={"/"} />
 
             <Container maxWidth="sm">
@@ -132,8 +134,7 @@ const RegistrationPage: React.FC = () => {
                         <Typography
                             variant="h5"
                             sx={{
-                                color: "#155DFC",
-                                fontWeight: 600,
+                                color: theme.palette.primary.main,
                                 display: "flex",
                                 alignItems: "center",
                                 gap: 1,
@@ -148,17 +149,14 @@ const RegistrationPage: React.FC = () => {
                         sx={{
                             width: "85%",
                             padding: "2rem",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                            borderRadius: "16px"
                         }}
                     >
                         {/* Titolo e sottotitolo */}
                         <Typography
                             variant="h4"
                             sx={{
-                                fontWeight: 600,
                                 marginBottom: 1,
-                                color: "#000",
+                                color: theme.palette.text.primary,
                             }}
                         >
                             Create Account
@@ -166,7 +164,7 @@ const RegistrationPage: React.FC = () => {
                         <Typography
                             variant="body2"
                             sx={{
-                                color: "#999",
+                                color: theme.palette.text.disabled,
                                 marginBottom: 3,
                             }}
                         >
@@ -177,8 +175,8 @@ const RegistrationPage: React.FC = () => {
                         {apiError && (
                             <Box
                                 sx={{
-                                    backgroundColor: "#ffebee",
-                                    color: "#d32f2f",
+                                    backgroundColor: theme.palette.error.light,
+                                    color: theme.palette.error.main,
                                     padding: "12px",
                                     borderRadius: "8px",
                                     marginBottom: 2,
@@ -228,7 +226,7 @@ const RegistrationPage: React.FC = () => {
                                 error={errors.confirmPassword}
                                 disabled={isLoading}
                                 icon={<LockIcon />}
-                                iconColor="#999"
+                                iconColor={theme.palette.text.disabled}
                             />
 
                             {/* Checkbox Termini */}
@@ -242,34 +240,17 @@ const RegistrationPage: React.FC = () => {
                                             disabled={isLoading}
                                             sx={{
                                                 padding: 0,
-                                                "&.Mui-checked": {
-                                                    color: "#1976d2",
-                                                },
                                             }}
                                         />
                                     }
                                     label={
-                                        <Typography variant="body2" sx={{ color: "#666" }}>
+                                        <Typography variant="body2">
                                             I agree to the{" "}
-                                            <Link
-                                                href="#"
-                                                sx={{
-                                                    color: "#1976d2",
-                                                    textDecoration: "none",
-                                                    fontWeight: 600,
-                                                }}
-                                            >
+                                            <Link href="#">
                                                 Privacy Policy
                                             </Link>{" "}
                                             and{" "}
-                                            <Link
-                                                href="#"
-                                                sx={{
-                                                    color: "#1976d2",
-                                                    textDecoration: "none",
-                                                    fontWeight: 600,
-                                                }}
-                                            >
+                                            <Link href="#">
                                                 Terms of Service
                                             </Link>
                                         </Typography>
@@ -292,17 +273,9 @@ const RegistrationPage: React.FC = () => {
                                     marginTop: 2,
                                 }}
                             >
-                                <Typography variant="body2" sx={{ color: "#666" }}>
+                                <Typography variant="body2">
                                     Already have an account?{" "}
-                                    <Link
-                                        href="/login"
-                                        sx={{
-                                            color: "#1976d2",
-                                            textDecoration: "none",
-                                            fontWeight: 600,
-                                            cursor: "pointer",
-                                        }}
-                                    >
+                                    <Link href="/login">
                                         Sign in
                                     </Link>
                                 </Typography>
