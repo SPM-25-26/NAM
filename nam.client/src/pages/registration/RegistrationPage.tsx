@@ -222,6 +222,11 @@ const RegistrationPage: React.FC = () => {
                                                 borderColor: errors.email ? "#d32f2f" : "#e0e0e0",
                                             },
                                         },
+                                        // fix autofill background color issue
+                                        "& .MuiInputBase-input:-webkit-autofill": {
+                                            WebkitBoxShadow: "0 0 0 100px #f5f5f5 inset",
+                                            WebkitTextFillColor: "#000000",
+                                        },
                                     }}
                                     slotProps={{
                                         input: {
