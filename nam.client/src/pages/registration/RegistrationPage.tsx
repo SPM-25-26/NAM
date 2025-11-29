@@ -60,23 +60,24 @@ const RegistrationPage: React.FC = () => {
                         <Typography
                             variant="h5"
                             sx={{
-                                color: "#1976d2",
+                                color: "#155DFC",
                                 fontWeight: 600,
                                 display: "flex",
                                 alignItems: "center",
                                 gap: 1,
                             }}
                         >
-                            <FlightIcon /> Eppoi
+                            <FlightIcon sx={{ transform: "rotate(45deg)" }} /> Eppoi
                         </Typography>
                     </Box>
 
                     {/* Card principale */}
                     <Card
                         sx={{
-                            width: "100%",
-                            padding: 4,
+                            width: "85%",
+                            padding: "2rem",
                             boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                            borderRadius: "16px"
                         }}
                     >
                         {/* Titolo e sottotitolo */}
@@ -133,7 +134,7 @@ const RegistrationPage: React.FC = () => {
                                     }}
                                     InputProps={{
                                         startAdornment: (
-                                            <Typography sx={{ marginRight: 1, color: "#999" }}>
+                                            <Typography sx={{ marginRight: 1 }}>
                                                 <EmailIcon />
                                             </Typography>
                                         ),
@@ -172,7 +173,9 @@ const RegistrationPage: React.FC = () => {
                                     }}
                                     InputProps={{
                                         startAdornment: (
-                                            <LockIcon />
+                                            <Typography sx={{ marginRight: 1 }}>
+                                                <LockIcon />
+                                            </Typography>
                                         ),
                                     }}
                                 />
