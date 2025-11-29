@@ -14,6 +14,8 @@ import {
 } from "@mui/material";
 import MyAppBar from "../../components/appbar";
 import MyButton from "../../components/button";
+import { validateRegistration } from "./RegistrationValidation";
+import type { ValidationErrors } from "./RegistrationValidation";
 
 const RegistrationPage: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -23,16 +25,43 @@ const RegistrationPage: React.FC = () => {
         agreeToTerms: false,
     });
 
+    const [errors, setErrors] = useState<ValidationErrors>({});
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         setFormData((prev) => ({
             ...prev,
             [name]: type === "checkbox" ? checked : value,
         }));
+        // Clear error for this field when user starts typing
+        if (errors[name as keyof ValidationErrors]) {
+            setErrors((prev) => ({
+                ...prev,
+                [name]: undefined,
+            }));
+        }
     };
 
     const handleCreateAccount = () => {
-        console.log("Account creation:", formData);
+        // Check if terms are agreed
+        if (!formData.agreeToTerms) {
+            alert("Please agree to the Privacy Policy and Terms of Service.");
+            return;
+        }
+
+        // Validate form data
+        const { isValid, errors: validationErrors } = validateRegistration({
+            email: formData.email,
+            password: formData.password,
+            confirmPassword: formData.confirmPassword,
+        });
+
+        setErrors(validationErrors);
+
+        if (isValid) {
+            console.log("Account creation:", formData);
+            // TODO: Implement account creation API call
+        }
     };
 
     return (
@@ -123,21 +152,25 @@ const RegistrationPage: React.FC = () => {
                                     value={formData.email}
                                     onChange={handleChange}
                                     variant="outlined"
+                                    error={!!errors.email}
+                                    helperText={errors.email}
                                     sx={{
                                         backgroundColor: "#f5f5f5",
                                         borderRadius: 1,
                                         "& .MuiOutlinedInput-root": {
                                             "& fieldset": {
-                                                borderColor: "#e0e0e0",
+                                                borderColor: errors.email ? "#d32f2f" : "#e0e0e0",
                                             },
                                         },
                                     }}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <Typography sx={{ marginRight: 1 }}>
-                                                <EmailIcon />
-                                            </Typography>
-                                        ),
+                                    slotProps={{
+                                        input: {
+                                            startAdornment: (
+                                                <Typography sx={{ marginRight: 1 }}>
+                                                    <EmailIcon />
+                                                </Typography>
+                                            ),
+                                        },
                                     }}
                                 />
                             </Box>
@@ -162,21 +195,25 @@ const RegistrationPage: React.FC = () => {
                                     value={formData.password}
                                     onChange={handleChange}
                                     variant="outlined"
+                                    error={!!errors.password}
+                                    helperText={errors.password}
                                     sx={{
                                         backgroundColor: "#f5f5f5",
                                         borderRadius: 1,
                                         "& .MuiOutlinedInput-root": {
                                             "& fieldset": {
-                                                borderColor: "#e0e0e0",
+                                                borderColor: errors.password ? "#d32f2f" : "#e0e0e0",
                                             },
                                         },
                                     }}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <Typography sx={{ marginRight: 1 }}>
-                                                <LockIcon />
-                                            </Typography>
-                                        ),
+                                    slotProps={{
+                                        input: {
+                                            startAdornment: (
+                                                <Typography sx={{ marginRight: 1 }}>
+                                                    <LockIcon />
+                                                </Typography>
+                                            ),
+                                        },
                                     }}
                                 />
                             </Box>
@@ -201,21 +238,25 @@ const RegistrationPage: React.FC = () => {
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
                                     variant="outlined"
+                                    error={!!errors.confirmPassword}
+                                    helperText={errors.confirmPassword}
                                     sx={{
                                         backgroundColor: "#f5f5f5",
                                         borderRadius: 1,
                                         "& .MuiOutlinedInput-root": {
                                             "& fieldset": {
-                                                borderColor: "#e0e0e0",
+                                                borderColor: errors.confirmPassword ? "#d32f2f" : "#e0e0e0",
                                             },
                                         },
                                     }}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <Typography sx={{ marginRight: 1, color: "#999" }}>
-                                                <LockIcon />
-                                            </Typography>
-                                        ),
+                                    slotProps={{
+                                        input: {
+                                            startAdornment: (
+                                                <Typography sx={{ marginRight: 1, color: "#999" }}>
+                                                    <LockIcon />
+                                                </Typography>
+                                            ),
+                                        },
                                     }}
                                 />
                             </Box>
