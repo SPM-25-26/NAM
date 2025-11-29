@@ -83,7 +83,9 @@ export const config: AppConfig = (() => {
  * Utility: builds an absolute URL to the API ensuring
  * there are no duplicate slashes.
  */
-export function buildApiUrl(path = ''): string {
+export function buildApiUrl(path: string): string {
+    if (!config.apiBaseUrl || config.apiBaseUrl.trim() === '') 
+        throw new Error('API base URL is not set. Cannot build API URL.');
     const base = config.apiBaseUrl.replace(/\/+$/, '');
     const suffix = String(path).replace(/^\/+/, '');
     return suffix ? `${base}/${suffix}` : base;
