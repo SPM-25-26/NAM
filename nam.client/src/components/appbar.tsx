@@ -1,5 +1,5 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Box, IconButton } from "@mui/material";
+import { AppBar, Toolbar, Typography, Box, IconButton, useTheme } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Link } from "react-router-dom";
 
@@ -9,11 +9,12 @@ interface MyAppBarProps {
 }
 
 const MyAppBar: React.FC<MyAppBarProps> = ({ title, backUrl }) => {
+    const theme = useTheme();
     const showBackButton = backUrl && backUrl !== "";
 
     return (
         <AppBar position="static" sx={{ background: 'transparent', boxShadow: 'none' }}>
-            <Toolbar sx={{ color: '#155DFC' }}>
+            <Toolbar sx={{ color: theme.palette.primary.main }}>
                 <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
                     {showBackButton && (
                         <IconButton
