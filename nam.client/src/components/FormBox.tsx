@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, TextField, Typography } from "@mui/material";
+import { Box, TextField, Typography, useTheme } from "@mui/material";
 
 interface FormBoxProps {
     label: string;
@@ -24,8 +24,10 @@ const FormBox: React.FC<FormBoxProps> = ({
     error,
     disabled = false,
     icon,
-    iconColor = "#000",
+    iconColor,
 }) => {
+    const theme = useTheme();
+
     return (
         <Box>
             <Typography
@@ -33,7 +35,7 @@ const FormBox: React.FC<FormBoxProps> = ({
                 sx={{
                     fontWeight: 600,
                     marginBottom: 1,
-                    color: "#000",
+                    color: theme.palette.text.primary,
                 }}
             >
                 {label}
@@ -50,22 +52,22 @@ const FormBox: React.FC<FormBoxProps> = ({
                 helperText={error}
                 disabled={disabled}
                 sx={{
-                    backgroundColor: "#f5f5f5",
+                    backgroundColor: theme.palette.background.default,
                     borderRadius: 1,
                     "& .MuiOutlinedInput-root": {
                         "& fieldset": {
-                            borderColor: error ? "#d32f2f" : "#e0e0e0",
+                            borderColor: error ? theme.palette.error.main : "#e0e0e0",
                         },
                     },
                     "& .MuiInputBase-input:-webkit-autofill": {
-                        WebkitBoxShadow: "0 0 0 100px #f5f5f5 inset",
-                        WebkitTextFillColor: "#000000",
+                        WebkitBoxShadow: `0 0 0 100px ${theme.palette.background.default} inset`,
+                        WebkitTextFillColor: theme.palette.text.primary,
                     },
                 }}
                 slotProps={{
                     input: {
                         startAdornment: icon ? (
-                            <Typography sx={{ marginRight: 1, color: iconColor }}>
+                            <Typography sx={{ marginRight: 1, color: iconColor || theme.palette.text.primary }}>
                                 {icon}
                             </Typography>
                         ) : undefined,
