@@ -16,6 +16,7 @@ import MyAppBar from "../../components/appbar";
 import MyButton from "../../components/button";
 import { validateRegistration } from "./RegistrationValidation";
 import type { ValidationErrors } from "./RegistrationValidation";
+import { buildApiUrl } from '../../config';
 
 const RegistrationPage: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -26,6 +27,8 @@ const RegistrationPage: React.FC = () => {
     });
 
     const [errors, setErrors] = useState<ValidationErrors>({});
+    const [isLoading, setIsLoading] = useState(false);
+    const [apiError, setApiError] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -39,6 +42,47 @@ const RegistrationPage: React.FC = () => {
                 ...prev,
                 [name]: undefined,
             }));
+        }
+        // Clear API error when user modifies form
+        if (apiError) {
+            setApiError(null);
+        }
+    };
+
+    const registerUser = async () => {
+        try {
+            setIsLoading(true);
+            setApiError(null);
+
+            const response = await fetch(buildApiUrl('auth/register'), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: formData.email,
+                    password: formData.password,
+                    confirmPassword: formData.confirmPassword,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                const errorMessage = errorData.title || errorData.message || "Registration failed. Please try again.";
+                setApiError(errorMessage);
+                return;
+            }
+
+            const data = await response.text();
+            console.log("Registration successful:", data);
+            alert("Account created successfully! Please sign in.");
+            // Optionally redirect to login page
+            // window.location.href = "/login";
+        } catch (error) {
+            console.error("Registration error:", error);
+            setApiError("An error occurred during registration. Please try again.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -59,8 +103,7 @@ const RegistrationPage: React.FC = () => {
         setErrors(validationErrors);
 
         if (isValid) {
-            console.log("Account creation:", formData);
-            // TODO: Implement account creation API call
+            registerUser();
         }
     };
 
@@ -130,6 +173,22 @@ const RegistrationPage: React.FC = () => {
                             Join thousands of travelers
                         </Typography>
 
+                        {/* Errore API */}
+                        {apiError && (
+                            <Box
+                                sx={{
+                                    backgroundColor: "#ffebee",
+                                    color: "#d32f2f",
+                                    padding: "12px",
+                                    borderRadius: "8px",
+                                    marginBottom: 2,
+                                    fontSize: "14px",
+                                }}
+                            >
+                                {apiError}
+                            </Box>
+                        )}
+
                         {/* Form */}
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
                             {/* Email */}
@@ -154,6 +213,7 @@ const RegistrationPage: React.FC = () => {
                                     variant="outlined"
                                     error={!!errors.email}
                                     helperText={errors.email}
+                                    disabled={isLoading}
                                     sx={{
                                         backgroundColor: "#f5f5f5",
                                         borderRadius: 1,
@@ -197,6 +257,7 @@ const RegistrationPage: React.FC = () => {
                                     variant="outlined"
                                     error={!!errors.password}
                                     helperText={errors.password}
+                                    disabled={isLoading}
                                     sx={{
                                         backgroundColor: "#f5f5f5",
                                         borderRadius: 1,
@@ -240,6 +301,7 @@ const RegistrationPage: React.FC = () => {
                                     variant="outlined"
                                     error={!!errors.confirmPassword}
                                     helperText={errors.confirmPassword}
+                                    disabled={isLoading}
                                     sx={{
                                         backgroundColor: "#f5f5f5",
                                         borderRadius: 1,
@@ -269,6 +331,7 @@ const RegistrationPage: React.FC = () => {
                                             name="agreeToTerms"
                                             checked={formData.agreeToTerms}
                                             onChange={handleChange}
+                                            disabled={isLoading}
                                             sx={{
                                                 padding: 0,
                                                 "&.Mui-checked": {
@@ -309,8 +372,9 @@ const RegistrationPage: React.FC = () => {
 
                             {/* Pulsante Create Account */}
                             <MyButton
-                                label="Create Account"
+                                label={isLoading ? "Creating Account..." : "Create Account"}
                                 action={handleCreateAccount}
+                                disabled={isLoading}
                             />
 
                             {/* Link Sign In */}
