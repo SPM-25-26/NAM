@@ -1,5 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
-using nam.Server.Models.DTOs;
+﻿using nam.Server.Models.DTOs;
+using nam.Server.Models.Swagger;
 
 namespace nam.Server.Endpoints
 {
@@ -11,79 +11,66 @@ namespace nam.Server.Endpoints
             var logger = builder.ServiceProvider.GetService<Serilog.ILogger>() ?? Serilog.Log.Logger;
             AuthEndpoints.ConfigureLogger(logger);
 
-            RouteGroupBuilder groupBuilder = builder.MapGroup("/api/auth").RequireCors("AllowAll");
+            RouteGroupBuilder groupBuilder = builder.MapGroup("/api/auth")
+            .RequireCors("AllowAll")
+            .WithTags("Authentication");
 
+            // POST /api/auth/password-reset/register
             groupBuilder.MapPost("/register", AuthEndpoints.RegisterUser)
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized)
                 .Produces(StatusCodes.Status500InternalServerError)
-                .WithOpenApi(op =>
-                {
-                    op.Summary = "User registration.";
-                    return op;
-                });
+                .WithSummary("User registration")
+                .WithDescription("Registers a new user in the system with the provided details.");
 
-            groupBuilder.MapPost("/request-password-reset", AuthEndpoints.RequestPasswordReset)
-                .Produces(StatusCodes.Status200OK)
-                .Produces(StatusCodes.Status400BadRequest)
-                .Produces(StatusCodes.Status404NotFound)
-                .Produces(StatusCodes.Status500InternalServerError)
-                .WithOpenApi(op =>
-                {
-                    op.Summary = "Requests a password reset code for a given email address.";
-                    op.Description = "Sends a 6-digit code to the user's email if the account exists.";
-                    return op;
-                });
-
+            // POST /api/auth/password-reset
             groupBuilder.MapPost("/password-reset", AuthEndpoints.ResetPassword)
-                .Produces(StatusCodes.Status200OK)
+                .Produces<PasswordResetResponseDto>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status400BadRequest)
                 .Produces(StatusCodes.Status500InternalServerError)
-                .WithOpenApi(op =>
-                {
-                    op.Summary = "Resets the user's password using the Auth Code sent to their email.";
-                    op.Description = "Requires the user's email, the Auth Code, and the new password.";
-                    return op;
-                });
-            groupBuilder.MapPost("/request-password-reset/verify-code", AuthEndpoints.VerifyAuthCode)
+                .WithSummary("Reset password")
+                .WithDescription("Resets the user's password using the authentication code and new password.");
+
+            // POST /api/auth/password-reset/request
+            groupBuilder.MapPost("/password-reset/request", AuthEndpoints.RequestPasswordReset)
                 .Produces<PasswordResetResponseDto>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status400BadRequest)
                 .Produces(StatusCodes.Status404NotFound)
                 .Produces(StatusCodes.Status500InternalServerError)
-                .WithOpenApi(op =>
-               {
-                   op.Summary = "Verify password reset authentication code";
-                   op.Description = "Verifies the 6-digit authentication code sent to the user's email during a password reset process.";
-                   op.Tags = [new OpenApiTag { Name = "Authentication" }];
-                   return op;
-               });
+                .WithSummary("Request Reset password")
+                .WithDescription("Sends a 6-digit authentication code to the user's email if the account exists.");
+
+            // POST /api/auth/password-reset/verify
+            groupBuilder.MapPost("/password-reset/verify", AuthEndpoints.VerifyAuthCode)
+                .Produces<PasswordResetResponseDto>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest)
+                .Produces(StatusCodes.Status404NotFound)
+                .Produces(StatusCodes.Status500InternalServerError)
+                .WithSummary("Verify password reset code")
+                .WithDescription("Verifies the 6-digit code sent to the user's email during the password reset process.");
+
             // POST /api/auth/login
             groupBuilder.MapPost("/login", AuthEndpoints.GenerateToken)
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized)
                 .Produces(StatusCodes.Status500InternalServerError)
-                .WithOpenApi(op =>
-                {
-                    op.Summary = "JWT generation.";
-                    return op;
-                });
+                .WithSummary("User login")
+                .WithDescription("Authenticates the user with email/username and password. Returns a JWT access token if successful.");
 
             // POST /api/auth/logout
             groupBuilder.MapPost("/logout", AuthEndpoints.LogoutAsync)
                 .RequireAuthorization()
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized)
-                .WithOpenApi(op =>
+                .WithSummary("User logout")
+                .WithDescription("Close session. Revokes the JWT")
+                .WithOpenApi((op) =>
                 {
-                    op.Summary = "User logout (token revocation).";
-                    op.Description = "Revokes the current JWT access token by adding its jti to the blacklist.";
+                    op.Security = ApiSecurityDocSwagger.BearerRequirement;
                     return op;
                 });
 
             return builder;
         }
-
-
-
     }
 }

@@ -29,7 +29,7 @@ export const usePasswordReset = () => {
       setIsError("Invalid email format");
       return;
     }
-    await apiRequest(`${BASEURL}request-password-reset`, {
+    await apiRequest(`${BASEURL}password-reset/request/`, {
       email: data.email,
     });
     setActiveStep(1);
@@ -37,7 +37,7 @@ export const usePasswordReset = () => {
 
   const handleVerifyCode = async () => {
     if (data.authCode.length !== 6) return;
-    await apiRequest(`${BASEURL}request-password-reset/verify-code`, {
+    await apiRequest(`${BASEURL}password-reset/verify/`, {
       authCode: data.authCode.join(""),
     });
     setActiveStep(2);
@@ -53,7 +53,7 @@ export const usePasswordReset = () => {
       setIsError("Password must be at least 8 characters long.");
       return;
     }
-    await apiRequest(`${BASEURL}password-reset`, {
+    await apiRequest(`${BASEURL}password-reset/`, {
       AuthCode: data.authCode.join(""),
       NewPassword: data.newPassword,
       ConfirmPassword: data.confirmPassword,

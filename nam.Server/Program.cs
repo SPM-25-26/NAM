@@ -12,6 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 using nam.Server.Models.Services.Implementations;
 
 using System.Text;
+using nam.Server.Models.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -105,7 +106,13 @@ builder.Services.AddEndpointsApiExplorer();
 // Configure Swagger to support JWT authentication
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "NAM API",
+        Version = "v1",
+        Description = "API for NAM project",
+    });
+    options.AddSecurityDefinition(ApiSecurityDocSwagger.IdTokenSecurity, new OpenApiSecurityScheme
     {
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
@@ -114,22 +121,6 @@ builder.Services.AddSwaggerGen(options =>
         In = ParameterLocation.Header,
         Description = "Enter your JWT token in the format: Bearer {your token}"
     });
-
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-      {
-          {
-              new OpenApiSecurityScheme
-              {
-                  Reference = new OpenApiReference
-                  {
-                      Type = ReferenceType.SecurityScheme,
-                      Id = "Bearer"
-                  }
-              },
-              Array.Empty<string>()
-          }
-      });
-
 });
 
 var app = builder.Build();
@@ -139,7 +130,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+        {
+            c.DocumentTitle = "NAM API Docs";
+        });
 }
 
 
