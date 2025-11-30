@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using nam.Server.Data;
@@ -224,6 +225,34 @@ namespace nam.Server.Endpoints
             return Results.Ok(new { token });
         }
 
+        public static async Task<IResult> Login(
+        HttpContext httpContext,
+        [FromServices] IAuthService authService,
+        [FromBody] LoginCredentialsDto credentials)
+        {
+            string? token = await authService.GenerateTokenAsync(credentials);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return Results.Unauthorized();
+            }
+
+            httpContext.Response.Cookies.Append("AuthToken", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTimeOffset.UtcNow.AddHours(1),
+                Path = "/"
+            });
+
+            return Results.Ok(new
+            {
+                message = "Logged in",
+                tokenSetInCookie = true
+            });
+        }
+
         // POST /logout
         public static async Task<IResult> LogoutAsync(
             HttpContext httpContext,
@@ -248,7 +277,15 @@ namespace nam.Server.Endpoints
 
             await tokenService.RevokeTokenAsync(jti, expiresAt, cancellationToken);
 
-            return Results.Ok(new { message = "Logout done, token revokated." });
+            // Delete the AuthToken cookie, even if it's not present
+            httpContext.Response.Cookies.Delete("AuthToken", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
+
+            return Results.Ok(new { message = "Logout done, token revoked." });
 
         }
     }

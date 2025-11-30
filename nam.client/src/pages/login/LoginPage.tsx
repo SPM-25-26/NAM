@@ -1,117 +1,105 @@
-﻿import { useState } from "react";
-import EmailIcon from '@mui/icons-material/Email';
-import LockIcon from '@mui/icons-material/Lock';
-import FlightIcon from '@mui/icons-material/Flight';
+import { useState } from "react";
+import EmailIcon from "@mui/icons-material/Email";
+import LockIcon from "@mui/icons-material/Lock";
+import FlightIcon from "@mui/icons-material/Flight";
 import {
     Box,
     Card,
-    FormControlLabel,
-    Checkbox,
     Link,
     Typography,
     Container,
-    useTheme,
+    useTheme
 } from "@mui/material";
 import MyAppBar from "../../components/appbar";
 import MyButton from "../../components/button";
 import FormBox from "../../components/FormBox";
-import { validateRegistration } from "./RegistrationValidation";
-import type { ValidationErrors } from "./RegistrationValidation";
-import { buildApiUrl } from '../../config';
+import { buildApiUrl } from "../../config";
 
-const RegistrationPage: React.FC = () => {
+const LoginPage: React.FC = () => {
     const theme = useTheme();
+
     const [formData, setFormData] = useState({
         email: "",
         password: "",
-        confirmPassword: "",
-        agreeToTerms: false,
     });
 
-    const [errors, setErrors] = useState<ValidationErrors>({});
     const [isLoading, setIsLoading] = useState(false);
     const [apiError, setApiError] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type, checked } = e.target;
+        const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: type === "checkbox" ? checked : value,
+            [name]: value,
         }));
-        // Clear error for this field when user starts typing
-        if (errors[name as keyof ValidationErrors]) {
-            setErrors((prev) => ({
-                ...prev,
-                [name]: undefined,
-            }));
-        }
+
         // Clear API error when user modifies form
         if (apiError) {
             setApiError(null);
         }
     };
 
-    const registerUser = async () => {
+
+    // Calls backend to authenticate user and retrieve JWT token
+    const loginUser = async () => {
         try {
             setIsLoading(true);
             setApiError(null);
 
-            const response = await fetch(buildApiUrl('auth/register'), {
+            const response = await fetch(buildApiUrl("auth/login"), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
+                credentials: "include",
                 body: JSON.stringify({
                     email: formData.email,
                     password: formData.password,
-                    confirmPassword: formData.confirmPassword,
                 }),
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                const errorMessage = errorData.title || errorData.message || "Registration failed. Please try again.";
+                let errorMessage =
+                    "Login failed. Please check your credentials and try again.";
+
+                try {
+                    const errorData = await response.json();
+                    errorMessage =
+                        errorData.title ||
+                        errorData.message ||
+                        errorMessage;
+                } catch {
+                    // If response body is not JSON, keep default error message
+                }
+
                 setApiError(errorMessage);
                 return;
             }
 
-            const data = await response.text();
-            console.log("Registration successful:", data);
-            alert("Account created successfully! Please sign in.");
-            // Optionally redirect to login page
-            // window.location.href = "/login";
+            const data = await response.json();
+            console.log(data.message);
+
+            window.location.href = "/maincontents";
         } catch (error) {
-            console.error("Registration error:", error);
-            setApiError("An error occurred during registration. Please try again.");
+            console.error("Login error:", error);
+            setApiError("An error occurred during login. Please try again.");
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleCreateAccount = () => {
-        // Check if terms are agreed
-        if (!formData.agreeToTerms) {
-            alert("Please agree to the Privacy Policy and Terms of Service.");
+    const handleLoginClick = () => {
+        if (!formData.email || !formData.password) {
+            setApiError("Please enter both email and password.");
             return;
         }
 
-        // Validate form data
-        const { isValid, errors: validationErrors } = validateRegistration({
-            email: formData.email,
-            password: formData.password,
-            confirmPassword: formData.confirmPassword,
-        });
-
-        setErrors(validationErrors);
-
-        if (isValid) {
-            registerUser();
-        }
+        loginUser();
     };
 
     return (
         <Box sx={{ backgroundColor: theme.palette.background.default, minHeight: "100vh" }}>
-            <MyAppBar title={"Sign up"} backUrl={"/"} />
+            <MyAppBar title={"Sign in"} backUrl={"/"} />
 
             <Container maxWidth="sm">
                 <Box
@@ -122,7 +110,7 @@ const RegistrationPage: React.FC = () => {
                         paddingY: 4,
                     }}
                 >
-                    {/* Logo e titolo */}
+                    {/* Logo and title */}
                     <Box
                         sx={{
                             display: "flex",
@@ -144,14 +132,14 @@ const RegistrationPage: React.FC = () => {
                         </Typography>
                     </Box>
 
-                    {/* Card principale */}
+                    {/* Main card */}
                     <Card
                         sx={{
                             width: "85%",
                             padding: "2rem",
                         }}
                     >
-                        {/* Titolo e sottotitolo */}
+                        {/* Title and subtitle */}
                         <Typography
                             variant="h4"
                             sx={{
@@ -159,7 +147,7 @@ const RegistrationPage: React.FC = () => {
                                 color: theme.palette.text.primary,
                             }}
                         >
-                            Create Account
+                            Sign in
                         </Typography>
                         <Typography
                             variant="body2"
@@ -168,10 +156,10 @@ const RegistrationPage: React.FC = () => {
                                 marginBottom: 3,
                             }}
                         >
-                            Join thousands of travelers
+                            Welcome back, traveler
                         </Typography>
 
-                        {/* Errore API */}
+                        {/* API error */}
                         {apiError && (
                             <Box
                                 sx={{
@@ -197,7 +185,6 @@ const RegistrationPage: React.FC = () => {
                                 placeholder="you@example.com"
                                 value={formData.email}
                                 onChange={handleChange}
-                                error={errors.email}
                                 disabled={isLoading}
                                 icon={<EmailIcon />}
                             />
@@ -207,67 +194,35 @@ const RegistrationPage: React.FC = () => {
                                 label="Password"
                                 name="password"
                                 type="password"
-                                placeholder="•••••••"
+                                placeholder="Password"
                                 value={formData.password}
                                 onChange={handleChange}
-                                error={errors.password}
                                 disabled={isLoading}
                                 icon={<LockIcon />}
                                 showPasswordToggle
                             />
 
-                            {/* Confirm Password */}
-                            <FormBox
-                                label="Confirm Password"
-                                name="confirmPassword"
-                                type="password"
-                                placeholder="•••••••"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                error={errors.confirmPassword}
-                                disabled={isLoading}
-                                icon={<LockIcon />}
-                                iconColor={theme.palette.text.disabled}
-                            />
-
-                            {/* Checkbox Termini */}
-                            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            name="agreeToTerms"
-                                            checked={formData.agreeToTerms}
-                                            onChange={handleChange}
-                                            disabled={isLoading}
-                                            sx={{
-                                                padding: 0,
-                                            }}
-                                        />
-                                    }
-                                    label={
-                                        <Typography variant="body2">
-                                            I agree to the{" "}
-                                            <Link href="#">
-                                                Privacy Policy
-                                            </Link>{" "}
-                                            and{" "}
-                                            <Link href="#">
-                                                Terms of Service
-                                            </Link>
-                                        </Typography>
-                                    }
-                                    sx={{ margin: 0 }}
-                                />
+                            {/* Forgot password link */}
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "flex-end",
+                                    marginTop: -1,
+                                }}
+                            >
+                                <Link href="/resetPassword">
+                                    Forgot your password?
+                                </Link>
                             </Box>
 
-                            {/* Pulsante Create Account */}
+                            {/* Login button */}
                             <MyButton
-                                label={isLoading ? "Creating Account..." : "Create Account"}
-                                action={handleCreateAccount}
+                                label={isLoading ? "Logging in..." : "Login"}
+                                action={handleLoginClick}
                                 disabled={isLoading}
                             />
 
-                            {/* Link Sign In */}
+                            {/* Sign up link */}
                             <Box
                                 sx={{
                                     textAlign: "center",
@@ -275,9 +230,9 @@ const RegistrationPage: React.FC = () => {
                                 }}
                             >
                                 <Typography variant="body2">
-                                    Already have an account?{" "}
-                                    <Link href="/login">
-                                        Sign in
+                                    You are not already registered?{" "}
+                                    <Link href="/signup">
+                                        Sign up
                                     </Link>
                                 </Typography>
                             </Box>
@@ -289,4 +244,4 @@ const RegistrationPage: React.FC = () => {
     );
 };
 
-export default RegistrationPage;
+export default LoginPage;

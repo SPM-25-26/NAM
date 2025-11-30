@@ -1,5 +1,8 @@
-import React from "react";
-import { Box, TextField, Typography, useTheme } from "@mui/material";
+import React, { useState } from "react";
+import { Box, TextField, Typography, useTheme, IconButton } from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+
 
 interface FormBoxProps {
     label: string;
@@ -12,6 +15,7 @@ interface FormBoxProps {
     disabled?: boolean;
     icon?: React.ReactNode;
     iconColor?: string;
+    showPasswordToggle?: boolean;
 }
 
 const FormBox: React.FC<FormBoxProps> = ({
@@ -25,9 +29,16 @@ const FormBox: React.FC<FormBoxProps> = ({
     disabled = false,
     icon,
     iconColor,
+    showPasswordToggle = false,
 }) => {
     const theme = useTheme();
+    const [showPassword, setShowPassword] = useState(false);
 
+    const isPasswordField = type === "password";
+
+    const handleTogglePassword = () => {
+        setShowPassword((prev) => !prev);
+    };
     return (
         <Box>
             <Typography
@@ -43,7 +54,7 @@ const FormBox: React.FC<FormBoxProps> = ({
             <TextField
                 fullWidth
                 name={name}
-                type={type}
+                type={isPasswordField && showPasswordToggle && showPassword ? "text" : type}
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}
@@ -71,6 +82,16 @@ const FormBox: React.FC<FormBoxProps> = ({
                                 {icon}
                             </Typography>
                         ) : undefined,
+                        endAdornment:
+                            isPasswordField && showPasswordToggle ? (
+                                <IconButton
+                                    onClick={handleTogglePassword}
+                                    edge="end"
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            ) : undefined,
                     },
                 }}
             />

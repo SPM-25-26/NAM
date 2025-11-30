@@ -1,29 +1,65 @@
+// src/pages/main/MainContentsPage.tsx (adatta il path se serve)
 import React from "react";
 import FlightIcon from "@mui/icons-material/Flight";
+import LogoutIcon from "@mui/icons-material/Logout";
 import {
     Box,
     Card,
     Container,
+    IconButton,
     Typography,
     useTheme,
 } from "@mui/material";
 import MyAppBar from "../../components/appbar";
-import MyButton from "../../components/button";
+import { buildApiUrl } from "../../config";
 
-const HomePage: React.FC = () => {
+const MainContentsPage: React.FC = () => {
     const theme = useTheme();
 
-    const handleSignInClick = () => {
-        window.location.href = "/login";
-    };
+    const handleLogout = async () => {
+        try {
+            // call backend for logout
+            const response = await fetch(buildApiUrl("auth/logout"), {
+                method: "POST",
+                credentials: "include", // Send the cookie
+            });
 
-    const handleSignUpClick = () => {
-        window.location.href = "/signup";
+            if (!response.ok) {
+                console.error("Logout failed");
+            } else {
+                window.location.href = "/login";
+            }
+        } catch (err) {
+            console.error("Logout error:", err);
+        } finally {
+            //window.location.href = "/signup";
+        }
+        console.log("Logout clicked");
     };
 
     return (
         <Box sx={{ backgroundColor: theme.palette.background.default, minHeight: "100vh" }}>
-            <MyAppBar title={"Homepage"} backUrl="" />
+            <MyAppBar title="" backUrl="" />
+
+            {/* Logout icon */}
+            <Box
+                sx={{
+                    position: "fixed",
+                    top: 8,
+                    right: 16,
+                    zIndex: (theme) => theme.zIndex.appBar + 1,
+                }}
+            >
+                <IconButton
+                    onClick={handleLogout}
+                    aria-label="Logout"
+                    sx={{
+                        color: theme.palette.text.primary,
+                    }}
+                >
+                    <LogoutIcon />
+                </IconButton>
+            </Box>
 
             <Container maxWidth="sm">
                 <Box
@@ -34,11 +70,12 @@ const HomePage: React.FC = () => {
                         paddingY: 4,
                     }}
                 >
-                    {/* Logo e titolo come nella login */}
+                    {/* Centred Logo */}
                     <Box
                         sx={{
                             display: "flex",
                             alignItems: "center",
+                            justifyContent: "center",
                             gap: 1,
                             marginBottom: 4,
                         }}
@@ -56,6 +93,7 @@ const HomePage: React.FC = () => {
                         </Typography>
                     </Box>
 
+                    {/* Main card, for now empty*/}
                     <Card
                         sx={{
                             width: "85%",
@@ -69,45 +107,16 @@ const HomePage: React.FC = () => {
                                 color: theme.palette.text.primary,
                             }}
                         >
-                            Welcome
+                            Main content
                         </Typography>
                         <Typography
                             variant="body2"
                             sx={{
                                 color: theme.palette.text.disabled,
-                                marginBottom: 3,
                             }}
                         >
-                            Welcome to Eppoi, your travel companion. Sign in if you already
-                            have an account, or sign up to start your journey.
+                            This area will contain the main content of the application.
                         </Typography>
-
-                        <Box
-                            sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: 2,
-                                marginTop: 2,
-                            }}
-                        >
-                            <MyButton
-                                label="Sign in"
-                                action={handleSignInClick}
-                            />
-
-                            <MyButton
-                                label="Sign up"
-                                action={handleSignUpClick}
-                            />
-
-                            <Box
-                                sx={{
-                                    textAlign: "center",
-                                    marginTop: 2,
-                                }}
-                            >
-                            </Box>
-                        </Box>
                     </Card>
                 </Box>
             </Container>
@@ -115,4 +124,4 @@ const HomePage: React.FC = () => {
     );
 };
 
-export default HomePage;
+export default MainContentsPage;

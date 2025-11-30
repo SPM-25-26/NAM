@@ -41,6 +41,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
         options.Events = new JwtBearerEvents
         {
+            OnMessageReceived = context =>
+            {
+                // Try to take the token from the "AuthToken" cookie
+                var tokenFromCookie = context.Request.Cookies["AuthToken"];
+
+                
+                if (!string.IsNullOrEmpty(tokenFromCookie))
+                {
+                    context.Token = tokenFromCookie;
+                }
+
+                // Without cookie, it will continue to use (if any) Authorization: Bearer ...
+                return Task.CompletedTask;
+            },
             OnTokenValidated = async context =>
             {
                 var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
@@ -54,7 +68,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
                     if (isRevoked)
                     {
-                        // Blocco la richiesta: questo token è in blacklist
+                        // Block the request: this token is blacklisted
                         context.Fail("Token revoked");
                     }
                 }
@@ -90,14 +104,25 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 
 builder.Services.AddCors(options =>
 {
+    // Policy "opened" for scenarios with credentials (if you really need it)
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+
+    // Policy for the React frontend with cookies
+    options.AddPolicy("FrontendWithCredentials", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173") // FE React
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();                  // for credentials: "include"
     });
 });
-
 
 // Register Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
@@ -132,7 +157,9 @@ builder.Services.AddSwaggerGen(options =>
 
 });
 
+
 var app = builder.Build();
+
 
 // Configure middleware pipeline
 if (app.Environment.IsDevelopment())
@@ -147,7 +174,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseCors("AllowAll");
+
+// New policy
+app.UseCors("FrontendWithCredentials");
 
 
 // Enable authentication and authorization

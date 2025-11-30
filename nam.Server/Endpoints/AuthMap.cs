@@ -11,7 +11,7 @@ namespace nam.Server.Endpoints
             var logger = builder.ServiceProvider.GetService<Serilog.ILogger>() ?? Serilog.Log.Logger;
             AuthEndpoints.ConfigureLogger(logger);
 
-            RouteGroupBuilder groupBuilder = builder.MapGroup("/api/auth").RequireCors("AllowAll");
+            RouteGroupBuilder groupBuilder = builder.MapGroup("/api/auth").RequireCors("FrontendWithCredentials");
 
             groupBuilder.MapPost("/register", AuthEndpoints.RegisterUser)
                 .Produces(StatusCodes.Status200OK)
@@ -57,8 +57,19 @@ namespace nam.Server.Endpoints
                    op.Tags = [new OpenApiTag { Name = "Authentication" }];
                    return op;
                });
-            // POST /api/auth/login
-            groupBuilder.MapPost("/login", AuthEndpoints.GenerateToken)
+            // POST /api/auth/generate-token (for swagger, token string)
+            groupBuilder.MapPost("/generate-token", AuthEndpoints.GenerateToken)
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status401Unauthorized)
+                .Produces(StatusCodes.Status500InternalServerError)
+                .WithOpenApi(op =>
+                {
+                    op.Summary = "JWT generation.";
+                    return op;
+                });
+
+            // POST /api/auth/login (cookie)
+            groupBuilder.MapPost("/login", AuthEndpoints.Login)
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized)
                 .Produces(StatusCodes.Status500InternalServerError)
