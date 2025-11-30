@@ -34,7 +34,6 @@ const HomePage: React.FC = () => {
                         paddingY: 4,
                     }}
                 >
-                    {/* Logo e titolo come nella login */}
                     <Box
                         sx={{
                             display: "flex",

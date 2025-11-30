@@ -96,6 +96,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmailService, LocalEmailService>();
 builder.Services.AddScoped<ICodeService, RandomCodeService>();
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 // Register the background service for cleaning up revoked tokens
 builder.Services.AddHostedService<RevokedTokensCleanupService>();
 
@@ -185,4 +186,5 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapAuth();
+app.MapPoi();
 app.Run();

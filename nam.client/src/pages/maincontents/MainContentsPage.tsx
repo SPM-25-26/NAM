@@ -1,5 +1,4 @@
-// src/pages/main/MainContentsPage.tsx (adatta il path se serve)
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FlightIcon from "@mui/icons-material/Flight";
 import LogoutIcon from "@mui/icons-material/Logout";
 import {
@@ -9,12 +8,43 @@ import {
     IconButton,
     Typography,
     useTheme,
+    CircularProgress,
 } from "@mui/material";
 import MyAppBar from "../../components/appbar";
 import { buildApiUrl } from "../../config";
 
 const MainContentsPage: React.FC = () => {
     const theme = useTheme();
+
+    // State to avoid rendering protected content before auth check completes
+    const [loading, setLoading] = useState(true);
+    const [authenticated, setAuthenticated] = useState(false);
+
+    // check authentication when opening the page
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const response = await fetch(buildApiUrl("poi/poiList"), {
+                    method: "GET",
+                    credentials: "include", // cookie
+                });
+
+                if (response.ok) {
+                    setAuthenticated(true);
+                } else {
+                    // not authenticated -> redirect to login
+                    window.location.href = "/login";
+                }
+            } catch (err) {
+                console.error("Auth check error:", err);
+                window.location.href = "/login";
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        checkAuth();
+    }, []);
 
     const handleLogout = async () => {
         try {
@@ -32,10 +62,32 @@ const MainContentsPage: React.FC = () => {
         } catch (err) {
             console.error("Logout error:", err);
         } finally {
-            //window.location.href = "/signup";
+            window.location.href = "/login";
         }
         console.log("Logout clicked");
     };
+
+    // Show only a loader while checking authentication
+    if (loading) {
+        return (
+            <Box
+                sx={{
+                    backgroundColor: theme.palette.background.default,
+                    minHeight: "100vh",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+            >
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    // Safety guard: in case redirect didn't trigger for some reason
+    if (!authenticated) {
+        return null;
+    }
 
     return (
         <Box sx={{ backgroundColor: theme.palette.background.default, minHeight: "100vh" }}>

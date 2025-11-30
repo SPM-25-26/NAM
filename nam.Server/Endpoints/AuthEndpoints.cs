@@ -119,7 +119,7 @@ namespace nam.Server.Endpoints
             context.ResetPasswordAuth.Add(resetCode);
             await context.SaveChangesAsync();
 
-            // Send email
+            // Send email, using the localEmailService for demo purposes (it works also with EmailService)
             await emailService.SendEmailAsync(user.Email, "Reset code", $" AuthCode: {authCode} \n expired: {resetCode.ExpiresAt}");
 
             var response = new PasswordResetResponseDto
