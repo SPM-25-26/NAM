@@ -1,4 +1,5 @@
 ﻿import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import FlightIcon from '@mui/icons-material/Flight';
@@ -21,6 +22,7 @@ import { buildApiUrl } from '../../config';
 
 const RegistrationPage: React.FC = () => {
     const theme = useTheme();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -78,8 +80,7 @@ const RegistrationPage: React.FC = () => {
             const data = await response.text();
             console.log("Registration successful:", data);
             alert("Account created successfully! Please sign in.");
-            // Optionally redirect to login page
-            // window.location.href = "/login";
+            navigate("/signin");
         } catch (error) {
             console.error("Registration error:", error);
             setApiError("An error occurred during registration. Please try again.");
@@ -275,7 +276,7 @@ const RegistrationPage: React.FC = () => {
                             >
                                 <Typography variant="body2">
                                     Already have an account?{" "}
-                                    <Link href="/login">
+                                    <Link href="/signin">
                                         Sign in
                                     </Link>
                                 </Typography>
