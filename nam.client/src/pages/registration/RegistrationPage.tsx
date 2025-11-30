@@ -33,6 +33,7 @@ const RegistrationPage: React.FC = () => {
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [isLoading, setIsLoading] = useState(false);
     const [apiError, setApiError] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -79,8 +80,12 @@ const RegistrationPage: React.FC = () => {
 
             const data = await response.text();
             console.log("Registration successful:", data);
-            alert("Account created successfully! Please sign in.");
-            navigate("/signin");
+            setSuccessMessage("Account created successfully! Please sign in.");
+            
+            // Navigate to sign in page after a short delay
+            setTimeout(() => {
+                navigate("/signin");
+            }, 2000);
         } catch (error) {
             console.error("Registration error:", error);
             setApiError("An error occurred during registration. Please try again.");
@@ -172,7 +177,23 @@ const RegistrationPage: React.FC = () => {
                             Join thousands of travelers
                         </Typography>
 
-                        {/* Errore API */}
+                        {/* Success message */}
+                        {successMessage && (
+                            <Box
+                                sx={{
+                                    backgroundColor: theme.palette.success.light,
+                                    color: theme.palette.success.dark,
+                                    padding: "12px",
+                                    borderRadius: "8px",
+                                    marginBottom: 2,
+                                    fontSize: "14px",
+                                }}
+                            >
+                                {successMessage}
+                            </Box>
+                        )}
+
+                        {/* API error */}
                         {apiError && (
                             <Box
                                 sx={{
@@ -260,7 +281,7 @@ const RegistrationPage: React.FC = () => {
                                 />
                             </Box>
 
-                            {/* Pulsante Create Account */}
+                            {/* Create Account button */}
                             <MyButton
                                 label={isLoading ? "Creating Account..." : "Create Account"}
                                 action={handleCreateAccount}
