@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type { IResetData } from "./model/IResetData";
 import { useNavigate } from "react-router-dom";
+import { buildApiUrl } from "../../../config";
 
-const BASEURL = "http://localhost:5101/api/auth/";
 
 export const usePasswordReset = () => {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ export const usePasswordReset = () => {
       setIsError("Invalid email format");
       return;
     }
-    await apiRequest(`${BASEURL}request-password-reset`, {
+    await apiRequest(buildApiUrl("auth/request-password-reset"), {
       email: data.email,
     });
     setActiveStep(1);
@@ -37,7 +37,7 @@ export const usePasswordReset = () => {
 
   const handleVerifyCode = async () => {
     if (data.authCode.length !== 6) return;
-    await apiRequest(`${BASEURL}request-password-reset/verify-code`, {
+    await apiRequest(buildApiUrl("auth/request-password-reset/verify-code"), {
       authCode: data.authCode.join(""),
     });
     setActiveStep(2);
@@ -53,7 +53,7 @@ export const usePasswordReset = () => {
       setIsError("Password must be at least 8 characters long.");
       return;
     }
-    await apiRequest(`${BASEURL}password-reset`, {
+    await apiRequest(buildApiUrl("auth/password-reset"), {
       AuthCode: data.authCode.join(""),
       NewPassword: data.newPassword,
       ConfirmPassword: data.confirmPassword,
