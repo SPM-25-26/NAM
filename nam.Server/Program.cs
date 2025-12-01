@@ -12,6 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 using nam.Server.Models.Services.Implementations;
 
 using System.Text;
+using nam.Server.Models.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
         options.Events = new JwtBearerEvents
         {
+            OnMessageReceived = context =>
+            {
+                // Try to take the token from the "AuthToken" cookie
+                var tokenFromCookie = context.Request.Cookies["AuthToken"];
+
+
+                if (!string.IsNullOrEmpty(tokenFromCookie))
+                {
+                    context.Token = tokenFromCookie;
+                }
+
+                // Without cookie, it will continue to use (if any) Authorization: Bearer ...
+                return Task.CompletedTask;
+            },
             OnTokenValidated = async context =>
             {
                 var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
@@ -54,7 +69,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
                     if (isRevoked)
                     {
-                        // Blocco la richiesta: questo token è in blacklist
+                        // Block the request: this token is blacklisted
                         context.Fail("Token revoked");
                     }
                 }
@@ -82,6 +97,9 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmailService, LocalEmailService>();
 builder.Services.AddScoped<ICodeService, RandomCodeService>();
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+
+//builder.Services.AddScoped<IEmailService, EmailService>();
+
 // Register the background service for cleaning up revoked tokens
 builder.Services.AddHostedService<RevokedTokensCleanupService>();
 
@@ -90,14 +108,25 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 
 builder.Services.AddCors(options =>
 {
+    // Policy "opened" for scenarios with credentials (if you really need it)
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+
+    // Policy for the React frontend with cookies
+    options.AddPolicy("FrontendWithCredentials", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173") // FE React
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();                  // for credentials: "include"
     });
 });
-
 
 // Register Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
@@ -105,7 +134,13 @@ builder.Services.AddEndpointsApiExplorer();
 // Configure Swagger to support JWT authentication
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "NAM API",
+        Version = "v1",
+        Description = "API for NAM project",
+    });
+    options.AddSecurityDefinition(ApiSecurityDocSwagger.IdTokenSecurity, new OpenApiSecurityScheme
     {
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
@@ -114,32 +149,21 @@ builder.Services.AddSwaggerGen(options =>
         In = ParameterLocation.Header,
         Description = "Enter your JWT token in the format: Bearer {your token}"
     });
-
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-      {
-          {
-              new OpenApiSecurityScheme
-              {
-                  Reference = new OpenApiReference
-                  {
-                      Type = ReferenceType.SecurityScheme,
-                      Id = "Bearer"
-                  }
-              },
-              Array.Empty<string>()
-          }
-      });
-
 });
 
+
 var app = builder.Build();
+
 
 // Configure middleware pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+        {
+            c.DocumentTitle = "NAM API Docs";
+        });
 }
 
 
@@ -147,7 +171,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseCors("AllowAll");
+
+// New policy
+app.UseCors("FrontendWithCredentials");
 
 
 // Enable authentication and authorization
@@ -156,4 +182,5 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapAuth();
+app.MapPoi();
 app.Run();

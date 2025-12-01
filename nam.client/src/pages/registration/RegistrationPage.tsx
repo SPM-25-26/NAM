@@ -235,6 +235,7 @@ const RegistrationPage: React.FC = () => {
                                 error={errors.password}
                                 disabled={isLoading}
                                 icon={<LockIcon />}
+                                showPasswordToggle
                             />
 
                             {/* Confirm Password */}
