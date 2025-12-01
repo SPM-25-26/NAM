@@ -1,4 +1,5 @@
 ﻿import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import FlightIcon from '@mui/icons-material/Flight';
@@ -23,6 +24,7 @@ import RegistrationSuccess from "./RegistrationSuccess";
 
 const RegistrationPage: React.FC = () => {
     const theme = useTheme();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -35,6 +37,7 @@ const RegistrationPage: React.FC = () => {
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [isLoading, setIsLoading] = useState(false);
     const [apiError, setApiError] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -178,7 +181,23 @@ const RegistrationPage: React.FC = () => {
                             Join thousands of travelers
                         </Typography>
 
-                        {/* Errore API */}
+                        {/* Success message */}
+                        {successMessage && (
+                            <Box
+                                sx={{
+                                    backgroundColor: theme.palette.success.light,
+                                    color: theme.palette.success.dark,
+                                    padding: "12px",
+                                    borderRadius: "8px",
+                                    marginBottom: 2,
+                                    fontSize: "14px",
+                                }}
+                            >
+                                {successMessage}
+                            </Box>
+                        )}
+
+                        {/* API error */}
                         {apiError && (
                             <Box
                                 sx={{
@@ -267,7 +286,7 @@ const RegistrationPage: React.FC = () => {
                                 />
                             </Box>
 
-                            {/* Pulsante Create Account */}
+                            {/* Create Account button */}
                             <MyButton
                                 label={isLoading ? "Creating Account..." : "Create Account"}
                                 action={handleCreateAccount}
@@ -283,7 +302,7 @@ const RegistrationPage: React.FC = () => {
                             >
                                 <Typography variant="body2">
                                     Already have an account?{" "}
-                                    <Link href="/login">
+                                    <Link href="/signin">
                                         Sign in
                                     </Link>
                                 </Typography>
