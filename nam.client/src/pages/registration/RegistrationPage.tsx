@@ -19,7 +19,6 @@ import FormBox from "../../components/FormBox";
 import { validateRegistration } from "./RegistrationValidation";
 import type { ValidationErrors } from "./RegistrationValidation";
 import { buildApiUrl } from '../../config';
-import { useNavigate } from "react-router-dom";
 import RegistrationSuccess from "./RegistrationSuccess";
 
 const RegistrationPage: React.FC = () => {
@@ -32,7 +31,6 @@ const RegistrationPage: React.FC = () => {
         agreeToTerms: false,
     });
 
-    const navigate = useNavigate();
     const [isSuccess, setIsSuccess] = useState(false);
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [isLoading, setIsLoading] = useState(false);
@@ -302,7 +300,7 @@ const RegistrationPage: React.FC = () => {
                             >
                                 <Typography variant="body2">
                                     Already have an account?{" "}
-                                    <Link href="/signin">
+                                    <Link href="/login">
                                         Sign in
                                     </Link>
                                 </Typography>
