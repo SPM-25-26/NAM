@@ -47,7 +47,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 // Try to take the token from the "AuthToken" cookie
                 var tokenFromCookie = context.Request.Cookies["AuthToken"];
 
-                
+
                 if (!string.IsNullOrEmpty(tokenFromCookie))
                 {
                     context.Token = tokenFromCookie;
@@ -97,7 +97,9 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmailService, LocalEmailService>();
 builder.Services.AddScoped<ICodeService, RandomCodeService>();
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+
+//builder.Services.AddScoped<IEmailService, EmailService>();
+
 // Register the background service for cleaning up revoked tokens
 builder.Services.AddHostedService<RevokedTokensCleanupService>();
 
