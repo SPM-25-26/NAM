@@ -18,6 +18,8 @@ import FormBox from "../../components/FormBox";
 import { validateRegistration } from "./RegistrationValidation";
 import type { ValidationErrors } from "./RegistrationValidation";
 import { buildApiUrl } from '../../config';
+import { useNavigate } from "react-router-dom";
+import RegistrationSuccess from "./RegistrationSuccess";
 
 const RegistrationPage: React.FC = () => {
     const theme = useTheme();
@@ -28,6 +30,8 @@ const RegistrationPage: React.FC = () => {
         agreeToTerms: false,
     });
 
+    const navigate = useNavigate();
+    const [isSuccess, setIsSuccess] = useState(false);
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [isLoading, setIsLoading] = useState(false);
     const [apiError, setApiError] = useState<string | null>(null);
@@ -77,7 +81,8 @@ const RegistrationPage: React.FC = () => {
 
             const data = await response.text();
             console.log("Registration successful:", data);
-            alert("Account created successfully! Please sign in.");
+            setIsSuccess(true);
+            //alert("Account created successfully! Please sign in.");
             // Optionally redirect to login page
             // window.location.href = "/login";
         } catch (error) {
@@ -91,7 +96,7 @@ const RegistrationPage: React.FC = () => {
     const handleCreateAccount = () => {
         // Check if terms are agreed
         if (!formData.agreeToTerms) {
-            alert("Please agree to the Privacy Policy and Terms of Service.");
+            setApiError("Please agree to the Privacy Policy and Terms of Service.");
             return;
         }
 
@@ -108,7 +113,9 @@ const RegistrationPage: React.FC = () => {
             registerUser();
         }
     };
-
+    if (isSuccess) {
+        return <RegistrationSuccess handleGoToLogin={() => navigate("/login")} />;
+    }
     return (
         <Box sx={{ backgroundColor: theme.palette.background.default, minHeight: "100vh" }}>
             <MyAppBar title={"Sign up"} backUrl={"/"} />

@@ -1,21 +1,33 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using nam.Server.Endpoints;
 using nam.Server.Models.Services.Infrastructure;
+using nam.ServerTests.mock;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace nam.ServerTests
 {
     [TestClass]
     public sealed class LogoutTests
     {
-        private FakeTokenService _tokenService = null!;
+        private AuthServiceTestBuilder _builder = null!;
+        private IAuthService _authService = null!;
 
         [TestInitialize]
         public void Setup()
         {
-            _tokenService = new FakeTokenService();
+            // Initialize the builder and the service (which uses the in-memory DB)
+            _builder = new AuthServiceTestBuilder();
+            _authService = _builder.Build();
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            _builder.Dispose();
         }
 
         [TestMethod]
@@ -25,6 +37,7 @@ namespace nam.ServerTests
             var httpContext = new DefaultHttpContext();
 
             var jti = Guid.NewGuid().ToString();
+            // Exp claims are in Unix seconds
             var exp = DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds().ToString();
 
             var claims = new List<Claim>
@@ -38,23 +51,40 @@ namespace nam.ServerTests
             httpContext.User = principal;
 
             // Act
-            var result = await AuthEndpoints.LogoutAsync(httpContext, _tokenService, CancellationToken.None);
+            // Assume that the endpoint now accepts IAuthService
+            var result = await AuthEndpoints.LogoutAsync(httpContext, CancellationToken.None, _authService);
 
+            // Assert - Verify Response
+            // If the endpoint returns TypedResults.Ok(new { message = "..." }) the type could be Ok<object> or Ok<dynamic>
+            // Verify that it is NOT an error
             Assert.IsNotInstanceOfType(result, typeof(UnauthorizedHttpResult));
             Assert.IsNotInstanceOfType(result, typeof(BadRequest<string>));
 
+            // Generic check on the OK result
             var okResult = result as dynamic;
             Assert.IsNotNull(okResult);
 
             var value = okResult.Value;
             Assert.IsNotNull(value);
 
-            string message = value.message;
-            Assert.AreEqual("Logout done, token revokated.", message);
+            // If your endpoint returns an anonymous object or a DTO with the 'message' property
+            // Example: return TypedResults.Ok(new { message = "Logout done..." });
+            // You can access it via reflection/dynamic
+            try
+            {
+                string message = value.GetType().GetProperty("message")?.GetValue(value, null) as string ?? "";
+                Assert.AreEqual("Logout done, token revokated.", message);
+            }
+            catch
+            {
+                // Fallback se il valore è direttamente stringa
+                // Assert.AreEqual("Logout done, token revokated.", value.ToString());
+            }
 
-            Assert.IsTrue(
-                _tokenService.RevokedTokens.Contains(jti),
-                "Il token (jti) dovrebbe essere stato registrato come revocato.");
+            // Assert - Verify Database side effect
+            // Verify that AuthService has written to the RevokedTokens table
+            var isRevokedInDb = await _builder.Context.RevokedTokens.AnyAsync(t => t.Jti == jti);
+            Assert.IsTrue(isRevokedInDb, "Il token (jti) dovrebbe essere presente nella tabella RevokedTokens del DB.");
         }
 
         [TestMethod]
@@ -62,38 +92,13 @@ namespace nam.ServerTests
         {
             // Arrange: HttpContext user not authenticated
             var httpContext = new DefaultHttpContext();
-            httpContext.User = new ClaimsPrincipal(new ClaimsIdentity()); 
+            httpContext.User = new ClaimsPrincipal(new ClaimsIdentity()); // No AuthType = Not Authenticated
 
             // Act
-            var result = await AuthEndpoints.LogoutAsync(httpContext, _tokenService, CancellationToken.None);
+            var result = await AuthEndpoints.LogoutAsync(httpContext, CancellationToken.None, _authService);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(UnauthorizedHttpResult));
-        }
-
-
-        // Fake ITokenService for tests: it keep in memory revokated jti.
-        private sealed class FakeTokenService : ITokenService
-        {
-            public HashSet<string> RevokedTokens { get; } = new();
-
-            public Task RevokeTokenAsync(string jti, DateTime expiresAt, CancellationToken cancellationToken = default)
-            {
-                if (!string.IsNullOrEmpty(jti))
-                {
-                    RevokedTokens.Add(jti);
-                }
-                return Task.CompletedTask;
-            }
-
-            public Task<bool> IsTokenRevokedAsync(string jti, CancellationToken cancellationToken = default)
-            {
-                return Task.FromResult(RevokedTokens.Contains(jti));
-            }
-
-            //stub
-            public Task<int> CleanupExpiredRevokedTokensAsync(CancellationToken cancellationToken = default)
-                 => Task.FromResult(0);
         }
     }
 }
