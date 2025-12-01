@@ -9,7 +9,6 @@ using nam.Server.Models.Options;
 using nam.Server.Models.Services.Infrastructure;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
-using nam.Server.Models.Services.Implementations;
 
 using System.Text;
 using nam.Server.Models.Swagger;
@@ -58,7 +57,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             },
             OnTokenValidated = async context =>
             {
-                var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
+                var tokenService = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
 
                 var jti = context.Principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
 
@@ -93,13 +92,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register application services
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ITokenGeneration, TokenGeneration>();
 builder.Services.AddScoped<IEmailService, LocalEmailService>();
 builder.Services.AddScoped<ICodeService, RandomCodeService>();
-builder.Services.AddScoped<IRegistrationService, RegistrationService>();
-
-//builder.Services.AddScoped<IEmailService, EmailService>();
-
 // Register the background service for cleaning up revoked tokens
 builder.Services.AddHostedService<RevokedTokensCleanupService>();
 

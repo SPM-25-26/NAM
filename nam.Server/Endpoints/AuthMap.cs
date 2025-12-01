@@ -77,6 +77,17 @@ namespace nam.Server.Endpoints
                     return op;
                 });
 
+            // POST /api/auth/verify-email
+            groupBuilder.MapPost("/verify-email", AuthEndpoints.VerifyEmail)
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithOpenApi(op =>
+            {
+                op.Summary = "Verify user email.";
+                op.Description = "Verifies the user's email using the verification token sent by email.";
+                return op;
+            });
+
             return builder;
         }
     }

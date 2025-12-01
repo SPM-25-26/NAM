@@ -31,12 +31,12 @@ namespace nam.Server.Endpoints
         /// <returns>An <see cref="IResult"/> representing the outcome (BadRequest, ValidationProblem, Conflict, Ok, or Problem).</returns>
         public static async Task<IResult> RegisterUser(
             [FromBody] RegisterUserDto request,
-            IRegistrationService registrationService,
+            IAuthService _authService,
             IValidator<RegisterUserDto> validator)
         {
             _logger?.Information("RegisterUser called for email {Email}", request?.Email);
 
-            ArgumentNullException.ThrowIfNull(registrationService);
+            ArgumentNullException.ThrowIfNull(_authService);
             ArgumentNullException.ThrowIfNull(validator);
 
             try
@@ -55,7 +55,7 @@ namespace nam.Server.Endpoints
                     return TypedResults.ValidationProblem(validationResult.ToDictionary());
                 }
 
-                var created = await registrationService.RegisterUser(request);
+                var created = await _authService.RegisterUser(request);
                 if (!created)
                 {
                     _logger?.Warning("Attempt to register already existing email {Email}", request.Email);
@@ -91,51 +91,10 @@ namespace nam.Server.Endpoints
         /// The response body contains a <see cref="PasswordResetResponseDto"/>.
         /// </returns>
         public static async Task<IResult> RequestPasswordReset(
-            [FromBody] PasswordResetRequestDto request,
-            ApplicationDbContext context,
-            IEmailService emailService,
-            ICodeService codeService
-            )
+            [FromBody] PasswordResetRequestDto request, IAuthService _authService)
         {
-            // Find a user
-            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            return await _authService.RequestPasswordReset(request);
 
-            // Check find a user
-            if (user == null)
-                return TypedResults.BadRequest(new PasswordResetResponseDto
-                {
-                    Success = false,
-                    Message = "The email not found"
-                });
-
-            // Generate Auth code
-            var authCode = codeService.GenerateAuthCode();
-            var existingCode = await context.ResetPasswordAuth
-                    .FirstOrDefaultAsync(c => c.UserId == user.Id.ToString());
-
-            //delete exist code associated with user
-            if (existingCode != null)
-                context.ResetPasswordAuth.Remove(existingCode);
-
-            // Generate and Save reset code 
-            var resetCode = new PasswordResetCode
-            {
-                UserId = user.Id.ToString(),
-                AuthCode = authCode,
-                CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(codeService.TimeToLiveMinutes)
-            };
-            context.ResetPasswordAuth.Add(resetCode);
-            await context.SaveChangesAsync();
-
-            // Send email, using the localEmailService for demo purposes (it works also with EmailService)
-            await emailService.SendEmailAsync(user.Email, "Reset code", $" AuthCode: {authCode} \n expired: {resetCode.ExpiresAt}");
-
-            return TypedResults.Ok(new PasswordResetResponseDto
-            {
-                Success = true,
-                Message = "Please check your email; we have sent you the reset code."
-            });
         }
 
         /// <summary>
@@ -154,27 +113,9 @@ namespace nam.Server.Endpoints
         /// The response body contains a <see cref="PasswordResetResponseDto"/>.
         /// </returns>
         public static async Task<IResult> VerifyAuthCode(
-                        [FromBody] ValidationCodeDto request,
-                        ApplicationDbContext context)
+                        [FromBody] ValidationCodeDto request, IAuthService _authService)
         {
-            // Find and validation reset code
-            var resetCode = await context.ResetPasswordAuth
-                .FirstOrDefaultAsync(c =>
-                    c.AuthCode == request.AuthCode &&
-                    c.ExpiresAt > DateTime.UtcNow);
-            // Verify the validity of the reset code
-            return resetCode == null ?
-            TypedResults.BadRequest(new PasswordResetResponseDto
-            {
-                Success = false,
-                Message = "Invalid or expired auth code."
-            }) : TypedResults.Ok(
-                                new PasswordResetResponseDto
-                                {
-                                    Success = true,
-                                    Message = "The code is valid"
-                                }
-                            );
+            return await _authService.VerifyAuthCode(request);
         }
 
         /// <summary>
@@ -193,56 +134,15 @@ namespace nam.Server.Endpoints
         /// The response body contains a <see cref="PasswordResetResponseDto"/>.
         /// </returns>
         public static async Task<IResult> ResetPassword(
-            [FromBody] PasswordResetConfirmDto request,
-            ApplicationDbContext context)
+            [FromBody] PasswordResetConfirmDto request, IAuthService _authService)
         {
-            // Find and validation reset code
-            var resetCode = await context.ResetPasswordAuth
-                .FirstOrDefaultAsync(c =>
-                    c.AuthCode == request.AuthCode &&
-                    c.ExpiresAt > DateTime.UtcNow);
-
-            // Verify the validity of the reset code
-            if (resetCode == null)
-                return TypedResults.BadRequest(new PasswordResetResponseDto
-                {
-                    Success = false,
-                    Message = "Invalid or expired auth code."
-                });
-
-
-            // Find the user
-            var user = await context.Users
-                .FirstOrDefaultAsync(u => u.Id.ToString() == resetCode.UserId);
-
-            if (user == null)
-                return TypedResults.BadRequest(new PasswordResetResponseDto
-                {
-                    Success = false,
-                    Message = "Invalid auth code."
-                });
-
-            //TODO: replace with service for encrypt data
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
-
-            // Delete resetCode
-            context.ResetPasswordAuth.Remove(resetCode);
-            await context.SaveChangesAsync();
-
-            return TypedResults.Ok(
-                new PasswordResetResponseDto
-                {
-                    Success = true,
-                    Message = "Password successfully reset."
-                }
-               );
+            return await _authService.ResetPassword(request);
         }
 
         public static async Task<IResult> GenerateToken(
-        [FromServices] IAuthService authService,
-        [FromBody] LoginCredentialsDto credentials)
+            [FromBody] LoginCredentialsDto credentials, IAuthService _authService)
         {
-            string? token = await authService.GenerateTokenAsync(credentials);
+            string? token = await _authService.GenerateTokenAsync(credentials);
 
             if (string.IsNullOrEmpty(token))
             {
@@ -254,10 +154,9 @@ namespace nam.Server.Endpoints
 
         public static async Task<IResult> Login(
         HttpContext httpContext,
-        [FromServices] IAuthService authService,
-        [FromBody] LoginCredentialsDto credentials)
+        [FromBody] LoginCredentialsDto credentials, IAuthService _authService)
         {
-            string? token = await authService.GenerateTokenAsync(credentials);
+            string? token = await _authService.GenerateTokenAsync(credentials);
 
             if (string.IsNullOrEmpty(token))
             {
@@ -283,8 +182,7 @@ namespace nam.Server.Endpoints
         // POST /logout
         public static async Task<IResult> LogoutAsync(
             HttpContext httpContext,
-            [FromServices] ITokenService tokenService,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken, IAuthService _authService)
         {
             var user = httpContext.User;
             if (user?.Identity?.IsAuthenticated != true)
@@ -301,8 +199,8 @@ namespace nam.Server.Endpoints
             }
 
             var expiresAt = DateTimeOffset.FromUnixTimeSeconds(expSeconds).UtcDateTime;
-            if (jti != null)
-                await tokenService.RevokeTokenAsync(jti, expiresAt, cancellationToken);
+
+            await _authService.RevokeTokenAsync(jti, expiresAt, cancellationToken);
 
             // Delete the AuthToken cookie, even if it's not present
             httpContext.Response.Cookies.Delete("AuthToken", new CookieOptions
@@ -314,6 +212,28 @@ namespace nam.Server.Endpoints
 
             return Results.Ok(new { message = "Logout done, token revokated." });
 
+        }
+
+        public static async Task<IResult> VerifyEmail(
+        [FromServices] IAuthService authService,
+        [FromBody] VerifyEmailRequestDto request,
+        CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Token))
+            {
+                return Results.BadRequest("Email or token missing.");
+            }
+
+            var result = await authService.VerifyEmailAsync(
+                request.Token,
+                cancellationToken);
+
+            if (!result)
+            {
+                return Results.BadRequest( "Verification failed.");
+            }
+
+            return Results.Ok(new { message = "Email successfully verified." });
         }
     }
 }

@@ -30,5 +30,12 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories
             var result = await AppContext.SaveChangesAsync(cancellationToken);
             return result > 0;
         }
+
+        public async Task<bool> UpdateAsync(User user, CancellationToken cancellationToken = default)
+        {
+            AppContext.Set<User>().Update(user);
+            var result = await AppContext.SaveChangesAsync(cancellationToken);
+            return result > 0;
+        }
     }
 }

@@ -16,5 +16,6 @@ namespace nam.Server.Models.Entities
         [MaxLength(255)]
         public required string PasswordHash { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public bool IsEmailVerified { get; set; } = false;
     }
 }

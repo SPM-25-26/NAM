@@ -23,7 +23,7 @@
                 try
                 {
                     using var scope = _serviceProvider.CreateScope();
-                    var tokenService = scope.ServiceProvider.GetRequiredService<ITokenService>();
+                    var tokenService = scope.ServiceProvider.GetRequiredService<IAuthService>();
 
                     var removed = await tokenService.CleanupExpiredRevokedTokensAsync(stoppingToken);
                     if (removed > 0)

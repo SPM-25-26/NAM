@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-using nam.Server.Data;
 using nam.Server.Endpoints;
 using nam.Server.Models.DTOs;
-using nam.Server.Models.Entities;
 using nam.Server.Models.Services.Infrastructure;
-using nam.Server.Models.Services.Infrastructure.Repositories;
 using nam.Server.Models.Validators;
+using nam.ServerTests.mock;
 using Serilog;
 
 namespace nam.ServerTests
@@ -14,24 +12,17 @@ namespace nam.ServerTests
     [TestClass]
     public sealed class RegistrationTests
     {
-        private ApplicationDbContext context;
-        private UserRepository userRepository;
-        IRegistrationService registrationService;
+        private AuthServiceTestBuilder _builder = null!;
+        private IAuthService _authService = null!;
 
         [TestInitialize]
         public void Setup()
         {
-            // This creates the server in-memory
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
-                .Options;
+            // 1. Use the Builder to configure in-memory DB and fake dependencies
+            _builder = new AuthServiceTestBuilder();
+            _authService = _builder.Build();
 
-            // 2. Create the Context and repository
-            context = new ApplicationDbContext(options);
-            userRepository = new UserRepository(context);
-            UnitOfWork unitOfWork = new(context);
-            registrationService = new RegistrationService(unitOfWork);
-            // Configure a Serilog logger for the endpoints
+            // Configure Serilog
             var logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Console()
@@ -43,11 +34,7 @@ namespace nam.ServerTests
         [TestCleanup]
         public void Cleanup()
         {
-            // Ensure DB cleaned up
-            context.Database.EnsureDeleted();
-            context.Dispose();
-
-            // Flush/close Serilog used by tests
+            _builder.Dispose();
             Log.CloseAndFlush();
         }
 
@@ -63,15 +50,23 @@ namespace nam.ServerTests
                 ConfirmPassword = "ValidPassword123!"
             };
 
-            var result = await AuthEndpoints.RegisterUser(registrationData, registrationService, validator);
+            // Act
+            // Assume that the endpoint now accepts IAuthService
+            var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
 
             // Assert
+            // Verify that the result is Ok (or Ok<string> depending on the implementation)
+            // If the endpoint returns TypedResults.Ok("..."), the type is Ok<string>
             Assert.IsInstanceOfType(result, typeof(Ok<string>));
 
-            var userInDb = await context.Users.FirstOrDefaultAsync(u => u.Email == registrationData.Email);
+            // Verify in the DB (via the builder's context)
+            var userInDb = await _builder.Context.Users.FirstOrDefaultAsync(u => u.Email == registrationData.Email);
 
             Assert.IsNotNull(userInDb, "User should exist in the database");
             Assert.AreEqual("validmail@gmail.com", userInDb.Email);
+
+            // Optional verification: password hashed?
+            Assert.AreNotEqual("ValidPassword123!", userInDb.PasswordHash);
         }
 
         [TestMethod]
@@ -81,13 +76,8 @@ namespace nam.ServerTests
             RegisterUserValidator validator = new();
             var existingEmail = "existing@example.com";
 
-            // Seed the database with an existing user
-            context.Users.Add(new User
-            {
-                Email = existingEmail,
-                PasswordHash = "SomeHash"
-            });
-            await context.SaveChangesAsync();
+            // Seed of the DB using the builder's helper method
+            await _builder.SeedUserAsync(existingEmail, "SomePassword123!");
 
             RegisterUserDto registrationData = new()
             {
@@ -97,9 +87,10 @@ namespace nam.ServerTests
             };
 
             // Act
-            var result = await AuthEndpoints.RegisterUser(registrationData, registrationService, validator);
+            var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
 
             // Assert
+            // Assume that AuthService returns false if exists, and the endpoint returns Conflict
             Assert.IsInstanceOfType(result, typeof(Conflict<string>));
         }
 
@@ -116,7 +107,8 @@ namespace nam.ServerTests
             };
 
             // Act
-            var result = await AuthEndpoints.RegisterUser(registrationData, registrationService, validator);
+            // The validator triggers before calling the service, so _authService will not actually be invoked
+            var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ValidationProblem));
@@ -135,7 +127,7 @@ namespace nam.ServerTests
             };
 
             // Act
-            var result = await AuthEndpoints.RegisterUser(registrationData, registrationService, validator);
+            var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ValidationProblem));
@@ -154,11 +146,10 @@ namespace nam.ServerTests
             };
 
             // Act
-            var result = await AuthEndpoints.RegisterUser(registrationData, registrationService, validator);
+            var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ValidationProblem));
         }
     }
 }
-

@@ -1,6 +1,4 @@
-using nam.Server.Models.Services.Infrastructure;
-
-namespace nam.Server.Models.Services.Implementations
+namespace nam.Server.Models.Services.Infrastructure
 {
     public class RandomCodeService : ICodeService
     {
