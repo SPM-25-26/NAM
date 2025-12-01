@@ -12,7 +12,7 @@ namespace nam.Server.Endpoints
             AuthEndpoints.ConfigureLogger(logger);
 
             RouteGroupBuilder groupBuilder = builder.MapGroup("/api/auth")
-            .RequireCors("AllowAll")
+            .RequireCors("FrontendWithCredentials")
             .WithTags("Authentication");
 
             // POST /api/auth/password-reset/register
@@ -49,13 +49,20 @@ namespace nam.Server.Endpoints
                 .WithSummary("Verify password reset code")
                 .WithDescription("Verifies the 6-digit code sent to the user's email during the password reset process.");
 
-            // POST /api/auth/login
-            groupBuilder.MapPost("/login", AuthEndpoints.GenerateToken)
+            // POST /api/auth/generate-token (for swagger, token string)
+            groupBuilder.MapPost("/generate-token", AuthEndpoints.GenerateToken)
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized)
                 .Produces(StatusCodes.Status500InternalServerError)
-                .WithSummary("User login")
-                .WithDescription("Authenticates the user with email/username and password. Returns a JWT access token if successful.");
+                .WithSummary("JWT generation.");
+
+            // POST /api/auth/login (cookie)
+            groupBuilder.MapPost("/login", AuthEndpoints.Login)
+           .Produces(StatusCodes.Status200OK)
+           .Produces(StatusCodes.Status401Unauthorized)
+           .Produces(StatusCodes.Status500InternalServerError)
+           .WithSummary("User login")
+           .WithDescription("Authenticates the user with email/username and password. Returns a JWT access token if successful.");
 
             // POST /api/auth/logout
             groupBuilder.MapPost("/logout", AuthEndpoints.LogoutAsync)

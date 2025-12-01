@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using nam.Server.Data;
@@ -127,7 +128,7 @@ namespace nam.Server.Endpoints
             context.ResetPasswordAuth.Add(resetCode);
             await context.SaveChangesAsync();
 
-            // Send email
+            // Send email, using the localEmailService for demo purposes (it works also with EmailService)
             await emailService.SendEmailAsync(user.Email, "Reset code", $" AuthCode: {authCode} \n expired: {resetCode.ExpiresAt}");
 
             return TypedResults.Ok(new PasswordResetResponseDto
@@ -251,6 +252,34 @@ namespace nam.Server.Endpoints
             return Results.Ok(new { token });
         }
 
+        public static async Task<IResult> Login(
+        HttpContext httpContext,
+        [FromServices] IAuthService authService,
+        [FromBody] LoginCredentialsDto credentials)
+        {
+            string? token = await authService.GenerateTokenAsync(credentials);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return Results.Unauthorized();
+            }
+
+            httpContext.Response.Cookies.Append("AuthToken", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTimeOffset.UtcNow.AddHours(1),
+                Path = "/"
+            });
+
+            return Results.Ok(new
+            {
+                message = "Logged in",
+                tokenSetInCookie = true
+            });
+        }
+
         // POST /logout
         public static async Task<IResult> LogoutAsync(
             HttpContext httpContext,
@@ -274,6 +303,14 @@ namespace nam.Server.Endpoints
             var expiresAt = DateTimeOffset.FromUnixTimeSeconds(expSeconds).UtcDateTime;
             if (jti != null)
                 await tokenService.RevokeTokenAsync(jti, expiresAt, cancellationToken);
+
+            // Delete the AuthToken cookie, even if it's not present
+            httpContext.Response.Cookies.Delete("AuthToken", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
 
             return Results.Ok(new { message = "Logout done, token revokated." });
 
