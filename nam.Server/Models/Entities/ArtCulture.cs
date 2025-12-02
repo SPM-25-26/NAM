@@ -1,13 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace nam.Server.Models.Entities
 {
     public class ArtCultureNatureCard
     {
         [Key]
-        [Required]
-        public Guid EntityId { get; set; }
+        public Guid EntityId { get; set; } = Guid.NewGuid();
 
         [Required]
         [MaxLength(500)]
@@ -92,8 +90,7 @@ namespace nam.Server.Models.Entities
     public class CulturalSiteService
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
         [MaxLength(255)]
@@ -106,8 +103,7 @@ namespace nam.Server.Models.Entities
     public class CulturalProject
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
         [MaxLength(255)]
@@ -122,8 +118,7 @@ namespace nam.Server.Models.Entities
     public class Catalogue
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
         [MaxLength(255)]
@@ -141,8 +136,7 @@ namespace nam.Server.Models.Entities
     public class CreativeWorkMobile
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
         [MaxLength(100)]
@@ -157,8 +151,7 @@ namespace nam.Server.Models.Entities
     public class FeatureCard
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         [MaxLength(100)]
         public string? EntityId { get; set; }
 
@@ -176,8 +169,8 @@ namespace nam.Server.Models.Entities
     public class AssociatedService
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
+
         [Required]
         [MaxLength(100)]
         public required string Identifier { get; set; }
@@ -194,8 +187,7 @@ namespace nam.Server.Models.Entities
     public class NearestCarPark
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
         public double Latitude { get; set; }
 
@@ -211,8 +203,8 @@ namespace nam.Server.Models.Entities
     public class SiteCard
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
+
         [Required]
         [MaxLength(100)]
         public required string Identifier { get; set; }
@@ -249,8 +241,7 @@ namespace nam.Server.Models.Entities
     public class MobileCategoryDetail
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
         public MobileCategory Category { get; set; }
 
