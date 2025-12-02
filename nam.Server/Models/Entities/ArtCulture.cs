@@ -250,13 +250,6 @@ namespace nam.Server.Models.Entities
         public string Address { get; set; } = string.Empty;
 
         public double Distance { get; set; }
-
-        [Required]
-        [MaxLength(255)]
-        public string ArtCultureDetailId { get; set; } = string.Empty;
-
-        [ForeignKey(nameof(ArtCultureDetailId))]
-        public ArtCultureDetail ArtCultureDetail { get; set; } = null!;
     }
 
     public class Site
