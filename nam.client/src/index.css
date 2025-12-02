@@ -82,7 +82,7 @@ button:focus-visible {
   text-align: center;
 }
 
-@media (prefers-color-scheme: light) {
+/*@media (prefers-color-scheme: light) {*/
   :root {
     color: #213547;
     background-color: #ffffff;
@@ -95,7 +95,7 @@ button:focus-visible {
   button {
     color: #213547;
   }
-}
+/*}*/
 
 @media (max-width: 768px) {
   h1 {
