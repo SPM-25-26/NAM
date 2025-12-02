@@ -2,18 +2,33 @@ using System.ComponentModel.DataAnnotations;
 
 namespace nam.Server.Models.Entities
 {
-    public class Category
+    public enum MobileCategory
+    {
+        Sleep,
+        EatAndDrink,
+        Events,
+        ArtCulture,
+        Nature,
+        TypicalProducts,
+        Routes,
+        Services,
+        EntertainmentLeisure,
+        Organizations,
+        Articles,
+        Shopping
+    }
+
+    public class MobileCategoryDetail
     {
         [Key]
+        public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
+        public MobileCategory Category { get; set; }
+
+        [MaxLength(500)]
+        public string? ImagePath { get; set; }
+
         [MaxLength(100)]
-        public string CategoryName { get; set; } = string.Empty;
-
-        [MaxLength(1000)]
-        public string ImagePath { get; set; } = string.Empty;
-
-        [Required]
-        [MaxLength(255)]
-        public string Label { get; set; } = string.Empty;
+        public string? Label { get; set; }
     }
 }
