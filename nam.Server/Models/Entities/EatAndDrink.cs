@@ -3,417 +3,311 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace nam.Server.Models.Entities
 {
-    public class EatAndDrink
+    // Card entity for Eat & Drink POI (lightweight card shown in lists)
+    public class EatAndDrinkCard
     {
         [Key]
-        [Required]
-        public Guid EntityId { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        // External identifier (kept as string because DTO exposes entityId as string)
+        [MaxLength(100)]
+        public string? EntityId { get; set; }
 
         [Required]
         [MaxLength(500)]
-        public string EntityName { get; set; } = string.Empty;
+        public required string EntityName { get; set; }
 
+        [Required]
         [MaxLength(1000)]
-        public string ImagePath { get; set; } = string.Empty;
+        public required string ImagePath { get; set; }
 
+        [Required]
         [MaxLength(100)]
-        public string BadgeText { get; set; } = string.Empty;
+        public required string BadgeText { get; set; }
 
         [MaxLength(1000)]
-        public string Address { get; set; } = string.Empty;
+        public string? Address { get; set; }
 
-        // Navigation to the detailed entity (one-to-one)
+        // Optional FK to detailed entity
+        public Guid? DetailIdentifier { get; set; }
+
+        [ForeignKey(nameof(DetailIdentifier))]
         public EatAndDrinkDetail? Detail { get; set; }
     }
 
+    // Detailed entity for Eat & Drink POI
     public class EatAndDrinkDetail
     {
         [Key]
-        [Required]
-        public Guid Identifier { get; set; }
+        public Guid Identifier { get; set; } = Guid.NewGuid();
 
+        [Required]
         [MaxLength(1000)]
-        public string PrimaryImagePath { get; set; } = string.Empty;
+        public required string PrimaryImagePath { get; set; }
 
         [Required]
         [MaxLength(500)]
-        public string OfficialName { get; set; } = string.Empty;
+        public required string OfficialName { get; set; }
 
+        [Required]
         [MaxLength(1000)]
-        public string Address { get; set; } = string.Empty;
+        public required string FullAddress { get; set; }
 
+        [Required]
         [MaxLength(4000)]
-        public string Description { get; set; } = string.Empty;
+        public required string Description { get; set; }
 
-        [EmailAddress]
         [MaxLength(255)]
-        public string Email { get; set; } = string.Empty;
+        public string? Email { get; set; }
 
         [MaxLength(50)]
-        public string Telephone { get; set; } = string.Empty;
+        public string? Telephone { get; set; }
 
         [MaxLength(500)]
-        public string Facebook { get; set; } = string.Empty;
+        public string? Facebook { get; set; }
 
         [MaxLength(500)]
-        public string Instagram { get; set; } = string.Empty;
+        public string? Instagram { get; set; }
 
         [MaxLength(500)]
-        public string Website { get; set; } = string.Empty;
+        public string? Website { get; set; }
 
         [MaxLength(100)]
-        public string Type { get; set; } = string.Empty;
+        public string? Type { get; set; }
+
+        // Primitive collections for gallery and virtual tours
+        public List<string> Gallery { get; set; } = new();
+
+        public List<string> VirtualTours { get; set; } = new();
 
         public double Latitude { get; set; }
+
         public double Longitude { get; set; }
 
-        // Child collections
-        public ICollection<EatService> Services { get; set; } = new List<EatService>();
-        public ICollection<EatNeighbor> Neighbors { get; set; } = new List<EatNeighbor>();
-        public ICollection<EatGalleryImage> Gallery { get; set; } = new List<EatGalleryImage>();
-        public ICollection<EatVirtualTour> VirtualTours { get; set; } = new List<EatVirtualTour>();
-        public ICollection<TypicalProduct> TypicalProducts { get; set; } = new List<TypicalProduct>();
-        public ICollection<EatAssociatedService> AssociatedServices { get; set; } = new List<EatAssociatedService>();
-        public ICollection<Menu> Menus { get; set; } = new List<Menu>();
-        public ICollection<string> DietaryNeeds { get; set; } = new List<string>();
+        // Services: 1..* OntoremaService (mapped from OntoremaServiceDto array)
+        public ICollection<OntoremaService>? Services { get; set; }
 
-        // One-to-one / complex objects
+        // Neighbors -> FeatureCard entity exists in the project (referenced in migrations)
+        public ICollection<FeatureCard>? Neighbors { get; set; }
+
+        // Nearest car park (entity exists in project)
+        public Guid? NearestCarParkId { get; set; }
+
+        [ForeignKey(nameof(NearestCarParkId))]
         public NearestCarPark? NearestCarPark { get; set; }
-        public OpeningHours? OpeningHours { get; set; }
+
+        // OpeningHours / TemporaryClosure / Booking mapped to created entities below
+        public OpeningHoursSpecification? OpeningHours { get; set; }
+
         public TemporaryClosure? TemporaryClosure { get; set; }
+
         public Booking? Booking { get; set; }
-        public EatOwner? Owner { get; set; }
-        public EatMunicipalityData? MunicipalityData { get; set; }
+
+        // Dietary needs - simple string list
+        public List<string>? DietaryNeeds { get; set; }
+
+        // TypicalProducts (TypicalProductMobileDto) not created because referenced class not present.
+        public ICollection<TypicalProductMobile>? TypicalProducts { get; set; }
+
+        // Owner (OwnerDto) not created because referenced class not present.
+        public Owner? Owner { get; set; }
+
+        // AssociatedServices -> AssociatedService entity exists in the project
+        public ICollection<AssociatedService>? AssociatedServices { get; set; }
+
+        // Municipality data -> MunicipalityForLocalStorageSetting entity exists
+        public Guid? MunicipalityDataId { get; set; }
+
+        [ForeignKey(nameof(MunicipalityDataId))]
+        public MunicipalityForLocalStorageSetting? MunicipalityData { get; set; }
     }
 
-    public class EatService
+    // --- New DB entities created from the requested DTOs ---
+
+    /// <summary>
+    /// Represents a service as in OntoremaServiceDto (name required, description optional).
+    /// Linked to EatAndDrinkDetail.
+    /// </summary>
+    public class OntoremaService
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        [Required]
         [MaxLength(255)]
-        public string Name { get; set; } = string.Empty;
-
-        [MaxLength(2000)]
-        public string Description { get; set; } = string.Empty;
-
-        [Required]
-        public Guid EatAndDrinkDetailId { get; set; }
-
-        [ForeignKey(nameof(EatAndDrinkDetailId))]
-        public EatAndDrinkDetail EatAndDrinkDetail { get; set; } = null!;
-    }
-
-    public class EatNeighbor
-    {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        [Required]
-        [MaxLength(255)]
-        public string EntityId { get; set; } = string.Empty;
-
-        [Required]
-        [MaxLength(255)]
-        public string Title { get; set; } = string.Empty;
-
-        [Required]
-        [MaxLength(50)]
-        public string Category { get; set; } = string.Empty;
+        public string? Name { get; set; }
 
         [MaxLength(1000)]
-        public string ImagePath { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
-        [MaxLength(1000)]
-        public string ExtraInfo { get; set; } = string.Empty;
+        // FK back to EatAndDrinkDetail
+        public Guid? EatAndDrinkDetailIdentifier { get; set; }
 
-        [Required]
-        public Guid EatAndDrinkDetailId { get; set; }
-
-        [ForeignKey(nameof(EatAndDrinkDetailId))]
-        public EatAndDrinkDetail EatAndDrinkDetail { get; set; } = null!;
+        [ForeignKey(nameof(EatAndDrinkDetailIdentifier))]
+        public EatAndDrinkDetail? EatAndDrinkDetail { get; set; }
     }
 
-    public class EatGalleryImage
-    {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        [Required]
-        [MaxLength(1000)]
-        public string ImagePath { get; set; } = string.Empty;
-
-        [Required]
-        public Guid EatAndDrinkDetailId { get; set; }
-
-        [ForeignKey(nameof(EatAndDrinkDetailId))]
-        public EatAndDrinkDetail EatAndDrinkDetail { get; set; } = null!;
-    }
-
-    public class EatVirtualTour
-    {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        [Required]
-        [MaxLength(1000)]
-        public string TourUrl { get; set; } = string.Empty;
-
-        [Required]
-        public Guid EatAndDrinkDetailId { get; set; }
-
-        [ForeignKey(nameof(EatAndDrinkDetailId))]
-        public EatAndDrinkDetail EatAndDrinkDetail { get; set; } = null!;
-    }
-
-    public class OpeningHours
-    {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        public DateTime? Opens { get; set; }
-        public DateTime? Closes { get; set; }
-
-        [MaxLength(2000)]
-        public string Description { get; set; } = string.Empty;
-
-        public AdmissionType? AdmissionType { get; set; }
-
-        public TimeInterval? TimeInterval { get; set; }
-
-        [MaxLength(50)]
-        public string Day { get; set; } = string.Empty;
-
-        [Required]
-        public Guid EatAndDrinkDetailId { get; set; }
-
-        [ForeignKey(nameof(EatAndDrinkDetailId))]
-        public EatAndDrinkDetail EatAndDrinkDetail { get; set; } = null!;
-    }
-
-    public class TemporaryClosure
-    {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        [MaxLength(2000)]
-        public string ReasonForClosure { get; set; } = string.Empty;
-
-        public DateTime? Opens { get; set; }
-        public DateTime? Closes { get; set; }
-
-        [MaxLength(2000)]
-        public string Description { get; set; } = string.Empty;
-
-        public TimeInterval? TimeInterval { get; set; }
-
-        [MaxLength(50)]
-        public string Day { get; set; } = string.Empty;
-
-        [Required]
-        public Guid EatAndDrinkDetailId { get; set; }
-
-        [ForeignKey(nameof(EatAndDrinkDetailId))]
-        public EatAndDrinkDetail EatAndDrinkDetail { get; set; } = null!;
-    }
-
-    public class Booking
-    {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        public TimeInterval? TimeInterval { get; set; }
-
-        [MaxLength(255)]
-        public string Name { get; set; } = string.Empty;
-
-        [MaxLength(2000)]
-        public string Description { get; set; } = string.Empty;
-
-        [Required]
-        public Guid EatAndDrinkDetailId { get; set; }
-
-        [ForeignKey(nameof(EatAndDrinkDetailId))]
-        public EatAndDrinkDetail EatAndDrinkDetail { get; set; } = null!;
-    }
-
-    public class AdmissionType
-    {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        [MaxLength(255)]
-        public string Name { get; set; } = string.Empty;
-
-        [MaxLength(2000)]
-        public string Description { get; set; } = string.Empty;
-    }
-
+    /// <summary>
+    /// Time interval entity used by OpeningHoursSpecification, TemporaryClosure and Booking.
+    /// Kept simple: start/end DateTime.
+    /// </summary>
     public class TimeInterval
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        public DateTime? Date { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        // Start and End are nullable to allow flexible usage (some DTOs may only partially specify)
+        public DateTime? Start { get; set; }
+        public DateTime? End { get; set; }
     }
 
-    public class TypicalProduct
+    /// <summary>
+    /// Opening hours spec corresponding to OpeningHoursSpecificationDto.
+    /// AdmissionType and TimeInterval are required in the DTO: enforce AdmissionType as required string and TimeInterval FK as required.
+    /// </summary>
+    public class OpeningHoursSpecification
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
+        // times of day (nullable)
+        public TimeSpan? Opens { get; set; }
+        public TimeSpan? Closes { get; set; }
+
+        [MaxLength(1000)]
+        public string? Description { get; set; }
+
+        // AdmissionType placeholder as string (AdmissionTypeDto not created)
         [Required]
-        [MaxLength(255)]
-        public string Name { get; set; } = string.Empty;
-
-        [MaxLength(2000)]
-        public string Description { get; set; } = string.Empty;
-
-        [Required]
-        public Guid EatAndDrinkDetailId { get; set; }
-
-        [ForeignKey(nameof(EatAndDrinkDetailId))]
-        public EatAndDrinkDetail EatAndDrinkDetail { get; set; } = null!;
-    }
-
-    public class EatOwner
-    {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
         [MaxLength(100)]
-        public string TaxCode { get; set; } = string.Empty;
+        public required string AdmissionType { get; set; }
 
-        [MaxLength(500)]
-        public string LegalName { get; set; } = string.Empty;
-
-        [MaxLength(500)]
-        public string Website { get; set; } = string.Empty;
-
+        // Required TimeInterval
         [Required]
-        public Guid EatAndDrinkDetailId { get; set; }
+        public Guid TimeIntervalId { get; set; }
 
-        [ForeignKey(nameof(EatAndDrinkDetailId))]
-        public EatAndDrinkDetail EatAndDrinkDetail { get; set; } = null!;
+        [ForeignKey(nameof(TimeIntervalId))]
+        public TimeInterval? TimeInterval { get; set; }
+
+        // Optional day of week
+        public DayOfWeek? Day { get; set; }
+
+        // FK to parent detail
+        public Guid? EatAndDrinkDetailIdentifier { get; set; }
+
+        [ForeignKey(nameof(EatAndDrinkDetailIdentifier))]
+        public EatAndDrinkDetail? EatAndDrinkDetail { get; set; }
     }
 
-    public class EatAssociatedService
+    /// <summary>
+    /// Temporary closure corresponding to TemporaryClosureDto.
+    /// </summary>
+    public class TemporaryClosure
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        [MaxLength(255)]
-        public string Identifier { get; set; } = string.Empty;
+        // Required in DTO but nullable content allowed
+        [MaxLength(1000)]
+        public string? ReasonForClosure { get; set; }
 
-        [MaxLength(255)]
-        public string Name { get; set; } = string.Empty;
+        public TimeSpan? Opens { get; set; }
+        public TimeSpan? Closes { get; set; }
 
         [MaxLength(1000)]
-        public string ImagePath { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
+        // Required TimeInterval
         [Required]
-        public Guid EatAndDrinkDetailId { get; set; }
+        public Guid TimeIntervalId { get; set; }
 
-        [ForeignKey(nameof(EatAndDrinkDetailId))]
-        public EatAndDrinkDetail EatAndDrinkDetail { get; set; } = null!;
+        [ForeignKey(nameof(TimeIntervalId))]
+        public TimeInterval? TimeInterval { get; set; }
+
+        public DayOfWeek? Day { get; set; }
+
+        // FK to parent detail
+        public Guid? EatAndDrinkDetailIdentifier { get; set; }
+
+        [ForeignKey(nameof(EatAndDrinkDetailIdentifier))]
+        public EatAndDrinkDetail? EatAndDrinkDetail { get; set; }
     }
 
-    public class EatMunicipalityData
+    /// <summary>
+    /// Booking entity corresponding to BookingDto.
+    /// </summary>
+    public class Booking
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
+        // Optional TimeInterval
+        public Guid? TimeIntervalId { get; set; }
+
+        [ForeignKey(nameof(TimeIntervalId))]
+        public TimeInterval? TimeInterval { get; set; }
+
+        // Name is required in DTO; use string (BookingType not created)
+        [Required]
         [MaxLength(255)]
-        public string Name { get; set; } = string.Empty;
+        public required string Name { get; set; }
 
         [MaxLength(1000)]
-        public string LogoPath { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
-        [Required]
-        public Guid EatAndDrinkDetailId { get; set; }
+        // FK to parent detail
+        public Guid? EatAndDrinkDetailIdentifier { get; set; }
 
-        [ForeignKey(nameof(EatAndDrinkDetailId))]
-        public EatAndDrinkDetail EatAndDrinkDetail { get; set; } = null!;
+        [ForeignKey(nameof(EatAndDrinkDetailIdentifier))]
+        public EatAndDrinkDetail? EatAndDrinkDetail { get; set; }
     }
 
-    public class Menu
+    public class TypicalProductMobile
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        [MaxLength(500)]
-        public string RestaurantName { get; set; } = string.Empty;
+        // 'name': Required
+        [Required]
+        [MaxLength(255)]
+        public required string Name { get; set; }
 
+        // 'description': Required
+        // Using MaxLength(2000) for a substantial paragraph. 
+        // Remove MaxLength if you want nvarchar(max).
+        [Required]
+        [MaxLength(2000)]
+        public required string Description { get; set; }
+
+        public Guid? EatAndDrinkDetailIdentifier { get; set; }
+
+        [ForeignKey(nameof(EatAndDrinkDetailIdentifier))]
+        public EatAndDrinkDetail? EatAndDrinkDetail { get; set; }
+    }
+
+    public class Owner
+    {
+        [Key]
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        // 'taxCode': Required. 
+        // This is often a business unique identifier (VAT/Fiscal Code).
+        [Required]
         [MaxLength(100)]
-        public string Type { get; set; } = string.Empty;
+        public required string TaxCode { get; set; }
 
-        [MaxLength(500)]
-        public string Name { get; set; } = string.Empty;
-
-        [MaxLength(2000)]
-        public string Description { get; set; } = string.Empty;
-
-        public ICollection<MenuSection> Sections { get; set; } = new List<MenuSection>();
-
+        // 'legalName': Required
         [Required]
-        public Guid EatAndDrinkDetailId { get; set; }
-
-        [ForeignKey(nameof(EatAndDrinkDetailId))]
-        public EatAndDrinkDetail EatAndDrinkDetail { get; set; } = null!;
-    }
-
-    public class MenuSection
-    {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        [MaxLength(255)]
-        public string Name { get; set; } = string.Empty;
-
-        public ICollection<MenuItem> Items { get; set; } = new List<MenuItem>();
-
-        [Required]
-        public Guid MenuId { get; set; }
-
-        [ForeignKey(nameof(MenuId))]
-        public Menu Menu { get; set; } = null!;
-    }
-
-    public class MenuItem
-    {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
         [MaxLength(500)]
-        public string Name { get; set; } = string.Empty;
+        public required string LegalName { get; set; }
 
+        // 'website': Nullable
         [MaxLength(1000)]
-        public string ImagePath { get; set; } = string.Empty;
+        [Url]
+        public string? Website { get; set; }
 
-        public Price? Price { get; set; }
+        public Guid? EatAndDrinkDetailIdentifier { get; set; }
 
-        [MaxLength(2000)]
-        public string Description { get; set; } = string.Empty;
-
-        [Required]
-        public Guid MenuSectionId { get; set; }
-
-        [ForeignKey(nameof(MenuSectionId))]
-        public MenuSection MenuSection { get; set; } = null!;
-    }
-
-    public class Price
-    {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        [Column(TypeName = "decimal(10,2)")]
-        public decimal Amount { get; set; }
-
-        [MaxLength(10)]
-        public string Currency { get; set; } = "EUR";
+        [ForeignKey(nameof(EatAndDrinkDetailIdentifier))]
+        public EatAndDrinkDetail? EatAndDrinkDetail { get; set; }
     }
 }
