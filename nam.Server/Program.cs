@@ -10,8 +10,10 @@ using nam.Server.Endpoints.MunicipalityEntities;
 using nam.Server.Models.Options;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented.Auth;
+using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection;
 using nam.Server.Models.Services.Infrastructure.Services.Interfaces;
 using nam.Server.Models.Services.Infrastructure.Services.Interfaces.Auth;
+using nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjection;
 using nam.Server.Models.Swagger;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
@@ -150,6 +152,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.AddScoped<ISyncService, ArtCultureSyncService>();
 
 var app = builder.Build();
 
