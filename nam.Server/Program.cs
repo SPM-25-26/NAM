@@ -7,11 +7,10 @@ using nam.Server.Data;
 using nam.Server.Endpoints;
 using nam.Server.Models.Options;
 using nam.Server.Models.Services.Infrastructure;
+using nam.Server.Models.Swagger;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
-
 using System.Text;
-using nam.Server.Models.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -178,4 +177,5 @@ app.UseAuthorization();
 app.MapRazorPages();
 app.MapAuth();
 app.MapPoi();
+app.MapArtCulture();
 app.Run();
