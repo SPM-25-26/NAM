@@ -9,6 +9,9 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
     public class ArtCultureSyncService(ApplicationDbContext dbContext, ILogger logger, IConfiguration Configuration, string municipality, IHttpClientFactory httpClientFactory)
         : BaseSyncService<ArtCultureNatureCardDto, ArtCultureNatureCard>(dbContext, logger, Configuration, municipality)
     {
+        // Cache dei dettagli scaricati: accessibile sia al fetch che al map
+        private readonly Dictionary<Guid, ArtCultureNatureDetail> _detailCache = new();
+
         protected override async Task<List<ArtCultureNatureCardDto>> FetchDataFromApiAsync()
         {
             var baseUrl = Configuration["DataInjectionApi"];
@@ -29,13 +32,58 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var dtos = await client.GetFromJsonAsync<List<ArtCultureNatureCardDto>>(fullUri, options);
 
-            return dtos ?? [];
+            if (dtos == null || dtos.Count == 0)
+                return new List<ArtCultureNatureCardDto>();
+
+            // Per ogni card, chiedo il dettaglio e lo salvo in cache
+            foreach (var dto in dtos)
+            {
+                if (dto == null || string.IsNullOrWhiteSpace(dto.EntityId))
+                {
+                    _logger.LogWarning("Skipping detail fetch: dto or dto.EntityId is null/empty");
+                    continue;
+                }
+
+                if (!Guid.TryParse(dto.EntityId, out var guidId))
+                {
+                    _logger.LogWarning("Skipping detail fetch: invalid GUID '{EntityId}'", dto.EntityId);
+                    continue;
+                }
+
+                // build detail endpoint
+                var detailPath = $"api/art-culture/detail/{Uri.EscapeDataString(dto.EntityId)}";
+                var detailRelative = detailPath;
+                var detailFullUri = new Uri(new Uri(baseUrl.TrimEnd('/') + "/"), detailRelative).ToString();
+
+                try
+                {
+                    var detail = await client.GetFromJsonAsync<ArtCultureNatureDetail>(detailFullUri, options);
+                    if (detail != null)
+                    {
+                        // Assicuro che l'identifier nella risorsa sia coerente col guid parsato
+                        if (detail.Identifier == Guid.Empty)
+                            detail.Identifier = guidId;
+
+                        _detailCache[guidId] = detail;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Detail endpoint returned null for id {Id}", dto.EntityId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to fetch detail for id {Id}", dto.EntityId);
+                }
+            }
+
+            return dtos;
         }
 
         protected override List<ArtCultureNatureCard> MapToEntities(List<ArtCultureNatureCardDto> dtos)
         {
             if (dtos == null || dtos.Count == 0)
-                return new List<ArtCultureNatureCard>();
+                return [];
 
             var entities = new List<ArtCultureNatureCard>(dtos.Count);
 
@@ -46,6 +94,9 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
                 if (!string.IsNullOrWhiteSpace(dto?.EntityId) && Guid.TryParse(dto.EntityId, out var parsedId))
                     entityId = parsedId;
 
+                // Try to get the previously fetched detail from cache
+                _detailCache.Remove(entityId, out var detailFromCache);
+
                 var entity = new ArtCultureNatureCard
                 {
                     EntityId = entityId,
@@ -53,7 +104,7 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
                     ImagePath = dto?.ImagePath?.Trim() ?? string.Empty,
                     BadgeText = dto?.BadgeText?.Trim() ?? string.Empty,
                     Address = dto?.Address?.Trim() ?? string.Empty,
-                    Detail = null
+                    Detail = detailFromCache
                 };
                 entities.Add(entity);
             }
