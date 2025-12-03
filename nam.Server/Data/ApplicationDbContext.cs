@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using nam.Server.Models.Entities;
+using nam.Server.Models.Entities.Auth;
+using nam.Server.Models.Entities.MunicipalityEntities;
 
 namespace nam.Server.Data
 {
