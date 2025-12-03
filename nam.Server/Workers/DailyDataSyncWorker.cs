@@ -9,18 +9,16 @@ namespace nam.Server.Workers
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            using var timer = new PeriodicTimer(TimeSpan.FromHours(24));
+
+            // Run immediately on startup before waiting 24h
+            await DoWorkAsync(stoppingToken);
+
+            while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                using var timer = new PeriodicTimer(TimeSpan.FromHours(24));
-
-                // Run immediately on startup before waiting 24h
                 await DoWorkAsync(stoppingToken);
-
-                while (await timer.WaitForNextTickAsync(stoppingToken))
-                {
-                    await DoWorkAsync(stoppingToken);
-                }
             }
+
         }
 
         private async Task DoWorkAsync(CancellationToken stoppingToken)
