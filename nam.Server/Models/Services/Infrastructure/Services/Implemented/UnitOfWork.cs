@@ -1,5 +1,5 @@
 ﻿using nam.Server.Data;
-using nam.Server.Models.Services.Infrastructure.Repositories;
+using nam.Server.Models.Services.Infrastructure.Repositories.Implemented;
 using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces;
 using nam.Server.Models.Services.Infrastructure.Services.Interfaces;
 
