@@ -8,11 +8,15 @@ using nam.Server.Endpoints;
 using nam.Server.Endpoints.Auth;
 using nam.Server.Endpoints.MunicipalityEntities;
 using nam.Server.Models.Options;
+using nam.Server.Models.Services.Infrastructure.Repositories.Implemented.MunicipalityEntities;
+using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces.MunicipalityEntities;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented.Auth;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection;
+using nam.Server.Models.Services.Infrastructure.Services.Implemented.MunicipalityEntities;
 using nam.Server.Models.Services.Infrastructure.Services.Interfaces;
 using nam.Server.Models.Services.Infrastructure.Services.Interfaces.Auth;
+using nam.Server.Models.Services.Infrastructure.Services.Interfaces.MunicipalityEntities;
 using nam.Server.Models.Swagger;
 using nam.Server.Workers;
 using Serilog;
@@ -160,6 +164,12 @@ builder.Services.AddScoped<ArtCultureSyncService>();
 
 // Register background workers
 builder.Services.AddHostedService<DailyDataSyncWorker>();
+
+// Municipality entities services
+builder.Services.AddScoped<IArtCultureRepository, ArtCultureRepository>(); //TODO move to a proper place
+
+builder.Services.AddScoped<IArtCultureService, ArtCultureService>();
+
 
 var app = builder.Build();
 

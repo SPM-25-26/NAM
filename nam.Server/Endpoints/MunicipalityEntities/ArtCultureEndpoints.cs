@@ -32,18 +32,18 @@ namespace nam.Server.Endpoints.MunicipalityEntities
 
         public static async Task<IResult> GetCardDetail(
             [FromServices] IArtCultureService artCultureService,
-            [FromQuery] string municipality,
+            [FromQuery] string identifier,
             [FromQuery] string language = "it"
             )
         {
             try
             {
-                var result = await artCultureService.GetCardDetailAsync(municipality, language);
+                var result = await artCultureService.GetCardDetailAsync(identifier, language);
                 return TypedResults.Ok(result);
             }
             catch (Exception ex)
             {
-                _logger?.Error(ex, "Error in getCardDetail municipality={Municipality}, language={Language}", municipality, language);
+                _logger?.Error(ex, "Error in getCardDetail identifier={identifier}, language={Language}", identifier, language);
                 return TypedResults.Problem(detail: "Internal server error", statusCode: 500);
             }
         }
