@@ -1,8 +1,9 @@
 ﻿using EFCore.BulkExtensions;
 using nam.Server.Data;
+using nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjection;
 using System.Collections.Concurrent;
 
-namespace nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjection
+namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection
 {
     public abstract class BaseSyncService<TDto, TEntity>(ApplicationDbContext dbContext, Serilog.ILogger logger, IConfiguration Configuration) : ISyncService
         where TEntity : class
@@ -47,7 +48,7 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInje
 
             // Bulk operation unica per tutti i dati
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
-            await _dbContext.BulkInsertOrUpdateAsync(allEntities.ToList());
+            await _dbContext.BulkInsertOrUpdateAsync(allEntities.ToList(), new BulkConfig { IncludeGraph = true });
             await transaction.CommitAsync();
 
             _logger.Information($"Sync completed. Total processed: {allEntities.Count} records across {municipalities.Length} municipalities.");

@@ -27,6 +27,7 @@ namespace nam.Server.Workers
             _logger.Information("Starting daily data sync...");
 
             using var scope = _scopeFactory.CreateScope();
+
             var apiService = scope.ServiceProvider.GetRequiredService<ArtCultureSyncService>();
 
             try

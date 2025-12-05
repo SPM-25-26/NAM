@@ -2,7 +2,6 @@
 using nam.Server.Models.DTOs.MunicipalityInjection;
 using nam.Server.Models.Entities.MunicipalityEntities;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Fetchers;
-using nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjection;
 
 namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection
 {
