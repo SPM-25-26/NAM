@@ -1,5 +1,4 @@
-﻿using nam.Server.Models.DTOs;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 namespace nam.Server.Models.Services.Infrastructure.Services.Interfaces.Auth
 {

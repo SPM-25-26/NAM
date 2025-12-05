@@ -1,10 +1,10 @@
 namespace nam.Server.Models.Services.Infrastructure.Services.Interfaces.Auth
-{   
+{
     /// <summary>
     /// Provides functionality for sending emails.
     /// </summary>
     public interface IEmailService
-    {   
+    {
         /// <summary>
         /// Sends an email asynchronously to the specified recipient.
         /// </summary>

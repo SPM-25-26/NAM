@@ -7,7 +7,7 @@
 
             RouteGroupBuilder groupBuilder = builder.MapGroup("/api/poi").RequireCors("FrontendWithCredentials");
 
-            groupBuilder.MapGet("/poiList", () => Results.Ok(new {message = "ok"}))//mock for now
+            groupBuilder.MapGet("/poiList", () => Results.Ok(new { message = "ok" }))//mock for now
                 .RequireAuthorization()
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized)
