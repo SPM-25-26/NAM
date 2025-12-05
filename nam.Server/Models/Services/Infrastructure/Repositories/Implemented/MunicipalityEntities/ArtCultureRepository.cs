@@ -33,6 +33,17 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
                 return null;
 
             return await context.ArtCultureNatureDetails
+                .Include(c => c.Services)
+                .Include(c => c.CulturalProjects)
+                .Include(c => c.Catalogues)
+                .Include(c => c.CreativeWorks)
+                //.Include(c => c.Gallery)
+                //.Include(c => c.VirtualTours)
+                .Include(c => c.Neighbors)
+                .Include(c => c.AssociatedServices)
+                //.Include(c => c.NearestCarPark)
+                //.Include(c => c.Site)
+                //.Include(c => c.MunicipalityData)
                 .FirstOrDefaultAsync(c => c.Identifier.ToString() == entityId, cancellationToken);
         }
     }
