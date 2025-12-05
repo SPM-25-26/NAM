@@ -21,6 +21,14 @@ import type { ValidationErrors } from "./RegistrationValidation";
 import { buildApiUrl } from '../../config';
 import RegistrationSuccess from "./RegistrationSuccess";
 
+// 1. Use a generic interface with a default type of unknown
+interface ApiResponse<T = unknown> {
+    success: boolean;
+    message: string;
+    errorCode?: string;
+    data?: T;
+}
+
 const RegistrationPage: React.FC = () => {
     const theme = useTheme();
     const navigate = useNavigate();
@@ -35,7 +43,7 @@ const RegistrationPage: React.FC = () => {
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [isLoading, setIsLoading] = useState(false);
     const [apiError, setApiError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null); // Keeping this state if you plan to use it
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -73,19 +81,25 @@ const RegistrationPage: React.FC = () => {
                 }),
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                const errorMessage = errorData.title || errorData.message || "Registration failed. Please try again.";
+            // 2. Replace 'any' with 'unknown' or a specific type if you know what the backend returns
+            let data: ApiResponse<unknown>;
+            try {
+                // Type assertion is necessary here to tell TS what we expect
+                data = (await response.json()) as ApiResponse<unknown>;
+            } catch {
+                throw new Error("Invalid server response");
+            }
+
+            if (!response.ok || !data.success) {
+                const errorMessage = data.message || "Registration failed. Please try again.";
                 setApiError(errorMessage);
                 return;
             }
 
-            const data = await response.text();
-            console.log("Registration successful:", data);
+            console.log("Registration successful:", data.message);
+            setSuccessMessage(data.message); // Use the state if you have it
             setIsSuccess(true);
-            //alert("Account created successfully! Please sign in.");
-            // Optionally redirect to login page
-            // window.location.href = "/login";
+
         } catch (error) {
             console.error("Registration error:", error);
             setApiError("An error occurred during registration. Please try again.");
@@ -114,9 +128,11 @@ const RegistrationPage: React.FC = () => {
             registerUser();
         }
     };
+
     if (isSuccess) {
         return <RegistrationSuccess handleGoToLogin={() => navigate("/login")} />;
     }
+
     return (
         <Box sx={{ backgroundColor: theme.palette.background.default, minHeight: "100vh" }}>
             <MyAppBar title={"Sign up"} backUrl={"/"} />
@@ -130,7 +146,7 @@ const RegistrationPage: React.FC = () => {
                         paddingY: 4,
                     }}
                 >
-                    {/* Logo e titolo */}
+                    {/* Logo and title */}
                     <Box
                         sx={{
                             display: "flex",
@@ -152,14 +168,14 @@ const RegistrationPage: React.FC = () => {
                         </Typography>
                     </Box>
 
-                    {/* Card principale */}
+                    {/* Main Card */}
                     <Card
                         sx={{
                             width: "85%",
                             padding: "2rem",
                         }}
                     >
-                        {/* Titolo e sottotitolo */}
+                        {/* Title and subtitle */}
                         <Typography
                             variant="h4"
                             sx={{
@@ -254,7 +270,7 @@ const RegistrationPage: React.FC = () => {
                                 iconColor={theme.palette.text.disabled}
                             />
 
-                            {/* Checkbox Termini */}
+                            {/* Terms Checkbox */}
                             <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
                                 <FormControlLabel
                                     control={
@@ -291,7 +307,7 @@ const RegistrationPage: React.FC = () => {
                                 disabled={isLoading}
                             />
 
-                            {/* Link Sign In */}
+                            {/* Sign In Link */}
                             <Box
                                 sx={{
                                     textAlign: "center",

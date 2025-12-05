@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Box, Typography, TextField, Button, Alert } from "@mui/material";
+import { Box, Typography, TextField, Button, Alert, useTheme} from "@mui/material";
 import MyButton from "../../../components/button";
 
 const RESEND_TIME_SECONDS = 60 * 15;
@@ -71,6 +71,8 @@ const StepVerification: React.FC<IStepVerificationProps> = ({
       .toString()
       .padStart(2, "0")}`;
   };
+
+    const theme = useTheme();
   return (
     <Box sx={{ width: "100%", maxWidth: 400, textAlign: "center" }}>
       <Typography variant="h5" sx={{ mb: 1 }}>
@@ -107,8 +109,11 @@ const StepVerification: React.FC<IStepVerificationProps> = ({
             inputProps={{
               maxLength: 1,
               style: { textAlign: "center", padding: "10px 0" },
-            }}
-            sx={{ width: "40px" }}
+                }}
+                sx={{
+                    width: "40px", "& .MuiOutlinedInput-root": {
+                        backgroundColor: theme.palette.background.default// Colora solo l'interno arrotondato
+                } }}
           />
         ))}
       </Box>

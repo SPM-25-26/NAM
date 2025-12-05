@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import FlightIcon from "@mui/icons-material/Flight";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -239,9 +238,7 @@ const MainContentsPage: React.FC = () => {
                 <IconButton
                     onClick={handleLogout}
                     aria-label="Logout"
-                    sx={{
-                        color: theme.palette.text.primary,
-                    }}
+                    color="primary"
                 >
                     <LogoutIcon />
                 </IconButton>

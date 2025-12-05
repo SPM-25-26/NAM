@@ -22,9 +22,9 @@ namespace nam.Server.Models.Services.Infrastructure
         Task<bool> IsTokenRevokedAsync(string jti, CancellationToken cancellationToken = default);
         Task<int> CleanupExpiredRevokedTokensAsync(CancellationToken cancellationToken = default);
 
-        Task<IResult> RequestPasswordReset(PasswordResetRequestDto request);
-        Task<IResult> ResetPassword(PasswordResetConfirmDto request);
-        Task<IResult> VerifyAuthCode(ValidationCodeDto request);
+        Task<PasswordResetResponseDto> RequestPasswordReset(PasswordResetRequestDto request);
+        Task<PasswordResetResponseDto> ResetPassword(PasswordResetConfirmDto request);
+        Task<PasswordResetResponseDto> VerifyAuthCode(ValidationCodeDto request);
 
         Task<bool> VerifyEmailAsync(string token, CancellationToken cancellationToken);
     }

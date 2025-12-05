@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using nam.Server.Endpoints;
+using nam.Server.Models.ApiResponse;
 using nam.Server.Models.Services.Infrastructure;
 using nam.ServerTests.mock;
 using System.IdentityModel.Tokens.Jwt;
@@ -98,7 +99,7 @@ namespace nam.ServerTests
             var result = await AuthEndpoints.LogoutAsync(httpContext, CancellationToken.None, _authService);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(UnauthorizedHttpResult));
+            Assert.IsInstanceOfType(result, typeof(JsonHttpResult<ApiResponse<object>>));
         }
     }
 }

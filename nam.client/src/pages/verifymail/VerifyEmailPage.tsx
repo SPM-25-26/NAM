@@ -13,6 +13,14 @@ import FlightIcon from "@mui/icons-material/Flight";
 import MyButton from "../../components/button";
 import { buildApiUrl } from "../../config";
 
+// Usiamo <T = unknown> come default, così non dobbiamo specificarlo sempre se non serve
+interface ApiResponse<T = unknown> {
+    success: boolean;
+    message: string;
+    errorCode?: string;
+    data?: T;
+}
+
 const VerifyEmailPage: React.FC = () => {
     const theme = useTheme();
     const navigate = useNavigate();
@@ -44,14 +52,22 @@ const VerifyEmailPage: React.FC = () => {
                     body: JSON.stringify({ email, token }),
                 });
 
-                if (!response.ok) {
+                // Sostituito 'any' con 'unknown' e aggiunto il cast
+                let data: ApiResponse<unknown>;
+                try {
+                    data = (await response.json()) as ApiResponse<unknown>;
+                } catch {
+                    throw new Error("Invalid server response");
+                }
+
+                if (!response.ok || !data.success) {
                     setStatus("error");
-                    setMessage("Verification failed. The link may be invalid or expired.");
+                    setMessage(data.message || "Verification failed. The link may be invalid or expired.");
                     return;
                 }
 
                 setStatus("success");
-                setMessage("Your email has been successfully verified.");
+                setMessage(data.message || "Your email has been successfully verified.");
             } catch (error) {
                 console.error("Verification error:", error);
                 setStatus("error");
