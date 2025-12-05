@@ -6,8 +6,8 @@ using nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjectio
 
 namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection
 {
-    public class ArtCultureSyncService(ApplicationDbContext dbContext, ILogger logger, IConfiguration Configuration, IHttpClientFactory httpClientFactory, string municipality)
-        : BaseSyncService<ArtCultureNatureCardDto, ArtCultureNatureCard>(dbContext, logger, Configuration, municipality)
+    public class ArtCultureSyncService(ApplicationDbContext dbContext, Serilog.ILogger logger, IConfiguration Configuration, IHttpClientFactory httpClientFactory)
+        : BaseSyncService<ArtCultureNatureCardDto, ArtCultureNatureCard>(dbContext, logger, Configuration)
     {
 
         protected async override Task<List<ArtCultureNatureCard>> GetEntities(string municipality)

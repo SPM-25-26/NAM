@@ -1,29 +1,30 @@
 ﻿using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection;
+using Serilog;
 
 namespace nam.Server.Workers
 {
-    public class DailyDataSyncWorker(IServiceScopeFactory scopeFactory, ILogger<DailyDataSyncWorker> logger) : BackgroundService
+    public class DailyDataSyncWorker(
+        IServiceScopeFactory scopeFactory,
+        Serilog.ILogger logger) : BackgroundService
     {
         private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
-        private readonly ILogger<DailyDataSyncWorker> _logger = logger;
+        private readonly Serilog.ILogger _logger = Log.Logger;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             using var timer = new PeriodicTimer(TimeSpan.FromHours(24));
 
-            // Run immediately on startup before waiting 24h
             await DoWorkAsync(stoppingToken);
 
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
                 await DoWorkAsync(stoppingToken);
             }
-
         }
 
         private async Task DoWorkAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Starting daily data sync...");
+            _logger.Information("Starting daily data sync...");
 
             using var scope = _scopeFactory.CreateScope();
             var apiService = scope.ServiceProvider.GetRequiredService<ArtCultureSyncService>();
@@ -32,11 +33,11 @@ namespace nam.Server.Workers
             {
                 await apiService.ExecuteSyncAsync();
 
-                _logger.LogInformation($"Successfully synced data");
+                _logger.Information("Successfully synced data");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to sync data.");
+                _logger.Error(ex, "Failed to sync data.");
             }
         }
     }

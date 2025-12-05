@@ -10,9 +10,11 @@ using nam.Server.Endpoints.MunicipalityEntities;
 using nam.Server.Models.Options;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented.Auth;
+using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection;
 using nam.Server.Models.Services.Infrastructure.Services.Interfaces;
 using nam.Server.Models.Services.Infrastructure.Services.Interfaces.Auth;
 using nam.Server.Models.Swagger;
+using nam.Server.Workers;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
@@ -150,6 +152,15 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// Register HttpClient for data injection services
+builder.Services.AddHttpClient();
+
+// Register data injection services
+builder.Services.AddScoped<ArtCultureSyncService>();
+
+// Register background workers
+builder.Services.AddHostedService<DailyDataSyncWorker>();
+
 var app = builder.Build();
 
 
@@ -166,7 +177,7 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+//app.UseStaticFiles();
 
 app.UseRouting();
 

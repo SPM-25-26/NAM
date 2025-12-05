@@ -22,7 +22,51 @@ namespace nam.Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("nam.Server.Models.Entities.ArtCultureNatureCard", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.Auth.PasswordResetCode", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AuthCode")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ResetPasswordAuth");
+                });
+
+            modelBuilder.Entity("nam.Server.Models.Entities.Auth.RevokedToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Jti")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RevokedTokens");
+                });
+
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.ArtCultureNatureCard", b =>
                 {
                     b.Property<Guid>("EntityId")
                         .ValueGeneratedOnAdd()
@@ -58,7 +102,7 @@ namespace nam.Server.Migrations
                     b.ToTable("ArtCultureNatureCards");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.ArtCultureNatureDetail", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.ArtCultureNatureDetail", b =>
                 {
                     b.Property<Guid>("Identifier")
                         .ValueGeneratedOnAdd()
@@ -154,7 +198,7 @@ namespace nam.Server.Migrations
                     b.ToTable("ArtCultureNatureDetails");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.AssociatedService", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.AssociatedService", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -185,7 +229,7 @@ namespace nam.Server.Migrations
                     b.ToTable("AssociatedServices");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.Catalogue", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.Catalogue", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -215,7 +259,7 @@ namespace nam.Server.Migrations
                     b.ToTable("Catalogues");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.CreativeWorkMobile", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.CreativeWorkMobile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -241,7 +285,7 @@ namespace nam.Server.Migrations
                     b.ToTable("CreativeWorkMobiles");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.CulturalProject", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.CulturalProject", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -267,7 +311,7 @@ namespace nam.Server.Migrations
                     b.ToTable("CulturalProjects");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.CulturalSiteService", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.CulturalSiteService", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -292,7 +336,7 @@ namespace nam.Server.Migrations
                     b.ToTable("CulturalSiteServices");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.FeatureCard", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.FeatureCard", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -326,7 +370,7 @@ namespace nam.Server.Migrations
                     b.ToTable("FeatureCards");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.MobileCategoryDetail", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.MobileCategoryDetail", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -348,7 +392,7 @@ namespace nam.Server.Migrations
                     b.ToTable("MobileCategoryDetails");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityForLocalStorageSetting", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.MunicipalityForLocalStorageSetting", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -369,7 +413,7 @@ namespace nam.Server.Migrations
                     b.ToTable("MunicipalityForLocalStorageSetting");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.NearestCarPark", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.NearestCarPark", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -393,51 +437,7 @@ namespace nam.Server.Migrations
                     b.ToTable("NearestCarParks");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.PasswordResetCode", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AuthCode")
-                        .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("nvarchar(6)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ResetPasswordAuth");
-                });
-
-            modelBuilder.Entity("nam.Server.Models.Entities.RevokedToken", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Jti")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RevokedTokens");
-                });
-
-            modelBuilder.Entity("nam.Server.Models.Entities.SiteCard", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.SiteCard", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -495,26 +495,26 @@ namespace nam.Server.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.ArtCultureNatureCard", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.ArtCultureNatureCard", b =>
                 {
-                    b.HasOne("nam.Server.Models.Entities.ArtCultureNatureDetail", "Detail")
+                    b.HasOne("nam.Server.Models.Entities.MunicipalityEntities.ArtCultureNatureDetail", "Detail")
                         .WithMany()
                         .HasForeignKey("DetailIdentifier");
 
                     b.Navigation("Detail");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.ArtCultureNatureDetail", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.ArtCultureNatureDetail", b =>
                 {
-                    b.HasOne("nam.Server.Models.Entities.MunicipalityForLocalStorageSetting", "MunicipalityData")
+                    b.HasOne("nam.Server.Models.Entities.MunicipalityEntities.MunicipalityForLocalStorageSetting", "MunicipalityData")
                         .WithMany()
                         .HasForeignKey("MunicipalityDataId");
 
-                    b.HasOne("nam.Server.Models.Entities.NearestCarPark", "NearestCarPark")
+                    b.HasOne("nam.Server.Models.Entities.MunicipalityEntities.NearestCarPark", "NearestCarPark")
                         .WithMany()
                         .HasForeignKey("NearestCarParkId");
 
-                    b.HasOne("nam.Server.Models.Entities.SiteCard", "Site")
+                    b.HasOne("nam.Server.Models.Entities.MunicipalityEntities.SiteCard", "Site")
                         .WithMany()
                         .HasForeignKey("SiteId");
 
@@ -525,49 +525,49 @@ namespace nam.Server.Migrations
                     b.Navigation("Site");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.AssociatedService", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.AssociatedService", b =>
                 {
-                    b.HasOne("nam.Server.Models.Entities.ArtCultureNatureDetail", null)
+                    b.HasOne("nam.Server.Models.Entities.MunicipalityEntities.ArtCultureNatureDetail", null)
                         .WithMany("AssociatedServices")
                         .HasForeignKey("ArtCultureNatureDetailIdentifier");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.Catalogue", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.Catalogue", b =>
                 {
-                    b.HasOne("nam.Server.Models.Entities.ArtCultureNatureDetail", null)
+                    b.HasOne("nam.Server.Models.Entities.MunicipalityEntities.ArtCultureNatureDetail", null)
                         .WithMany("Catalogues")
                         .HasForeignKey("ArtCultureNatureDetailIdentifier");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.CreativeWorkMobile", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.CreativeWorkMobile", b =>
                 {
-                    b.HasOne("nam.Server.Models.Entities.ArtCultureNatureDetail", null)
+                    b.HasOne("nam.Server.Models.Entities.MunicipalityEntities.ArtCultureNatureDetail", null)
                         .WithMany("CreativeWorks")
                         .HasForeignKey("ArtCultureNatureDetailIdentifier");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.CulturalProject", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.CulturalProject", b =>
                 {
-                    b.HasOne("nam.Server.Models.Entities.ArtCultureNatureDetail", null)
+                    b.HasOne("nam.Server.Models.Entities.MunicipalityEntities.ArtCultureNatureDetail", null)
                         .WithMany("CulturalProjects")
                         .HasForeignKey("ArtCultureNatureDetailIdentifier");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.CulturalSiteService", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.CulturalSiteService", b =>
                 {
-                    b.HasOne("nam.Server.Models.Entities.ArtCultureNatureDetail", null)
+                    b.HasOne("nam.Server.Models.Entities.MunicipalityEntities.ArtCultureNatureDetail", null)
                         .WithMany("Services")
                         .HasForeignKey("ArtCultureNatureDetailIdentifier");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.FeatureCard", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.FeatureCard", b =>
                 {
-                    b.HasOne("nam.Server.Models.Entities.ArtCultureNatureDetail", null)
+                    b.HasOne("nam.Server.Models.Entities.MunicipalityEntities.ArtCultureNatureDetail", null)
                         .WithMany("Neighbors")
                         .HasForeignKey("ArtCultureNatureDetailIdentifier");
                 });
 
-            modelBuilder.Entity("nam.Server.Models.Entities.ArtCultureNatureDetail", b =>
+            modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.ArtCultureNatureDetail", b =>
                 {
                     b.Navigation("AssociatedServices");
 
