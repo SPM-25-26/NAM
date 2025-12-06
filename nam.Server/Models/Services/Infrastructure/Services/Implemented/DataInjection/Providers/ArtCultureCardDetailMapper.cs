@@ -1,16 +1,11 @@
 ﻿using nam.Server.Models.DTOs.MunicipalityInjection;
 using nam.Server.Models.Entities.MunicipalityEntities;
 
-namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Fetchers
+namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Providers
 {
-    public class ArtCultureDetailHttpFetcher(HttpClient httpClient, Serilog.ILogger logger, IConfiguration configuration, Dictionary<string, string?> query) : AbstractHttpFetcher<ArtCultureNatureDetailDto, ArtCultureNatureDetail>(httpClient, logger, configuration, query)
+    public class ArtCultureCardDetailMapper : IDtoMapper<ArtCultureNatureDetailDto, ArtCultureNatureDetail>
     {
-        protected override string GetEndpointUrl()
-        {
-            return "api/art-culture/detail/{identifier}";
-        }
-
-        protected override ArtCultureNatureDetail MapToEntity(ArtCultureNatureDetailDto dto)
+        public ArtCultureNatureDetail MapToEntity(ArtCultureNatureDetailDto dto)
         {
             if (dto is null)
             {

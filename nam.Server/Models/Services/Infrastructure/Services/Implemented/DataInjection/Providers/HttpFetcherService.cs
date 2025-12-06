@@ -4,31 +4,28 @@ using System.Text.Json.Serialization;
 
 namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Fetchers
 {
-    public abstract class AbstractHttpFetcher<TDto, TEntity>(HttpClient httpClient, Serilog.ILogger logger, IConfiguration Configuration, Dictionary<string, string?> query)
+    public class HttpFetcherService(IHttpClientFactory httpClientFactory, Serilog.ILogger logger, IConfiguration configuration) : IFetcher
     {
-        protected readonly HttpClient _httpClient = httpClient;
+        protected readonly HttpClient _httpClient = httpClientFactory.CreateClient();
         protected readonly Serilog.ILogger _logger = logger;
-        protected readonly IConfiguration _configuration = Configuration;
+        protected readonly IConfiguration _configuration = configuration;
 
-        public async Task<TEntity?> FetchAndMapAsync(CancellationToken cancellationToken = default)
+        public async Task<TDto> Fetch<TDto>(string endpointUrl, Dictionary<string, string?> query, CancellationToken cancellationToken = default)
         {
             var baseUrl = _configuration["DataInjectionApi"];
             if (string.IsNullOrWhiteSpace(baseUrl))
                 throw new InvalidOperationException("Configuration key 'DataInjectionApi' is not set.");
 
-            var endpointPath = GetEndpointUrl();
-
             // Se l'endpoint contiene già dei parametri di percorso (es. {id}), sostituiscili
-            var processedEndpoint = ReplacePathParameters(endpointPath, query);
+            var processedEndpoint = ReplacePathParameters(endpointUrl, query);
 
             // Aggiungi solo i parametri di query rimanenti che non sono stati usati come parametri di percorso
-            var remainingQuery = GetRemainingQueryParameters(query);
+            var remainingQuery = GetRemainingQueryParameters(endpointUrl, query);
             var relativeWithQuery = remainingQuery.Any()
                 ? QueryHelpers.AddQueryString(processedEndpoint, remainingQuery)
                 : processedEndpoint;
 
             var fullUri = new Uri(new Uri(baseUrl.TrimEnd('/') + "/"), relativeWithQuery).ToString();
-
 
             try
             {
@@ -38,6 +35,9 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
                 var response = await _httpClient.GetAsync(fullUri, cancellationToken);
                 response.EnsureSuccessStatusCode();
 
+                // Leggi il contenuto della risposta e loggalo
+                var content = await response.Content.ReadAsStringAsync();
+
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
@@ -45,18 +45,21 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
                 // handle enum conversion
                 options.Converters.Add(new JsonStringEnumConverter());
 
-                // 2. Deserialize to DTO
-                var dto = await response.Content.ReadFromJsonAsync<TDto>(options, cancellationToken);
-
-                if (dto == null)
+                // 2. Deserialize to DTO a partire dalla stringa letta
+                if (string.IsNullOrWhiteSpace(content))
                 {
                     _logger.Warning("API returned null or empty body.");
                     return default;
                 }
 
-                // 3. Map to Entity
-                var entity = MapToEntity(dto);
-                return entity;
+                var dto = JsonSerializer.Deserialize<TDto>(content, options);
+
+                if (dto is null)
+                {
+                    _logger.Warning("Deserialization produced null DTO.");
+                    return default;
+                }
+                return dto;
             }
             catch (HttpRequestException ex)
             {
@@ -84,9 +87,8 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
             return result;
         }
 
-        protected virtual Dictionary<string, string?> GetRemainingQueryParameters(Dictionary<string, string?> query)
+        protected virtual Dictionary<string, string?> GetRemainingQueryParameters(string endpoint, Dictionary<string, string?> query)
         {
-            var endpoint = GetEndpointUrl();
             var remaining = new Dictionary<string, string?>();
 
             foreach (var kvp in query)
@@ -94,16 +96,10 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
                 var placeholder = $"{{{kvp.Key}}}";
                 // Se il parametro non è usato come segnaposto nell'URL, aggiungilo alla query string
                 if (!endpoint.Contains(placeholder))
-                {
                     remaining[kvp.Key] = kvp.Value;
-                }
             }
 
             return remaining;
         }
-
-        protected abstract string GetEndpointUrl();
-
-        protected abstract TEntity MapToEntity(TDto dto);
     }
 }

@@ -12,10 +12,13 @@ using nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Municip
 using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces.MunicipalityEntities;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented.Auth;
+using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection;
+using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Fetchers;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Sync;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented.MunicipalityEntities;
 using nam.Server.Models.Services.Infrastructure.Services.Interfaces;
 using nam.Server.Models.Services.Infrastructure.Services.Interfaces.Auth;
+using nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjection;
 using nam.Server.Models.Services.Infrastructure.Services.Interfaces.MunicipalityEntities;
 using nam.Server.Models.Swagger;
 using nam.Server.Workers;
@@ -160,7 +163,8 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddHttpClient();
 
 // Register data injection services
-builder.Services.AddScoped<ArtCultureSyncService>();
+builder.Services.AddTransient<ISyncService, NewSyncService>();
+builder.Services.AddTransient<IFetcher, HttpFetcherService>();
 
 // Register background workers
 builder.Services.AddHostedService<DailyDataSyncWorker>();
@@ -169,7 +173,6 @@ builder.Services.AddHostedService<DailyDataSyncWorker>();
 builder.Services.AddScoped<IArtCultureRepository, ArtCultureRepository>(); //TODO move to a proper place
 
 builder.Services.AddScoped<IArtCultureService, ArtCultureService>();
-
 
 var app = builder.Build();
 
