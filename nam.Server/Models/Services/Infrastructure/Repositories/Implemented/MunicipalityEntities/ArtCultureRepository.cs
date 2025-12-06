@@ -41,9 +41,9 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
                 //.Include(c => c.VirtualTours)
                 .Include(c => c.Neighbors)
                 .Include(c => c.AssociatedServices)
-                //.Include(c => c.NearestCarPark)
-                //.Include(c => c.Site)
-                //.Include(c => c.MunicipalityData)
+                .Include(c => c.NearestCarPark)
+                .Include(c => c.Site)
+                .Include(c => c.MunicipalityData)
                 .FirstOrDefaultAsync(c => c.Identifier.ToString() == entityId, cancellationToken);
         }
     }

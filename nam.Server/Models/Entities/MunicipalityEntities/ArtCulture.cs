@@ -73,14 +73,14 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         public double Longitude { get; set; }
 
-        public ICollection<CulturalSiteService> Services { get; set; } = new List<CulturalSiteService>();
-        public ICollection<CulturalProject> CulturalProjects { get; set; } = new List<CulturalProject>();
-        public ICollection<Catalogue> Catalogues { get; set; } = new List<Catalogue>();
-        public ICollection<CreativeWorkMobile> CreativeWorks { get; set; } = new List<CreativeWorkMobile>();
-        public ICollection<String> Gallery { get; set; } = new List<String>();
-        public ICollection<String> VirtualTours { get; set; } = new List<String>();
-        public ICollection<FeatureCard> Neighbors { get; set; } = new List<FeatureCard>();
-        public ICollection<AssociatedService> AssociatedServices { get; set; } = new List<AssociatedService>();
+        public ICollection<CulturalSiteService> Services { get; set; } = [];
+        public ICollection<CulturalProject> CulturalProjects { get; set; } = [];
+        public ICollection<Catalogue> Catalogues { get; set; } = [];
+        public ICollection<CreativeWorkMobile> CreativeWorks { get; set; } = [];
+        public ICollection<string> Gallery { get; set; } = [];
+        public ICollection<string> VirtualTours { get; set; } = [];
+        public ICollection<FeatureCard> Neighbors { get; set; } = [];
+        public ICollection<AssociatedService> AssociatedServices { get; set; } = [];
 
         public NearestCarPark? NearestCarPark { get; set; }
         public SiteCard? Site { get; set; }
