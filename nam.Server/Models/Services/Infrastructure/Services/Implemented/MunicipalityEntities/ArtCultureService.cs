@@ -17,7 +17,7 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.Municip
 
         public async Task<ArtCultureNatureDetail?> GetCardDetailAsync(string entityId, string language = "it", CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(entityId))
+            if (string.IsNullOrWhiteSpace(entityId) || string.IsNullOrWhiteSpace(language))
                 return null;
 
             return await artCultureRepository.GetDetailByEntityIdAsync(entityId, cancellationToken);
