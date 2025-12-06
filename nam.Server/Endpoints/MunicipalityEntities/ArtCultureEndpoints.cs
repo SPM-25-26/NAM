@@ -32,7 +32,7 @@ namespace nam.Server.Endpoints.MunicipalityEntities
 
         public static async Task<IResult> GetCardDetail(
             [FromServices] IArtCultureService artCultureService,
-            [FromQuery] string identifier,
+            [FromRoute] string identifier,
             [FromQuery] string language = "it"
             )
         {
