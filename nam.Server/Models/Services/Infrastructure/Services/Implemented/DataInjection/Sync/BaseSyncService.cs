@@ -3,7 +3,7 @@ using nam.Server.Data;
 using nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjection;
 using System.Collections.Concurrent;
 
-namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection
+namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Sync
 {
     public abstract class BaseSyncService<TDto, TEntity>(ApplicationDbContext dbContext, Serilog.ILogger logger, IConfiguration Configuration) : ISyncService
         where TEntity : class

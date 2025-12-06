@@ -1,4 +1,4 @@
-﻿using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection;
+﻿using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Sync;
 using Serilog;
 
 namespace nam.Server.Workers

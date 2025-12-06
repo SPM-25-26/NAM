@@ -3,7 +3,7 @@ using nam.Server.Models.DTOs.MunicipalityInjection;
 using nam.Server.Models.Entities.MunicipalityEntities;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Fetchers;
 
-namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection
+namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Sync
 {
     public class ArtCultureSyncService(ApplicationDbContext dbContext, Serilog.ILogger logger, IConfiguration Configuration, IHttpClientFactory httpClientFactory)
         : BaseSyncService<ArtCultureNatureCardDto, ArtCultureNatureCard>(dbContext, logger, Configuration)

@@ -12,7 +12,7 @@ using nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Municip
 using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces.MunicipalityEntities;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented.Auth;
-using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection;
+using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Sync;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented.MunicipalityEntities;
 using nam.Server.Models.Services.Infrastructure.Services.Interfaces;
 using nam.Server.Models.Services.Infrastructure.Services.Interfaces.Auth;
