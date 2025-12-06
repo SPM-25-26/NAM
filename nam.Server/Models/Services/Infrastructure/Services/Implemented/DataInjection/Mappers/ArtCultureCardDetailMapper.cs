@@ -1,7 +1,8 @@
 ﻿using nam.Server.Models.DTOs.MunicipalityInjection;
 using nam.Server.Models.Entities.MunicipalityEntities;
+using nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjection;
 
-namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Providers
+namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Mappers
 {
     public class ArtCultureCardDetailMapper : IDtoMapper<ArtCultureNatureDetailDto, ArtCultureNatureDetail>
     {

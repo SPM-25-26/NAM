@@ -1,8 +1,10 @@
 ﻿using nam.Server.Models.DTOs.MunicipalityInjection;
 using nam.Server.Models.Entities.MunicipalityEntities;
+using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Mappers;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Providers;
+using nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjection;
 
-namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection
+namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Collectors
 {
     public class ArtCultureCollector : IEntityCollector<ArtCultureNatureCard>
     {

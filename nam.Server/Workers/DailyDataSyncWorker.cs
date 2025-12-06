@@ -1,4 +1,4 @@
-﻿using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection;
+﻿using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Collectors;
 using nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjection;
 
 namespace nam.Server.Workers
@@ -33,14 +33,6 @@ namespace nam.Server.Workers
             var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
 
             var artCultureCollector = new ArtCultureCollector(fetcher);
-
-            //using (var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
-            //{
-            //    // Deletes the DB entirely and recreates it (Clears Data AND Schema)
-            //    context.Database.EnsureDeleted();
-            //    context.Database.EnsureCreated();
-            //    _logger.Warning("Database reset completed.");
-            //}
 
             try
             {

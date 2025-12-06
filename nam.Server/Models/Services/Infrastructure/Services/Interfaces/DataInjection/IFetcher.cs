@@ -1,4 +1,4 @@
-﻿namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection
+﻿namespace nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjection
 {
     public interface IFetcher
     {

@@ -1,4 +1,4 @@
-﻿namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Providers
+﻿namespace nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjection
 {
     public interface IProvider<TEntity>
     {

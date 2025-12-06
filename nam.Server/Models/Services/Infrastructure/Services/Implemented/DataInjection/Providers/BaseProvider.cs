@@ -1,4 +1,6 @@
-﻿namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Providers
+﻿using nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjection;
+
+namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Providers
 {
     public class BaseProvider<TDto, TEntity>(IFetcher fetcher, IDtoMapper<TDto, TEntity> mapper, string endpoint, Dictionary<string, string?> query) : IProvider<TEntity>
     {
