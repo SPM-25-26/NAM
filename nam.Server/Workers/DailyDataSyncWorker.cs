@@ -32,18 +32,32 @@ namespace nam.Server.Workers
 
             var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
 
-            var artCultureCollector = new ArtCultureCollector(fetcher);
-
-            try
+            // List of collectors: add new collectors here.
+            var collectors = new List<(string Name, Func<Task> Work)>
             {
-                await syncService.ExecuteSyncAsync(artCultureCollector);
+                ("ArtCultureCollector", () => syncService.ExecuteSyncAsync(new ArtCultureCollector(fetcher)))
+                // Add other collectors using the same pattern:
+                // ("OtherCollector", () => syncService.ExecuteSyncAsync(new OtherCollector(fetcher)))
+            };
 
-                _logger.Information("Successfully synced data");
-            }
-            catch (Exception ex)
+            // Execute collectors in parallel, each with isolated logging and error handling.
+            var tasks = collectors.Select(async collector =>
             {
-                _logger.Error(ex, "Failed to sync data.");
-            }
+                try
+                {
+                    _logger.Information("Starting sync for {Collector}", collector.Name);
+                    await collector.Work();
+                    _logger.Information("Successfully synced data for {Collector}", collector.Name);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Failed to sync data for {Collector}", collector.Name);
+                }
+            }).ToArray();
+
+            await Task.WhenAll(tasks);
+
+            _logger.Information("Daily data sync finished.");
         }
     }
 }
