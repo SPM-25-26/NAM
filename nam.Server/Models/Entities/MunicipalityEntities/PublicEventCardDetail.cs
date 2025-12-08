@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace nam.Server.Models.Entities.MunicipalityEntities
 {
@@ -40,9 +39,6 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         public virtual List<FeatureCard>? Neighbors { get; set; }
 
-        public Guid? NearestCarParkId { get; set; }
-
-        [ForeignKey(nameof(NearestCarParkId))]
         public virtual NearestCarPark? NearestCarPark { get; set; }
 
         public DateTime? Date { get; set; }
@@ -51,15 +47,10 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         public DateTime? EndDate { get; set; }
 
-        public Guid? OrganizerId { get; set; }
-
-        [ForeignKey(nameof(OrganizerId))]
         public virtual Organizer? Organizer { get; set; }
 
         public virtual List<Offer>? TicketsAndCosts { get; set; }
 
-        public Guid? MunicipalityDataId { get; set; }
-        [ForeignKey(nameof(MunicipalityDataId))]
         public virtual MunicipalityForLocalStorageSetting? MunicipalityData { get; set; }
     }
 }

@@ -7,6 +7,7 @@ using nam.Server.Data;
 using nam.Server.Endpoints;
 using nam.Server.Endpoints.Auth;
 using nam.Server.Endpoints.MunicipalityEntities;
+using nam.Server.Models.Entities.MunicipalityEntities;
 using nam.Server.Models.Options;
 using nam.Server.Models.Services.Infrastructure.Repositories.Implemented.MunicipalityEntities;
 using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces.MunicipalityEntities;
@@ -170,8 +171,11 @@ builder.Services.AddHostedService<DailyDataSyncWorker>();
 
 // Municipality entities services
 builder.Services.AddScoped<IArtCultureRepository, ArtCultureRepository>(); //TODO move to a proper place
+builder.Services.AddScoped<IMunicipalityEntityService<ArtCultureNatureCard, ArtCultureNatureDetail>, ArtCultureService>();
 
-builder.Services.AddScoped<IArtCultureService, ArtCultureService>();
+builder.Services.AddScoped<IPublicEventRepository, PublicEventRepository>(); //TODO move to a proper place
+builder.Services.AddScoped<IMunicipalityEntityService<PublicEventCard, PublicEventMobileDetail>, PublicEventService>();
+
 
 var app = builder.Build();
 
@@ -206,4 +210,5 @@ app.MapAuth();
 app.MapPoi();
 app.MapArtCulture();
 app.MapImages();
+app.MapPublicEvent();
 app.Run();

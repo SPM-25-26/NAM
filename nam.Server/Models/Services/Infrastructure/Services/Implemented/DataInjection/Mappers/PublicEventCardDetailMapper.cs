@@ -17,21 +17,18 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
             }
 
             // Identifier
-            Guid identifier = Guid.NewGuid();
+            Guid.TryParse(dto.Identifier, out Guid identifier);
             // Map NearestCarPark
             NearestCarPark? nearestCarPark = null;
-            Guid? nearestCarParkId = null;
             if (dto.NearestCarPark != null)
             {
                 nearestCarPark = new NearestCarPark
                 {
-                    Id = Guid.NewGuid(),
                     Latitude = dto.NearestCarPark.Latitude,
                     Longitude = dto.NearestCarPark.Longitude,
                     Address = dto.NearestCarPark.Address?.Trim(),
                     Distance = dto.NearestCarPark.Distance
                 };
-                nearestCarParkId = nearestCarPark.Id;
             }
 
             // Map Organizer
@@ -118,15 +115,12 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
                 Longitude = dto.Longitude,
                 Neighbors = neighbors,
                 NearestCarPark = nearestCarPark,
-                NearestCarParkId = nearestCarParkId,
                 Date = dto.Date,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
                 Organizer = organizer,
-                OrganizerId = organizerId,
                 TicketsAndCosts = offers,
                 MunicipalityData = municipality,
-                MunicipalityDataId = municipalityId
             };
 
             return entity;

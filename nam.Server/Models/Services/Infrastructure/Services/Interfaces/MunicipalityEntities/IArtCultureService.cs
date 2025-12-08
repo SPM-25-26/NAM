@@ -2,11 +2,16 @@
 
 namespace nam.Server.Models.Services.Infrastructure.Services.Interfaces.MunicipalityEntities
 {
-    public interface IArtCultureService
+    public class IArtCultureService : IMunicipalityEntityService<ArtCultureNatureCard, ArtCultureNatureDetail>
     {
+        public Task<ArtCultureNatureDetail?> GetCardDetailAsync(string entityId, string language = "it", CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
 
-        Task<IEnumerable<ArtCultureNatureCard>> GetCardListAsync(string municipality, string language = "it", CancellationToken cancellationToken = default);
-
-        Task<ArtCultureNatureDetail?> GetCardDetailAsync(string entityId, string language = "it", CancellationToken cancellationToken = default);
+        public Task<IEnumerable<ArtCultureNatureCard>> GetCardListAsync(string municipality, string language = "it", CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

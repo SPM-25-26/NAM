@@ -23,8 +23,6 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
         [MaxLength(1000)]
         public string Address { get; set; } = default!;
 
-        public Guid? MunicipalityDataId { get; set; }
-
         public MunicipalityForLocalStorageSetting? MunicipalityData { get; set; }
 
         [Required]

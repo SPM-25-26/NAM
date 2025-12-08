@@ -3,7 +3,7 @@ using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces.Municipa
 
 namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.MunicipalityEntities
 {
-    public class ArtCultureService(IArtCultureRepository artCultureRepository) : MunicipalityEntityService<ArtCultureNatureCard, ArtCultureNatureDetail>(artCultureRepository)
+    public class PublicEventService(IPublicEventRepository eventRepository) : MunicipalityEntityService<PublicEventCard, PublicEventMobileDetail>(eventRepository)
     {
     }
 }

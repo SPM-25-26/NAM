@@ -38,7 +38,6 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
                     BadgeText = item?.BadgeText?.Trim() ?? string.Empty,
                     Address = item?.Address?.Trim() ?? string.Empty,
                     MunicipalityData = municipality,
-                    MunicipalityDataId = municipality?.Id,
                     Date = item?.Date?.Trim() ?? string.Empty
                 };
 

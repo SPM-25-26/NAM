@@ -27,11 +27,8 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<ArtCultureNatureDetail?> GetDetailByEntityIdAsync(string entityId, CancellationToken cancellationToken = default)
+        public async Task<ArtCultureNatureDetail?> GetDetailByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(entityId))
-                return null;
-
             return await context.ArtCultureNatureDetails
                 .Include(c => c.Services)
                 .Include(c => c.CulturalProjects)
@@ -44,7 +41,7 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
                 .Include(c => c.NearestCarPark)
                 .Include(c => c.Site)
                 .Include(c => c.MunicipalityData)
-                .FirstOrDefaultAsync(c => c.Identifier.ToString() == entityId, cancellationToken);
+                .FirstOrDefaultAsync(c => c.Identifier == entityId, cancellationToken);
         }
     }
 }
