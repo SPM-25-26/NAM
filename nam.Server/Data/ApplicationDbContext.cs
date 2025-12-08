@@ -28,5 +28,12 @@ namespace nam.Server.Data
         public DbSet<NearestCarPark> NearestCarParks { get; set; } = null!;
         public DbSet<SiteCard> SiteCards { get; set; } = null!;
         public DbSet<MobileCategoryDetail> MobileCategoryDetails { get; set; } = null!;
+
+        // Public events entities
+        public DbSet<PublicEventCard> PublicEventCards { get; set; } = null!;
+        public DbSet<PublicEventMobileDetail> PublicEventMobileDetails { get; set; } = null!;
+        public DbSet<Offer> Offers { get; set; } = null!;
+        public DbSet<Organizer> Organizers { get; set; } = null!;
+        public DbSet<MunicipalityForLocalStorageSetting> MunicipalityForLocalStorageSettings { get; set; } = null!;
     }
 }

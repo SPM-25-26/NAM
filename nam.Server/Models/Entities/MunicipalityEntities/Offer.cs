@@ -26,7 +26,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         public string? TicketDescription { get; set; }
 
-        public string? PublicEventMobileDetailIdentifier { get; set; }
+        public Guid? PublicEventMobileDetailIdentifier { get; set; }
 
         [ForeignKey(nameof(PublicEventMobileDetailIdentifier))]
         public virtual PublicEventMobileDetail? PublicEventMobileDetail { get; set; }

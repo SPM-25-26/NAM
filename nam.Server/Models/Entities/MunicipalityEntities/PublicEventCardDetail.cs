@@ -6,7 +6,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
     public class PublicEventMobileDetail
     {
         [Key]
-        public string Identifier { get; set; }
+        public Guid Identifier { get; set; }
 
         public string? Title { get; set; }
 
@@ -40,7 +40,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         public virtual List<FeatureCard>? Neighbors { get; set; }
 
-        public string? NearestCarParkId { get; set; }
+        public Guid? NearestCarParkId { get; set; }
 
         [ForeignKey(nameof(NearestCarParkId))]
         public virtual NearestCarPark? NearestCarPark { get; set; }
@@ -51,15 +51,14 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         public DateTime? EndDate { get; set; }
 
-        public string? OrganizerId { get; set; }
+        public Guid? OrganizerId { get; set; }
+
         [ForeignKey(nameof(OrganizerId))]
         public virtual Organizer? Organizer { get; set; }
 
-        // Navigation Property: One-to-Many
         public virtual List<Offer>? TicketsAndCosts { get; set; }
 
-        // Navigation Property: One-to-One or Owned Type
-        public string? MunicipalityDataId { get; set; } // Foreign Key
+        public Guid? MunicipalityDataId { get; set; }
         [ForeignKey(nameof(MunicipalityDataId))]
         public virtual MunicipalityForLocalStorageSetting? MunicipalityData { get; set; }
     }

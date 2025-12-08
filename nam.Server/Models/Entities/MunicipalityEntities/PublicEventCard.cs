@@ -30,5 +30,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
         [Required]
         [MaxLength(255)]
         public string Date { get; set; } = default!;
+
+        public PublicEventMobileDetail? Detail { get; set; }
     }
 }
