@@ -205,4 +205,5 @@ app.MapRazorPages();
 app.MapAuth();
 app.MapPoi();
 app.MapArtCulture();
+app.MapImages();
 app.Run();
