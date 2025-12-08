@@ -35,9 +35,8 @@ namespace nam.Server.Workers
             // List of collectors: add new collectors here.
             var collectors = new List<(string Name, Func<Task> Work)>
             {
-                ("ArtCultureCollector", () => syncService.ExecuteSyncAsync(new ArtCultureCollector(fetcher)))
-                // Add other collectors using the same pattern:
-                // ("OtherCollector", () => syncService.ExecuteSyncAsync(new OtherCollector(fetcher)))
+                ("ArtCultureCollector", () => syncService.ExecuteSyncAsync(new ArtCultureCollector(fetcher))),
+                ("PublicEventCollector", () => syncService.ExecuteSyncAsync(new PublicEventCollector(fetcher))),
             };
 
             // Execute collectors in parallel, each with isolated logging and error handling.
