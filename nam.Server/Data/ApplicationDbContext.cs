@@ -35,5 +35,10 @@ namespace nam.Server.Data
         public DbSet<Offer> Offers { get; set; } = null!;
         public DbSet<Organizer> Organizers { get; set; } = null!;
         public DbSet<MunicipalityForLocalStorageSetting> MunicipalityForLocalStorageSettings { get; set; } = null!;
+
+        // Article entities
+        public DbSet<ArticleCard> ArticleCards { get; set; } = null!;
+        public DbSet<ArticleDetail> ArticleDetails { get; set; } = null!;
+        public DbSet<Paragraph> Paragraphs { get; set; } = null!;
     }
 }

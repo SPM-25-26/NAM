@@ -1,12 +1,11 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace nam.Server.Models.Entities.MunicipalityEntities
 {
     public class ArticleCard
     {
         [Key]
-        public Guid entityId { get; set; } = Guid.NewGuid();
+        public Guid EntityId { get; set; }
 
         [Required]
         [MaxLength(255)]
@@ -22,16 +21,14 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         [MaxLength(500)]
         public string? Address { get; set; }
+
+        public ArticleDetail? Detail { get; set; }
     }
 
     public class ArticleDetail
     {
         [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        [Required]
-        [MaxLength(100)]
-        public required string Identifier { get; set; }
+        public Guid Identifier { get; set; }
 
         [Required]
         [MaxLength(255)]
@@ -56,14 +53,11 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
         [Required]
         public DateTime UpdatedAt { get; set; }
 
-        public List<string>? Themes { get; set; } = new();
+        public List<string>? Themes { get; set; } = [];
 
-        public List<Paragraph> Paragraphs { get; set; }
+        public List<Paragraph> Paragraphs { get; set; } = [];
 
-        public int MunicipalityId { get; set; }
-
-        [ForeignKey(nameof(MunicipalityId))]
-        public MunicipalityForLocalStorageSetting MunicipalityData { get; set; }
+        public MunicipalityForLocalStorageSetting? MunicipalityData { get; set; }
     }
 
     public class Paragraph
@@ -71,10 +65,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        public int ArticleDetailId { get; set; }
-
-        [ForeignKey(nameof(ArticleDetailId))]
-        public ArticleDetail ArticleDetail { get; set; }
+        public ArticleDetail? ArticleDetail { get; set; }
 
         [Required]
         public int Position { get; set; }
