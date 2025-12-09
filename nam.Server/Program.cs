@@ -179,6 +179,9 @@ builder.Services.AddScoped<IMunicipalityEntityService<PublicEventCard, PublicEve
 builder.Services.AddScoped<IArticleRepository, ArticleRepository>(); //TODO move to a proper place
 builder.Services.AddScoped<IMunicipalityEntityService<ArticleCard, ArticleDetail>, ArticleService>();
 
+builder.Services.AddScoped<INatureRepository, NatureRepository>(); //TODO move to a proper place
+builder.Services.AddScoped<IMunicipalityEntityService<Nature, ArtCultureNatureDetail>, NatureService>();
+
 var app = builder.Build();
 
 
@@ -214,4 +217,5 @@ app.MapArtCulture();
 app.MapImages();
 app.MapPublicEvent();
 app.MapArticle();
+app.MapNature();
 app.Run();

@@ -38,6 +38,7 @@ namespace nam.Server.Workers
                 ("ArtCultureCollector", () => syncService.ExecuteSyncAsync(new ArtCultureCollector(fetcher))),
                 ("PublicEventCollector", () => syncService.ExecuteSyncAsync(new PublicEventCollector(fetcher))),
                 ("ArticleCollector", () => syncService.ExecuteSyncAsync(new ArticleCollector(fetcher))),
+                ("NatureCollector", () => syncService.ExecuteSyncAsync(new NatureCollector(fetcher))),
             };
 
             // Execute collectors in parallel, each with isolated logging and error handling.

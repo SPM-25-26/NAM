@@ -40,5 +40,7 @@ namespace nam.Server.Data
         public DbSet<ArticleCard> ArticleCards { get; set; } = null!;
         public DbSet<ArticleDetail> ArticleDetails { get; set; } = null!;
         public DbSet<Paragraph> Paragraphs { get; set; } = null!;
+        public DbSet<Nature> Natures { get; set; } = null!;
+
     }
 }
