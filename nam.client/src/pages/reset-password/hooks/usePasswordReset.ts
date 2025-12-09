@@ -2,15 +2,7 @@ import { useState } from "react";
 import type { IResetData } from "./model/IResetData";
 import { useNavigate } from "react-router-dom";
 import { buildApiUrl } from "../../../config";
-// Importiamo le utility di validazione
 import { validatePassword, validateConfirmPassword } from "../../registration/RegistrationValidation";
-
-interface ApiResponse<T = unknown> {
-    success: boolean;
-    message: string;
-    errorCode?: string;
-    data?: T;
-}
 
 export const usePasswordReset = () => {
     const navigate = useNavigate();
@@ -33,7 +25,7 @@ export const usePasswordReset = () => {
         "Content-Type": "application/json",
     };
 
-    const apiRequest = async <T = unknown>(url: string, body: object): Promise<ApiResponse<T>> => {
+    const apiRequest = async (url: string, body: object) => {
         setIsLoading(true);
         setIsError(null);
         try {
@@ -43,18 +35,22 @@ export const usePasswordReset = () => {
                 body: JSON.stringify(body),
             });
 
-            let responseData: ApiResponse<T>;
-            try {
-                responseData = (await response.json()) as ApiResponse<T>;
-            } catch {
-                throw new Error("Invalid server response");
+            if (!response.ok) {
+                // Try to extract the error message from the ProblemDetails format
+                let errorMessage = `Error: ${response.status}`;
+                try {
+                    const errorJson = await response.json();
+                    if (errorJson && typeof errorJson.detail === "string") {
+                        errorMessage = errorJson.detail;
+                    }
+                } catch {
+                    // If the body is not valid JSON, keep the default message
+                }
+                throw new Error(errorMessage);
             }
 
-            if (!response.ok || !responseData.success) {
-                throw new Error(responseData.message || `Error: ${response.status}`);
-            }
-
-            return responseData;
+            // Return the success JSON if needed
+            return await response.json();
         } catch (err: unknown) {
             if (err instanceof Error) {
                 setIsError(err.message);
@@ -77,8 +73,8 @@ export const usePasswordReset = () => {
                 email: data.email,
             });
             setActiveStep(1);
-        } catch {
-            // Errore già gestito dalla apiRequest (che setta isError)
+        } catch (error) {
+            console.error(error);
         }
     };
 
@@ -90,19 +86,17 @@ export const usePasswordReset = () => {
         }
 
         try {
-            // CORREZIONE: Il backend vuole "authCode", non "token"
             await apiRequest(buildApiUrl("auth/password-reset/verify"), {
                 email: data.email,
                 authCode: codeString,
             });
             setActiveStep(2);
-        } catch {
-            // Stop
+        } catch (error) {
+            console.error(error);
         }
     };
 
     const handleResetPassword = async () => {
-        // Validazione lato client prima della chiamata
         const passwordError = validatePassword(data.newPassword);
         if (passwordError) {
             setIsError(passwordError);
@@ -116,7 +110,6 @@ export const usePasswordReset = () => {
         }
 
         try {
-            // CORREZIONE: Usiamo "authCode" anche qui
             await apiRequest(buildApiUrl("auth/password-reset"), {
                 email: data.email,
                 authCode: data.authCode.join(""),
@@ -124,8 +117,8 @@ export const usePasswordReset = () => {
                 confirmPassword: data.confirmPassword,
             });
             setActiveStep(3);
-        } catch {
-            // Stop
+        } catch (error) {
+            console.error(error);
         }
     };
 

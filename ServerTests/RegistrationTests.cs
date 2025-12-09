@@ -56,9 +56,7 @@ namespace nam.ServerTests
             var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
 
             // Assert
-            // Verify that the result is Ok (or Ok<string> depending on the implementation)
-            // If the endpoint returns TypedResults.Ok("..."), the type is Ok<string>
-            Assert.IsInstanceOfType(result, typeof(Ok<ApiResponse<object>>));
+            Assert.IsInstanceOfType(result, typeof(Ok<MessageResponse>));
 
             // Verify in the DB (via the builder's context)
             var userInDb = await _builder.Context.Users.FirstOrDefaultAsync(u => u.Email == registrationData.Email);
@@ -92,7 +90,7 @@ namespace nam.ServerTests
 
             // Assert
             // Assume that AuthService returns false if exists, and the endpoint returns Conflict
-            Assert.IsInstanceOfType(result, typeof(Conflict<ApiResponse<object>>));
+            Assert.IsInstanceOfType(result, typeof(Conflict<MessageResponse>));
         }
 
         [TestMethod]

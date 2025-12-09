@@ -21,14 +21,6 @@ import type { ValidationErrors } from "./RegistrationValidation";
 import { buildApiUrl } from '../../config';
 import RegistrationSuccess from "./RegistrationSuccess";
 
-// 1. Use a generic interface with a default type of unknown
-interface ApiResponse<T = unknown> {
-    success: boolean;
-    message: string;
-    errorCode?: string;
-    data?: T;
-}
-
 const RegistrationPage: React.FC = () => {
     const theme = useTheme();
     const navigate = useNavigate();
@@ -81,24 +73,16 @@ const RegistrationPage: React.FC = () => {
                 }),
             });
 
-            // 2. Replace 'any' with 'unknown' or a specific type if you know what the backend returns
-            let data: ApiResponse<unknown>;
-            try {
-                // Type assertion is necessary here to tell TS what we expect
-                data = (await response.json()) as ApiResponse<unknown>;
-            } catch {
-                throw new Error("Invalid server response");
-            }
-
-            if (!response.ok || !data.success) {
-                const errorMessage = data.message || "Registration failed. Please try again.";
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Registration successful:", data.message);
+                setSuccessMessage(data.message);
+                setIsSuccess(true);
+            } else {
+                const errorData = await response.json();
+                const errorMessage = errorData.detail || "Registration failed. Please try again.";
                 setApiError(errorMessage);
-                return;
             }
-
-            console.log("Registration successful:", data.message);
-            setSuccessMessage(data.message); // Use the state if you have it
-            setIsSuccess(true);
 
         } catch (error) {
             console.error("Registration error:", error);

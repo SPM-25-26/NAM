@@ -33,7 +33,7 @@ namespace nam.Server.Endpoints
                 if (request == null)
                 {
                     _logger?.Warning("RegisterUser called with null request");
-                    return TypedResults.BadRequest(ApiResponse<object>.Fail("Request body cannot be null."));
+                    return TypedResults.Problem(detail: "Request body cannot be null.", statusCode: 400);
                 }
 
                 var validationResult = await validator.ValidateAsync(request);
@@ -41,8 +41,6 @@ namespace nam.Server.Endpoints
                 if (!validationResult.IsValid)
                 {
                     _logger?.Warning("Validation failed for email {Email}: {@Errors}", request?.Email, validationResult.ToDictionary());
-                    // Nota: qui potresti voler strutturare meglio gli errori di validazione nel Data, 
-                    // ma per ora manteniamo il messaggio generico o usiamo i dizionari.
                     return TypedResults.ValidationProblem(validationResult.ToDictionary());
                 }
 
@@ -50,16 +48,16 @@ namespace nam.Server.Endpoints
                 if (!success)
                 {
                     _logger?.Warning("Attempt to register already existing email {Email}", request.Email);
-                    return TypedResults.Conflict(ApiResponse<object>.Fail("Email is already in use."));
+                    return TypedResults.Conflict(new MessageResponse("Email is already in use."));
                 }
 
                 _logger?.Information("User registered successfully with email {Email}", request.Email);
-                return TypedResults.Ok(ApiResponse<object>.Ok(null, "User registered successfully"));
+                return TypedResults.Ok(new MessageResponse("User registered successfully"));
             }
             catch (Exception ex)
             {
                 _logger?.Error(ex, "Error while registering user with email {Email}", request?.Email);
-                return TypedResults.Problem("An error occurred while registering the user.");
+                return TypedResults.Problem(detail: "An error occurred while registering the user.", statusCode: 500);
             }
         }
 
@@ -70,15 +68,13 @@ namespace nam.Server.Endpoints
 
             if (!result.Success)
             {
-                // Se l'utente non è stato trovato, per sicurezza spesso si risponde OK comunque, 
-                // ma qui rispetto la tua logica originale che restituiva NotFound/BadRequest.
                 if (result.Message == "The email not found")
-                    return TypedResults.NotFound(ApiResponse<PasswordResetResponseDto>.Fail(result.Message, null, result));
+                    return TypedResults.Problem(detail: result.Message, statusCode: 404);
 
-                return TypedResults.BadRequest(ApiResponse<PasswordResetResponseDto>.Fail(result.Message, null, result));
+                return TypedResults.Problem(detail: result.Message, statusCode: 400);
             }
 
-            return TypedResults.Ok(ApiResponse<PasswordResetResponseDto>.Ok(result, result.Message));
+            return TypedResults.Ok(new { message = result.Message, data = result });
         }
 
         public static async Task<IResult> VerifyAuthCode(
@@ -88,10 +84,10 @@ namespace nam.Server.Endpoints
 
             if (!result.Success)
             {
-                return TypedResults.BadRequest(ApiResponse<PasswordResetResponseDto>.Fail(result.Message, null, result));
+                return TypedResults.Problem(detail: result.Message, statusCode: 400);
             }
 
-            return TypedResults.Ok(ApiResponse<PasswordResetResponseDto>.Ok(result, result.Message));
+            return TypedResults.Ok(new { message = result.Message, data = result });
         }
 
         public static async Task<IResult> ResetPassword(
@@ -101,10 +97,10 @@ namespace nam.Server.Endpoints
 
             if (!result.Success)
             {
-                return TypedResults.BadRequest(ApiResponse<PasswordResetResponseDto>.Fail(result.Message, null, result));
+                return TypedResults.Problem(detail: result.Message, statusCode: 400);
             }
 
-            return TypedResults.Ok(ApiResponse<PasswordResetResponseDto>.Ok(result, result.Message));
+            return TypedResults.Ok(new { message = result.Message, data = result });
         }
 
         public static async Task<IResult> GenerateToken(
@@ -115,11 +111,9 @@ namespace nam.Server.Endpoints
             if (string.IsNullOrEmpty(token))
             {
                 return TypedResults.Unauthorized();
-                // O se vuoi usare ApiResponse anche qui:
-                // return TypedResults.Json(ApiResponse<object>.Fail("Unauthorized"), statusCode: 401);
             }
 
-            return TypedResults.Ok(ApiResponse<object>.Ok(new { token }));
+            return TypedResults.Ok(new { token });
         }
 
         public static async Task<IResult> Login(
@@ -130,8 +124,7 @@ namespace nam.Server.Endpoints
 
             if (string.IsNullOrEmpty(token))
             {
-                // return TypedResults.Unauthorized();
-                return TypedResults.Json(ApiResponse<object>.Fail("Invalid credentials or email not verified"), statusCode: 401);
+                return TypedResults.Problem(detail: "Invalid credentials or email not verified", statusCode: 401);
             }
 
             httpContext.Response.Cookies.Append("AuthToken", token, new CookieOptions
@@ -143,17 +136,18 @@ namespace nam.Server.Endpoints
                 Path = "/"
             });
 
-            return TypedResults.Ok(ApiResponse<object>.Ok(new
+            return TypedResults.Ok(new
             {
-                tokenSetInCookie = true
-            }, "Logged in"));
+                tokenSetInCookie = true,
+                message = "Logged in"
+            });
         }
 
         public static IResult ValidateToken(ClaimsPrincipal user)
         {
             //If the code reaches here, it means the cookie is valid and the user is authenticated.
 
-            return TypedResults.Ok(ApiResponse<object>.Ok(null, "Token is valid."));
+            return TypedResults.Ok(new MessageResponse("Token is valid."));
         }
 
         public static async Task<IResult> LogoutAsync(
@@ -163,7 +157,7 @@ namespace nam.Server.Endpoints
             var user = httpContext.User;
             if (user?.Identity?.IsAuthenticated != true)
             {
-                return TypedResults.Json(ApiResponse<object>.Fail("User not authenticated"), statusCode: 401);
+                return TypedResults.Problem(detail: "User not authenticated", statusCode: 401);
             }
 
             var jti = user.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
@@ -171,7 +165,7 @@ namespace nam.Server.Endpoints
 
             if (!long.TryParse(expString, out var expSeconds))
             {
-                return TypedResults.BadRequest(ApiResponse<object>.Fail("Claim exp not valid."));
+                return TypedResults.Problem(detail: "Claim exp not valid.", statusCode: 400);
             }
 
             var expiresAt = DateTimeOffset.FromUnixTimeSeconds(expSeconds).UtcDateTime;
@@ -186,7 +180,7 @@ namespace nam.Server.Endpoints
                 SameSite = SameSiteMode.Strict
             });
 
-            return TypedResults.Ok(ApiResponse<object>.Ok(null, "Logout done, token revokated."));
+            return TypedResults.Ok(new MessageResponse("Logout done, token revokated."));
         }
 
         public static async Task<IResult> VerifyEmail(
@@ -196,17 +190,17 @@ namespace nam.Server.Endpoints
         {
             if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Token))
             {
-                return TypedResults.BadRequest(ApiResponse<object>.Fail("Email or token missing."));
+                return TypedResults.Problem(detail: "Email or token missing.", statusCode: 400);
             }
 
             var result = await authService.VerifyEmailAsync(request.Token, cancellationToken);
 
             if (!result)
             {
-                return TypedResults.BadRequest(ApiResponse<object>.Fail("Verification failed."));
+                return TypedResults.Problem(detail: "Verification failed.", statusCode: 400);
             }
 
-            return TypedResults.Ok(ApiResponse<object>.Ok(null, "Email successfully verified."));
+            return TypedResults.Ok(new MessageResponse("Email successfully verified."));
         }
     }
 }

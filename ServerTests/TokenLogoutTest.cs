@@ -56,7 +56,6 @@ namespace nam.ServerTests
             var result = await AuthEndpoints.LogoutAsync(httpContext, CancellationToken.None, _authService);
 
             // Assert - Verify Response
-            // If the endpoint returns TypedResults.Ok(new { message = "..." }) the type could be Ok<object> or Ok<dynamic>
             // Verify that it is NOT an error
             Assert.IsNotInstanceOfType(result, typeof(UnauthorizedHttpResult));
             Assert.IsNotInstanceOfType(result, typeof(BadRequest<string>));
@@ -68,19 +67,8 @@ namespace nam.ServerTests
             var value = okResult.Value;
             Assert.IsNotNull(value);
 
-            // If your endpoint returns an anonymous object or a DTO with the 'message' property
-            // Example: return TypedResults.Ok(new { message = "Logout done..." });
-            // You can access it via reflection/dynamic
-            try
-            {
-                string message = value.GetType().GetProperty("message")?.GetValue(value, null) as string ?? "";
-                Assert.AreEqual("Logout done, token revokated.", message);
-            }
-            catch
-            {
-                // Fallback se il valore è direttamente stringa
-                // Assert.AreEqual("Logout done, token revokated.", value.ToString());
-            }
+            Assert.IsNotNull(okResult.Value);
+            Assert.AreEqual("Logout done, token revokated.", okResult.Value.Message);
 
             // Assert - Verify Database side effect
             // Verify that AuthService has written to the RevokedTokens table
@@ -99,7 +87,7 @@ namespace nam.ServerTests
             var result = await AuthEndpoints.LogoutAsync(httpContext, CancellationToken.None, _authService);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(JsonHttpResult<ApiResponse<object>>));
+            Assert.IsInstanceOfType(result, typeof(ProblemHttpResult));
         }
     }
 }

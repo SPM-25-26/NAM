@@ -15,11 +15,12 @@ import MyButton from "../../components/button";
 import FormBox from "../../components/FormBox";
 import { buildApiUrl } from "../../config";
 
-interface ApiResponse<T = unknown> {
-    success: boolean;
-    message: string;
-    errorCode?: string;
-    data?: T;
+interface ProblemDetails {
+    type?: string;
+    title?: string;
+    status?: number;
+    detail?: string;
+    instance?: string;
 }
 
 const LoginPage: React.FC = () => {
@@ -84,21 +85,19 @@ const LoginPage: React.FC = () => {
                 }),
             });
 
-            let data: ApiResponse<unknown>;
-
-            try {
-                data = (await response.json()) as ApiResponse<unknown>;
-            } catch {
-                throw new Error("Invalid server response");
-            }
-
-            if (!response.ok || !data.success) {
-                const errorMessage = data.message || "Login failed. Please check your credentials.";
+            if (!response.ok) {
+                let errorMessage = "Login failed. Please check your credentials.";
+                try {
+                    const errorData = (await response.json()) as ProblemDetails;
+                    if (errorData.detail) {
+                        errorMessage = errorData.detail;
+                    }
+                } catch {
+                    //
+                }
                 setApiError(errorMessage);
                 return;
             }
-
-            console.log(data.message);
 
             window.location.href = "/maincontents";
 

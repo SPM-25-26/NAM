@@ -13,7 +13,6 @@ namespace nam.ServerTests.mock
     {
         public ApplicationDbContext Context { get; }
 
-        // Espongo i servizi fake per asserzioni nei test (es. controllo mail inviate)
         public FakeEmailService EmailService { get; } = new();
         public FakeCodeService CodeService { get; } = new();
 
@@ -28,13 +27,9 @@ namespace nam.ServerTests.mock
 
         public AuthService Build()
         {
-            // 1. Fake UnitOfWork (implementa la nuova interfaccia)
             var unitOfWork = new FakeUnitOfWork(Context);
-
-            // 2. Fake Token Generation
             var tokenGen = new FakeTokenGeneration();
 
-            // 3. Fake Configuration
             var myConfiguration = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string?>
                 {
@@ -72,8 +67,6 @@ namespace nam.ServerTests.mock
         }
     }
 
-    // --- IMPLEMENTAZIONI FAKE AGGIORNATE ---
-
     public class FakeUnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _context;
@@ -103,8 +96,6 @@ namespace nam.ServerTests.mock
             _dbSet = context.Set<User>();
         }
 
-        // --- Metodi di IRepository<User, Guid> ---
-
         public async Task<User?> GetAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
@@ -117,7 +108,6 @@ namespace nam.ServerTests.mock
 
         public IEnumerable<User> Find(Expression<Func<User, bool>> predicate)
         {
-            // Nota: Find su IEnumerable è sincrono, quindi eseguiamo la query in memoria
             return _dbSet.Where(predicate).ToList();
         }
 
@@ -136,8 +126,6 @@ namespace nam.ServerTests.mock
             return _context.SaveChangesAsync(cancellationToken);
         }
 
-        // --- Metodi specifici di IUserRepository ---
-
         public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
         {
             return _dbSet.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
@@ -151,7 +139,6 @@ namespace nam.ServerTests.mock
         public async Task<bool> AddAsync(User user, CancellationToken cancellationToken = default)
         {
             await _dbSet.AddAsync(user, cancellationToken);
-            // L'interfaccia restituisce un bool, presumibilmente se il salvataggio ha avuto successo
             var changes = await _context.SaveChangesAsync(cancellationToken);
             return changes > 0;
         }
@@ -160,11 +147,9 @@ namespace nam.ServerTests.mock
         {
             _dbSet.Update(user);
             var changes = await _context.SaveChangesAsync(cancellationToken);
-            return changes >= 0; // Update potrebbe non cambiare nulla se i dati sono uguali, ma non è un errore
+            return changes >= 0;
         }
     }
-
-    // --- ALTRE DIPENDENZE FAKE (Invariate) ---
 
     public class FakeTokenGeneration : ITokenGeneration
     {

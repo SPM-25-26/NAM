@@ -103,7 +103,7 @@ namespace nam.Server.Models.Services.Infrastructure
             return await _context.SaveChangesAsync(cancellationToken);
         }
 
-        // Ritorna DTO, non IResult
+        // Returns Dto
         public async Task<PasswordResetResponseDto> RequestPasswordReset(PasswordResetRequestDto request)
         {
             var user = await unitOfWork.Users.GetByEmailAsync(request.Email);
@@ -155,7 +155,7 @@ namespace nam.Server.Models.Services.Infrastructure
             };
         }
 
-        // Ritorna DTO, non IResult
+        // Returns DTO
         public async Task<PasswordResetResponseDto> VerifyAuthCode(ValidationCodeDto request)
         {
             var resetCode = await _context.ResetPasswordAuth
@@ -179,7 +179,7 @@ namespace nam.Server.Models.Services.Infrastructure
             };
         }
 
-        // Ritorna DTO, non IResult
+        // Returns DTO
         public async Task<PasswordResetResponseDto> ResetPassword(PasswordResetConfirmDto request)
         {
             var resetCode = await _context.ResetPasswordAuth
@@ -204,7 +204,7 @@ namespace nam.Server.Models.Services.Infrastructure
                 return new PasswordResetResponseDto
                 {
                     Success = false,
-                    Message = "Invalid auth code." // O "User not found" se preferisci distinguere
+                    Message = "Invalid auth code."
                 };
             }
 
