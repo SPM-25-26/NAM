@@ -100,7 +100,7 @@ const LoginPage: React.FC = () => {
         minHeight: "100vh",
       }}
     >
-      <MyAppBar title={"Sign in"} backUrl={"/"} />
+      <MyAppBar title={"Sign in"} back />
 
       <Container maxWidth="sm">
         <Box

@@ -5,7 +5,7 @@ import MyAppBar from "../../components/appbar";
 const ResetPasswordPage: React.FC = () => {
   return (
     <div>
-      <MyAppBar title={"Reset Password"} backUrl={"/"} />
+      <MyAppBar title={"Reset Password"} back />
       <MyStepper />
     </div>
   );
