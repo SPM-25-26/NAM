@@ -26,22 +26,47 @@ namespace nam.Server.Workers
         {
             _logger.Information("Starting daily data sync...");
 
-            using var scope = _scopeFactory.CreateScope();
-
-            var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
-
-            var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
-
             // List of collectors: add new collectors here.
             var collectors = new List<(string Name, Func<Task> Work)>
             {
-                ("ArtCultureCollector", () => syncService.ExecuteSyncAsync(new ArtCultureCollector(fetcher))),
-                ("PublicEventCollector", () => syncService.ExecuteSyncAsync(new PublicEventCollector(fetcher))),
-                ("ArticleCollector", () => syncService.ExecuteSyncAsync(new ArticleCollector(fetcher))),
-                ("NatureCollector", () => syncService.ExecuteSyncAsync(new NatureCollector(fetcher))),
+                ("ArtCultureCollector", async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
+                    await syncService.ExecuteSyncAsync(new ArtCultureCollector(fetcher));
+                }),
+                ("PublicEventCollector", async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
+                    await syncService.ExecuteSyncAsync(new PublicEventCollector(fetcher));
+                }),
+                ("ArticleCollector", async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
+                    await syncService.ExecuteSyncAsync(new ArticleCollector(fetcher));
+                }),
+                ("NatureCollector", async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
+                    await syncService.ExecuteSyncAsync(new NatureCollector(fetcher));
+                }),
+                ("OrganizationCollector", async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
+                    await syncService.ExecuteSyncAsync(new OrganizationCollector(fetcher));
+                }),
             };
 
-            // Execute collectors in parallel, each with isolated logging and error handling.
+            // Execute collectors in parallel, each with isolated scope (and therefore isolated DbContext/transaction).
             var tasks = collectors.Select(async collector =>
             {
                 try

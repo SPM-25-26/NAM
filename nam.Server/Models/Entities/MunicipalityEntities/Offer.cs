@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace nam.Server.Models.Entities.MunicipalityEntities
 {
@@ -26,9 +25,6 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         public string? TicketDescription { get; set; }
 
-        public Guid? PublicEventMobileDetailIdentifier { get; set; }
-
-        [ForeignKey(nameof(PublicEventMobileDetailIdentifier))]
         public virtual PublicEventMobileDetail? PublicEventMobileDetail { get; set; }
     }
 }

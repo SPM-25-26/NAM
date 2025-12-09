@@ -91,7 +91,6 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
                     UserTypeName = o.UserTypeName,
                     UserTypeDescription = o.UserTypeDescription,
                     TicketDescription = o.TicketDescription,
-                    PublicEventMobileDetailIdentifier = identifier
                 }).ToList();
             }
 

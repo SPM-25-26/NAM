@@ -9,9 +9,9 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         [Required]
         [MaxLength(255)]
-        public string Name { get; set; } = string.Empty;
+        public string? Name { get; set; } = string.Empty;
 
         [MaxLength(1000)]
-        public string LogoPath { get; set; } = string.Empty;
+        public string? LogoPath { get; set; } = string.Empty;
     }
 }

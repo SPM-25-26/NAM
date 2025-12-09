@@ -42,5 +42,15 @@ namespace nam.Server.Data
         public DbSet<Paragraph> Paragraphs { get; set; } = null!;
         public DbSet<Nature> Natures { get; set; } = null!;
 
+        // Municipality entities
+        //public DbSet<MunicipalityCard> MunicipalityCards { get; set; } = null!;
+        //public DbSet<MunicipalityHomeInfo> MunicipalityHomeInfos { get; set; } = null!;
+        //public DbSet<MunicipalityHomeContactInfo> MunicipalityHomeContactInfos { get; set; } = null!;
+
+        // Organization entities
+        public DbSet<OrganizationCard> OrganizationCards { get; set; } = null!;
+        public DbSet<OrganizationMobileDetail> OrganizationMobileDetails { get; set; } = null!;
+        public DbSet<OwnedPoi> OwnedPois { get; set; } = null!;
+
     }
 }
