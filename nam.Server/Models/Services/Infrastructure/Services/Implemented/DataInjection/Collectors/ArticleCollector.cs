@@ -24,14 +24,14 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
         public Task<List<ArticleCard>> GetEntities(string municipality)
         {
             articleProvider.Query["municipality"] = municipality;
-            var eventList = articleProvider.GetEntity();
-            foreach (var @event in eventList.Result)
+            var articleList = articleProvider.GetEntity();
+            foreach (var article in articleList.Result)
             {
-                articleDetailProvider.Query["identifier"] = @event.EntityId.ToString();
+                articleDetailProvider.Query["identifier"] = article.EntityId.ToString();
                 var detail = articleDetailProvider.GetEntity();
-                @event.Detail = detail.Result;
+                article.Detail = detail.Result;
             }
-            return eventList;
+            return articleList;
         }
     }
 }

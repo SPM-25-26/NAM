@@ -10,7 +10,7 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
         public async Task<ArticleCard?> GetByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default)
         {
             return await context.ArticleCards
-    .FirstOrDefaultAsync(c => c.EntityId == entityId, cancellationToken);
+                .FirstOrDefaultAsync(c => c.EntityId == entityId, cancellationToken);
         }
 
         public async Task<IEnumerable<ArticleCard>> GetByMunicipalityNameAsync(string municipalityName, CancellationToken cancellationToken = default)
@@ -19,8 +19,6 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
                 return [];
 
             return await context.ArticleCards
-                //.Include(c => c.Detail)
-                //    .ThenInclude(d => d.MunicipalityData)
                 .Where(c => c.Detail != null
                             && c.Detail.MunicipalityData != null
                             && EF.Functions.Like(c.Detail.MunicipalityData.Name, municipalityName))

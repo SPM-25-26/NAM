@@ -65,7 +65,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        public ArticleDetail? ArticleDetail { get; set; }
+        //public ArticleDetail? ArticleDetail { get; set; }
 
         [Required]
         public int Position { get; set; }

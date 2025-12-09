@@ -937,11 +937,9 @@ namespace nam.Server.Migrations
 
             modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.Paragraph", b =>
                 {
-                    b.HasOne("nam.Server.Models.Entities.MunicipalityEntities.ArticleDetail", "ArticleDetail")
+                    b.HasOne("nam.Server.Models.Entities.MunicipalityEntities.ArticleDetail", null)
                         .WithMany("Paragraphs")
                         .HasForeignKey("ArticleDetailIdentifier");
-
-                    b.Navigation("ArticleDetail");
                 });
 
             modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.PublicEventCard", b =>
