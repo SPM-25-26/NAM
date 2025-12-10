@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /nam.Server/appsettings.json
 /nam.Server/appsettings.json
+nam.Server/docker-compose.yaml
