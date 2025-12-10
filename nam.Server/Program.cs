@@ -182,8 +182,8 @@ builder.Services.AddScoped<IMunicipalityEntityService<ArticleCard, ArticleDetail
 builder.Services.AddScoped<INatureRepository, NatureRepository>(); //TODO move to a proper place
 builder.Services.AddScoped<IMunicipalityEntityService<Nature, ArtCultureNatureDetail>, NatureService>();
 
-//builder.Services.AddScoped<IMunicipalityCardRepository, MunicipalityCardRepository>(); //TODO move to a proper place
-//builder.Services.AddScoped<IMunicipalityEntityService<MunicipalityCard, MunicipalityHomeInfo>, MunicipalityCardService>();
+builder.Services.AddScoped<IMunicipalityCardRepository, MunicipalityCardRepository>(); //TODO move to a proper place
+builder.Services.AddScoped<IMunicipalityEntityService<MunicipalityCard, MunicipalityHomeInfo>, MunicipalityCardService>();
 
 builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>(); //TODO move to a proper place
 builder.Services.AddScoped<IMunicipalityEntityService<OrganizationCard, OrganizationMobileDetail>, OrganizationService>();
@@ -224,6 +224,6 @@ app.MapImages();
 app.MapPublicEvent();
 app.MapArticle();
 app.MapNature();
-//app.MapMunicipalityCard();
+app.MapMunicipalityCard();
 app.MapOrganization();
 app.Run();
