@@ -33,7 +33,6 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
 
             // Map Organizer
             Organizer? organizer = null;
-            Guid? organizerId = null;
             if (dto.Organizer != null)
             {
                 organizer = new Organizer
@@ -43,12 +42,10 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
                     LegalName = dto.Organizer.LegalName?.Trim(),
                     Website = dto.Organizer.Website?.Trim()
                 };
-                organizerId = organizer.Id;
             }
 
             // Map Municipality data
             MunicipalityForLocalStorageSetting? municipality = null;
-            Guid? municipalityId = null;
             if (dto.MunicipalityData != null)
             {
                 municipality = new MunicipalityForLocalStorageSetting
@@ -57,7 +54,6 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
                     Name = dto.MunicipalityData.Name ?? string.Empty,
                     LogoPath = dto.MunicipalityData.LogoPath ?? string.Empty
                 };
-                municipalityId = municipality.Id;
             }
 
             // Map Neighbors (FeatureCard)
