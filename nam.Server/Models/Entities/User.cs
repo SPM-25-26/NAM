@@ -10,7 +10,7 @@ namespace nam.Server.Models.Entities
         [Required]
         [EmailAddress]
         [MaxLength(255)]
-        public required string Email{ get; set; }
+        public required string Email { get; set; }
 
         [Required]
         [MaxLength(255)]
