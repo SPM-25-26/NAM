@@ -9,8 +9,8 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
     public class EntertainmentLeisureCardCollector : IEntityCollector<EntertainmentLeisureCard>
     {
 
-        private BaseProvider<List<EntertainmentLeisureCardDto>, List<EntertainmentLeisureCard>> cardProvider;
-        private BaseProvider<EntertainmentLeisureDetailDto, EntertainmentLeisureDetail> cardDetailProvider;
+        private readonly BaseProvider<List<EntertainmentLeisureCardDto>, List<EntertainmentLeisureCard>> cardProvider;
+        private readonly BaseProvider<EntertainmentLeisureDetailDto, EntertainmentLeisureDetail> cardDetailProvider;
 
         public EntertainmentLeisureCardCollector(IFetcher fetcher)
         {

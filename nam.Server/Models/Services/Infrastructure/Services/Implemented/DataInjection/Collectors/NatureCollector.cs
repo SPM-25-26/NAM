@@ -8,8 +8,8 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
 {
     public class NatureCollector : IEntityCollector<Nature>
     {
-        private BaseProvider<List<ArtCultureNatureCardDto>, List<Nature>> cardProvider;
-        private BaseProvider<ArtCultureNatureDetailDto, ArtCultureNatureDetail> cardDetailProvider;
+        private readonly BaseProvider<List<ArtCultureNatureCardDto>, List<Nature>> cardProvider;
+        private readonly BaseProvider<ArtCultureNatureDetailDto, ArtCultureNatureDetail> cardDetailProvider;
 
         public NatureCollector(IFetcher fetcher)
         {

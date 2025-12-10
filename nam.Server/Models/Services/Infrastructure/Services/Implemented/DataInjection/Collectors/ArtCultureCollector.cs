@@ -9,8 +9,8 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
     public class ArtCultureCollector : IEntityCollector<ArtCultureNatureCard>
     {
 
-        private BaseProvider<List<ArtCultureNatureCardDto>, List<ArtCultureNatureCard>> cardProvider;
-        private BaseProvider<ArtCultureNatureDetailDto, ArtCultureNatureDetail> cardDetailProvider;
+        private readonly BaseProvider<List<ArtCultureNatureCardDto>, List<ArtCultureNatureCard>> cardProvider;
+        private readonly BaseProvider<ArtCultureNatureDetailDto, ArtCultureNatureDetail> cardDetailProvider;
 
         public ArtCultureCollector(IFetcher fetcher)
         {
