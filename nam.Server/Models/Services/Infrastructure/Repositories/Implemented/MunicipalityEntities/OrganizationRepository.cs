@@ -19,8 +19,6 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
                 return [];
 
             return await context.OrganizationCards
-                //.Include(c => c.Detail)
-                //    .ThenInclude(d => d.MunicipalityData)
                 .Where(c => c.Detail != null
                             && c.Detail.MunicipalityData != null
                             && EF.Functions.Like(c.Detail.MunicipalityData.Name, municipalityName))
@@ -30,17 +28,10 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
         public async Task<OrganizationMobileDetail?> GetDetailByEntityIdAsync(string entityId, CancellationToken cancellationToken = default)
         {
             return await context.OrganizationMobileDetails
-                //.Include(c => c.Services)
-                //.Include(c => c.CulturalProjects)
-                //.Include(c => c.Catalogues)
-                //.Include(c => c.CreativeWorks)
-                ////.Include(c => c.Gallery)
-                ////.Include(c => c.VirtualTours)
-                //.Include(c => c.Neighbors)
-                //.Include(c => c.AssociatedServices)
-                //.Include(c => c.NearestCarPark)
-                //.Include(c => c.Site)
-                //.Include(c => c.MunicipalityData)
+                .Include(c => c.Neighbors)
+                .Include(c => c.OwnedPoi)
+                .Include(c => c.Offers)
+                .Include(c => c.Events)
                 .FirstOrDefaultAsync(c => c.TaxCode == entityId, cancellationToken);
         }
     }
