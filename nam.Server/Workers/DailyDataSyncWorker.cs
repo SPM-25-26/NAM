@@ -29,40 +29,47 @@ namespace nam.Server.Workers
             // List of collectors: add new collectors here.
             var collectors = new List<(string Name, Func<Task> Work)>
             {
-                ("ArtCultureCollector", async () =>
+                (nameof(ArtCultureCollector), async () =>
                 {
                     using var scope = _scopeFactory.CreateScope();
                     var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
                     var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
                     await syncService.ExecuteSyncAsync(new ArtCultureCollector(fetcher));
                 }),
-                ("PublicEventCollector", async () =>
+                (nameof(PublicEventCollector), async () =>
                 {
                     using var scope = _scopeFactory.CreateScope();
                     var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
                     var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
                     await syncService.ExecuteSyncAsync(new PublicEventCollector(fetcher));
                 }),
-                ("ArticleCollector", async () =>
+                (nameof(ArticleCollector), async () =>
                 {
                     using var scope = _scopeFactory.CreateScope();
                     var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
                     var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
                     await syncService.ExecuteSyncAsync(new ArticleCollector(fetcher));
                 }),
-                ("NatureCollector", async () =>
+                (nameof(NatureCollector), async () =>
                 {
                     using var scope = _scopeFactory.CreateScope();
                     var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
                     var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
                     await syncService.ExecuteSyncAsync(new NatureCollector(fetcher));
                 }),
-                ("OrganizationCollector", async () =>
+                (nameof(OrganizationCollector), async () =>
                 {
                     using var scope = _scopeFactory.CreateScope();
                     var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
                     var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
                     await syncService.ExecuteSyncAsync(new OrganizationCollector(fetcher));
+                }),
+                (nameof(EntertainmentLeisureCardCollector), async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
+                    await syncService.ExecuteSyncAsync(new EntertainmentLeisureCardCollector(fetcher));
                 }),
             };
 

@@ -47,6 +47,10 @@ namespace nam.Server.Data
         //public DbSet<MunicipalityHomeInfo> MunicipalityHomeInfos { get; set; } = null!;
         //public DbSet<MunicipalityHomeContactInfo> MunicipalityHomeContactInfos { get; set; } = null!;
 
+        // Entertainment and leisure entities
+        public DbSet<EntertainmentLeisureCard> EntertainmentLeisureCards { get; set; } = null!;
+        public DbSet<EntertainmentLeisureDetail> EntertainmentLeisureDetails { get; set; } = null!;
+
         // Organization entities
         public DbSet<OrganizationCard> OrganizationCards { get; set; } = null!;
         public DbSet<OrganizationMobileDetail> OrganizationMobileDetails { get; set; } = null!;
