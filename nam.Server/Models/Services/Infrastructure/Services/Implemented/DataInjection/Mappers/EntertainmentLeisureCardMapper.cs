@@ -6,34 +6,20 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
 {
     public class EntertainmentLeisureCardMapper : IDtoMapper<List<EntertainmentLeisureCardDto>, List<EntertainmentLeisureCard>>
     {
-        public List<EntertainmentLeisureCard> MapToEntity(List<EntertainmentLeisureCardDto> dto)
+        public List<EntertainmentLeisureCard> MapToEntity(List<EntertainmentLeisureCardDto> dtos)
         {
-            if (dto == null)
-            {
-                return new List<EntertainmentLeisureCard>();
-            }
+            if (dtos == null || dtos.Count == 0)
+                return [];
 
-            var result = new List<EntertainmentLeisureCard>();
-
-            foreach (var item in dto)
-            {
-                if (item == null)
+            return dtos.Where(dto => dto is not null)
+                .Select(dto => new EntertainmentLeisureCard
                 {
-                    continue;
-                }
-
-                var entityId = Guid.TryParse(item.EntityId, out var parsedId) ? parsedId : Guid.NewGuid();
-                result.Add(new EntertainmentLeisureCard
-                {
-                    EntityId = entityId,
-                    EntityName = item.EntityName,
-                    ImagePath = item.ImagePath,
-                    BadgeText = item.BadgeText,
-                    Address = item.Address
-                });
-            }
-
-            return result;
+                    EntityId = Guid.TryParse(dto.EntityId, out var parsedId) ? parsedId : Guid.NewGuid(),
+                    EntityName = dto.EntityName,
+                    ImagePath = dto.ImagePath,
+                    BadgeText = dto.BadgeText,
+                    Address = dto.Address
+                }).ToList();
         }
     }
 }

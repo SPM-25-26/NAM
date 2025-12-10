@@ -8,38 +8,17 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
     {
         public List<ArticleCard> MapToEntity(List<ArticleCardDto> dto)
         {
-            var entities = new List<ArticleCard>();
-
-            if (dto is null) return entities;
-
-            foreach (var item in dto)
-            {
-                if (item is null) continue;
-
-                // Try to parse incoming entityId; if invalid or empty generate a new Guid
-                Guid id = Guid.Empty;
-                if (!string.IsNullOrWhiteSpace(item.entityId))
-                {
-                    Guid.TryParse(item.entityId, out id);
-                }
-                if (id == Guid.Empty)
-                {
-                    id = Guid.NewGuid();
-                }
-
-                var card = new ArticleCard
-                {
-                    EntityId = id,
-                    EntityName = item.EntityName ?? string.Empty,
-                    BadgeText = item.BadgeText ?? string.Empty,
-                    ImagePath = item.ImagePath ?? string.Empty,
-                    Address = item.Address
-                };
-
-                entities.Add(card);
-            }
-
-            return entities;
+            if (dto == null || dto.Count == 0)
+                return [];
+            return dto.Where(dto => dto is not null)
+                      .Select(item => new ArticleCard
+                      {
+                          EntityId = Guid.TryParse(item.entityId, out Guid id) && id != Guid.Empty ? id : Guid.NewGuid(),
+                          EntityName = item.EntityName ?? string.Empty,
+                          BadgeText = item.BadgeText ?? string.Empty,
+                          ImagePath = item.ImagePath ?? string.Empty,
+                          Address = item.Address
+                      }).ToList();
         }
     }
 }

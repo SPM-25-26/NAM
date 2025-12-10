@@ -9,42 +9,26 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
         public List<PublicEventCard> MapToEntity(List<PublicEventCardDto> dto)
         {
             if (dto == null || dto.Count == 0)
-            {
                 return [];
-            }
 
-            var result = new List<PublicEventCard>(dto.Count);
-
-            foreach (var item in dto)
-            {
-                var entityId = Guid.TryParse(item?.EntityId, out var parsed) ? parsed : Guid.NewGuid();
-
-                MunicipalityForLocalStorageSetting? municipality = null;
-                if (item?.MunicipalityData != null)
+            return dto.Where(d => d is not null)
+                .Select(dto => new PublicEventCard
                 {
-                    municipality = new MunicipalityForLocalStorageSetting
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = item.MunicipalityData.Name ?? string.Empty,
-                        LogoPath = item.MunicipalityData.LogoPath ?? string.Empty
-                    };
-                }
-
-                var card = new PublicEventCard
-                {
-                    EntityId = entityId,
-                    EntityName = item?.EntityName?.Trim() ?? string.Empty,
-                    ImagePath = item?.ImagePath?.Trim() ?? string.Empty,
-                    BadgeText = item?.BadgeText?.Trim() ?? string.Empty,
-                    Address = item?.Address?.Trim() ?? string.Empty,
-                    MunicipalityData = municipality,
-                    Date = item?.Date?.Trim() ?? string.Empty
-                };
-
-                result.Add(card);
-            }
-
-            return result;
+                    EntityId = Guid.TryParse(dto.EntityId, out var parsed) ? parsed : Guid.NewGuid(),
+                    EntityName = dto.EntityName?.Trim() ?? string.Empty,
+                    ImagePath = dto.ImagePath?.Trim() ?? string.Empty,
+                    BadgeText = dto.BadgeText?.Trim() ?? string.Empty,
+                    Address = dto.Address?.Trim() ?? string.Empty,
+                    MunicipalityData = dto.MunicipalityData != null
+                        ? new MunicipalityForLocalStorageSetting
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = dto.MunicipalityData.Name ?? string.Empty,
+                            LogoPath = dto.MunicipalityData.LogoPath ?? string.Empty
+                        }
+                        : null,
+                    Date = dto.Date?.Trim() ?? string.Empty
+                }).ToList();
         }
     }
 }

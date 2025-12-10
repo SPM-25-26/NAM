@@ -9,7 +9,7 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
         public List<MunicipalityCard> MapToEntity(List<MunicipalityCardDto> dto)
         {
             if (dto == null || dto.Count == 0)
-                return new List<MunicipalityCard>();
+                return [];
 
             return dto
                 .Where(d => d is not null)

@@ -9,34 +9,18 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
     {
         public List<ArtCultureNatureCard> MapToEntity(List<ArtCultureNatureCardDto> dtos)
         {
-            var entities = new List<ArtCultureNatureCard>();
-            foreach (var dto in dtos)
-            {
-                if (dto is null) continue;
+            if (dtos == null || dtos.Count == 0)
+                return [];
 
-                // Try to parse incoming EntityId; if invalid or empty generate a new Guid
-                Guid entityId = Guid.Empty;
-                if (!string.IsNullOrWhiteSpace(dto.EntityId))
+            return dtos.Where(dto => dto is not null)
+                .Select(dto => new ArtCultureNatureCard
                 {
-                    Guid.TryParse(dto.EntityId, out entityId);
-                }
-                if (entityId == Guid.Empty)
-                {
-                    entityId = Guid.NewGuid();
-                }
-
-                var card = new ArtCultureNatureCard
-                {
-                    EntityId = entityId,
+                    EntityId = Guid.TryParse(dto.EntityId, out Guid entityId) ? entityId : Guid.NewGuid(),
                     EntityName = dto.EntityName ?? string.Empty,
                     ImagePath = dto.ImagePath ?? string.Empty,
                     BadgeText = dto.BadgeText ?? string.Empty,
                     Address = dto.Address ?? string.Empty
-                };
-                entities.Add(card);
-            }
-
-            return entities;
+                }).ToList();
         }
     }
 }
