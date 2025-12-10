@@ -8,13 +8,13 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
 {
     public class MunicipalityCardCollector(IFetcher fetcher) : IEntityCollector<MunicipalityCard>
     {
-        private BaseProvider<List<MunicipalityCardDto>, List<MunicipalityCard>> cardProvider = new(
+        private readonly BaseProvider<List<MunicipalityCardDto>, List<MunicipalityCard>> cardProvider = new(
            fetcher,
               new MunicipalityCardMapper(),
               "api/organizations/municipalities",
               new Dictionary<string, string?> { { "search", "" } }
           );
-        private BaseProvider<MunicipalityHomeInfoDto, MunicipalityHomeInfo> cardDetailProvider = new(
+        private readonly BaseProvider<MunicipalityHomeInfoDto, MunicipalityHomeInfo> cardDetailProvider = new(
             fetcher,
                new MunicipalityHomeInfoMapper(),
                "api/organizations/municipalities/visit",
