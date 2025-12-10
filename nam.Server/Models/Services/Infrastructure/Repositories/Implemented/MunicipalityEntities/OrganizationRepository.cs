@@ -29,9 +29,11 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
         {
             return await context.OrganizationMobileDetails
                 .Include(c => c.Neighbors)
+                .Include(c => c.NearestCarPark)
                 .Include(c => c.OwnedPoi)
                 .Include(c => c.Offers)
                 .Include(c => c.Events)
+                .Include(c => c.MunicipalityData)
                 .FirstOrDefaultAsync(c => c.TaxCode == entityId, cancellationToken);
         }
     }

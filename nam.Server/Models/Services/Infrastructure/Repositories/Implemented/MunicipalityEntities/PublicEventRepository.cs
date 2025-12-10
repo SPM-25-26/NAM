@@ -28,6 +28,11 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
         public async Task<PublicEventMobileDetail?> GetDetailByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default)
         {
             return await context.PublicEventMobileDetails
+                .Include(c => c.Neighbors)
+                .Include(c => c.NearestCarPark)
+                .Include(c => c.Organizer)
+                .Include(c => c.TicketsAndCosts)
+                .Include(c => c.MunicipalityData)
                 .FirstOrDefaultAsync(c => c.Identifier == entityId, cancellationToken);
         }
     }

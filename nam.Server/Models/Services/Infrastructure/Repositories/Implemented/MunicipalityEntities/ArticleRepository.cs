@@ -28,8 +28,8 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
         public async Task<ArticleDetail?> GetDetailByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default)
         {
             return await context.ArticleDetails
-                .Include(d => d.MunicipalityData)
                 .Include(d => d.Paragraphs)
+                .Include(d => d.MunicipalityData)
                 .FirstOrDefaultAsync(c => c.Identifier == entityId, cancellationToken);
         }
     }

@@ -25,7 +25,10 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
         public async Task<MunicipalityHomeInfo?> GetDetailByEntityIdAsync(string legalName, CancellationToken cancellationToken = default)
         {
             return await context.MunicipalityHomeInfos
-                      .FirstOrDefaultAsync(c => c.LegalName == legalName, cancellationToken);
+                .Include(c => c.Contacts)
+                .Include(c => c.Events)
+                .Include(c => c.ArticlesAndPaths)
+                .FirstOrDefaultAsync(c => c.LegalName == legalName, cancellationToken);
         }
     }
 }
