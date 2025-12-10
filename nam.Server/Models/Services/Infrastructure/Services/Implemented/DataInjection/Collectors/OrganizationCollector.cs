@@ -9,13 +9,13 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
     public class OrganizationCollector(IFetcher fetcher) : IEntityCollector<OrganizationCard>
     {
 
-        private BaseProvider<List<OrganizationCardDto>, List<OrganizationCard>> cardProvider = new(
+        private readonly BaseProvider<List<OrganizationCardDto>, List<OrganizationCard>> cardProvider = new(
            fetcher,
               new OrganizationCardMapper(),
               "api/organizations/card-list",
               new Dictionary<string, string?> { { "municipality", "" } }
           );
-        private BaseProvider<OrganizationMobileDetailDto, OrganizationMobileDetail> cardDetailProvider = new(
+        private readonly BaseProvider<OrganizationMobileDetailDto, OrganizationMobileDetail> cardDetailProvider = new(
             fetcher,
                new OrganizationMobileDetailMapper(),
                "api/organizations/detail/{taxcode}",
