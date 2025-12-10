@@ -41,6 +41,7 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
                 .Include(c => c.NearestCarPark)
                 .Include(c => c.Site)
                 .Include(c => c.MunicipalityData)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(c => c.Identifier == entityId, cancellationToken);
         }
     }
