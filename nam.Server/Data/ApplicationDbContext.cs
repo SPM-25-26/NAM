@@ -9,6 +9,18 @@ namespace nam.Server.Data
     {
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            // Configure MunicipalityHomeInfo relationships with FeatureCard
+            builder.Entity<MunicipalityHomeInfo>()
+                .HasMany(m => m.Events)
+                .WithOne()
+                .HasForeignKey("MunicipalityHomeInfoLegalName")
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<MunicipalityHomeInfo>()
+                .HasMany(m => m.ArticlesAndPaths)
+                .WithOne()
+                .HasForeignKey("MunicipalityHomeInfoLegalName1")
+                .OnDelete(DeleteBehavior.NoAction);
         }
 
         public DbSet<User> Users { get; set; }
@@ -43,9 +55,9 @@ namespace nam.Server.Data
         public DbSet<Nature> Natures { get; set; } = null!;
 
         // Municipality entities
-        //public DbSet<MunicipalityCard> MunicipalityCards { get; set; } = null!;
-        //public DbSet<MunicipalityHomeInfo> MunicipalityHomeInfos { get; set; } = null!;
-        //public DbSet<MunicipalityHomeContactInfo> MunicipalityHomeContactInfos { get; set; } = null!;
+        public DbSet<MunicipalityCard> MunicipalityCards { get; set; } = null!;
+        public DbSet<MunicipalityHomeInfo> MunicipalityHomeInfos { get; set; } = null!;
+        public DbSet<MunicipalityHomeContactInfo> MunicipalityHomeContactInfos { get; set; } = null!;
 
         // Entertainment and leisure entities
         public DbSet<EntertainmentLeisureCard> EntertainmentLeisureCards { get; set; } = null!;

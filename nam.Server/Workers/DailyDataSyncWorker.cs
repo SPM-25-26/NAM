@@ -71,6 +71,13 @@ namespace nam.Server.Workers
                     var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
                     await syncService.ExecuteSyncAsync(new EntertainmentLeisureCardCollector(fetcher));
                 }),
+                (nameof(MunicipalityCardCollector), async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
+                    await syncService.ExecuteSyncAsync(new MunicipalityCardCollector(fetcher));
+                }),
             };
 
             // Execute collectors in parallel, each with isolated scope (and therefore isolated DbContext/transaction).
