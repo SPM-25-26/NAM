@@ -8,8 +8,8 @@ namespace nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInj
 {
     public class PublicEventCollector : IEntityCollector<PublicEventCard>
     {
-        private BaseProvider<List<PublicEventCardDto>, List<PublicEventCard>> cardProvider;
-        private BaseProvider<PublicEventMobileDetailDto, PublicEventMobileDetail> cardDetailProvider;
+        private readonly BaseProvider<List<PublicEventCardDto>, List<PublicEventCard>> cardProvider;
+        private readonly BaseProvider<PublicEventMobileDetailDto, PublicEventMobileDetail> cardDetailProvider;
 
         public PublicEventCollector(IFetcher fetcher)
         {
