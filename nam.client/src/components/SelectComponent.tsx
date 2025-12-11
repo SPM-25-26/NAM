@@ -1,10 +1,5 @@
 import React, { useRef } from "react";
-import {
-    Box,
-    useTheme,
-    Chip,
-    Stack,
-} from "@mui/material";
+import { Box, useTheme, Chip, Stack } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 
@@ -18,14 +13,17 @@ interface SelectComponentProps {
     value: string | null;
     options: CategoryOption[];
     onChange: (value: string | null) => void;
+    accentColor?: string; // optional custom color for border and selected chips
 }
 
 const SelectComponent: React.FC<SelectComponentProps> = ({
     value,
     options,
     onChange,
+    accentColor,
 }) => {
     const theme = useTheme();
+    const accent = accentColor ?? theme.palette.primary.main;
 
     // Ref to the horizontal scroll container
     const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -53,11 +51,10 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
                 borderRadius: theme.shape.borderRadius,
                 padding: 1.5,
                 border: 3,
-                borderColor: theme.palette.primary.main,
+                borderColor: accent,
                 borderStyle: "solid",
             }}
         >
-
             {/* Container for arrows + horizontally scrollable chips */}
             <Box
                 sx={{
@@ -88,7 +85,7 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
                         overflowX: "auto",
                         overflowY: "hidden",
                         "&::-webkit-scrollbar": {
-                            display: "none", // hide scrollbar (optional)
+                            display: "none",
                         },
                         msOverflowStyle: "none", // IE/Edge
                         scrollbarWidth: "none", // Firefox
@@ -112,11 +109,21 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
                                     key={opt.label}
                                     label={opt.label}
                                     clickable
-                                    color={isSelected ? "primary" : "default"}
                                     onClick={() => onChange(opt.value)}
                                     sx={{
                                         fontSize: "0.8rem",
                                         height: 28,
+                                        backgroundColor: isSelected
+                                            ? accent
+                                            : theme.palette.grey[200],
+                                        color: isSelected
+                                            ? theme.palette.common.white
+                                            : theme.palette.text.primary,
+                                        "&:hover": {
+                                            backgroundColor: isSelected
+                                                ? accent
+                                                : theme.palette.grey[300],
+                                        },
                                     }}
                                 />
                             );

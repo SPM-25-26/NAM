@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import FlightIcon from "@mui/icons-material/Flight";
 import LogoutIcon from "@mui/icons-material/Logout";
 import {
@@ -10,13 +10,10 @@ import {
     useTheme,
     CircularProgress,
 } from "@mui/material";
-import MyAppBar from "../../components/appbar";
 import { buildApiUrl } from "../../config";
 import ElementCard from "../../components/ElementCardComponent";
 import CategorySelect from "../../components/SelectComponent";
-import type {
-    CategoryOption,
-} from "../../components/SelectComponent";
+import type { CategoryOption } from "../../components/SelectComponent";
 
 /**
  * Shape of the external events API response.
@@ -58,9 +55,8 @@ const MainContentsPage: React.FC = () => {
     const [elementsError, setElementsError] = useState<string | null>(null);
 
     // Category state
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(
-        null
-    );
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
 
     const categoryOptions: CategoryOption[] = [
         { value: null, label: "All" },
@@ -74,7 +70,7 @@ const MainContentsPage: React.FC = () => {
         { value: "Services", label: "Services" },
         { value: "Shopping", label: "Shopping" },
         { value: "Sleep", label: "Sleep" },
-        { value: "TypicalProducts", label: "TypicalProducts" }
+        { value: "TypicalProducts", label: "TypicalProducts" },
     ];
 
     // Check authentication on mount
@@ -133,25 +129,27 @@ const MainContentsPage: React.FC = () => {
 
                 const mapped: ElementItem[] = data.map(
                     (item: ApiEventItem, index: number) => {
-                        // Build full image URL: /Media/... -> https://eppoi.io/Media/...
                         const rawImagePath = item.imagePath;
+
+                        // remove "-thumb" everywhere to get higher-res image
+                        const cleanedPath =
+                            rawImagePath
+                                ?.replace(/-thumb-/g, "-")
+                                .replace(/-thumb(?=\.[^.]+$)/, "") || rawImagePath;
+
                         const imageUrl =
-                            rawImagePath && rawImagePath.startsWith("http")
-                                ? rawImagePath
-                                : rawImagePath
-                                    ? `${IMAGE_BASE_URL}${rawImagePath.startsWith("/")
-                                        ? ""
-                                        : "/"
-                                    }${rawImagePath}`
+                            cleanedPath && cleanedPath.startsWith("http")
+                                ? cleanedPath
+                                : cleanedPath
+                                    ? `${IMAGE_BASE_URL}${cleanedPath.startsWith("/") ? "" : "/"
+                                    }${cleanedPath}`
                                     : undefined;
 
                         return {
                             id: item.entityId?.toString() ?? `element-${index}`,
                             title: item.entityName || "Untitled",
-                            badge:
-                                item.badgeText || "",
-                            address:
-                                item.address || "",
+                            badge: item.badgeText || "",
+                            address: item.address || "",
                             imageUrl,
                             date: item.date || undefined,
                             category: "Events",
@@ -190,10 +188,24 @@ const MainContentsPage: React.FC = () => {
         }
     };
 
-    const filteredElements =
-        selectedCategory == null
-            ? elements
-            : elements.filter((e) => e.category === selectedCategory);
+    // Build dynamic badge options from fetched elements
+    const uniqueBadgeOptions: CategoryOption[] = useMemo(() => {
+        const badges = new Set<string>();
+        elements.forEach((el) => {
+            if (el.badge) badges.add(el.badge);
+        });
+        return [
+            { value: null, label: "Tutti i badge" },
+            ...Array.from(badges).map((b) => ({ value: b, label: b })),
+        ];
+    }, [elements]);
+
+    const filteredElements = elements.filter((e) => {
+        const categoryOk =
+            selectedCategory == null || e.category === selectedCategory;
+        const badgeOk = selectedBadge == null || e.badge === selectedBadge;
+        return categoryOk && badgeOk;
+    });
 
     // Loader while checking auth
     if (loadingAuth) {
@@ -224,76 +236,103 @@ const MainContentsPage: React.FC = () => {
                 minHeight: "100vh",
             }}
         >
-            <MyAppBar title="" backUrl="" />
 
-            {/* Logout icon */}
-            <Box
-                sx={{
-                    position: "fixed",
-                    top: 8,
-                    right: 16,
-                    zIndex: (theme) => theme.zIndex.appBar + 1,
-                }}
-            >
-                <IconButton
-                    onClick={handleLogout}
-                    aria-label="Logout"
-                    color="primary"
-                >
-                    <LogoutIcon />
-                </IconButton>
-            </Box>
-
-            <Container maxWidth="sm">
+            <Container maxWidth="lg">
                 <Box
                     sx={{
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
-                        paddingY: 4,
+                        paddingTop: 1,
+                        paddingBottom: 4,
                     }}
                 >
-                    {/* Centered logo */}
+                    {/* Header row: logo centered, logout aligned right */}
                     <Box
                         sx={{
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "center",
-                            gap: 1,
-                            marginBottom: 4,
+                            width: "100%",
+                            mb: 2.5,
                         }}
                     >
-                        <Typography
-                            variant="h5"
+                        <Box sx={{ flex: 1, minWidth: 48 }} />
+                        <Box
                             sx={{
-                                color: theme.palette.primary.main,
+                                flex: 1,
                                 display: "flex",
+                                justifyContent: "center",
                                 alignItems: "center",
                                 gap: 1,
                             }}
                         >
-                            <FlightIcon sx={{ transform: "rotate(45deg)" }} />{" "}
-                            Eppoi
-                        </Typography>
+                            <Typography
+                                variant="h5"
+                                sx={{
+                                    color: theme.palette.primary.main,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                }}
+                            >
+                                <FlightIcon sx={{ transform: "rotate(45deg)" }} />{" "}
+                                Eppoi
+                            </Typography>
+                        </Box>
+                        <Box
+                            sx={{
+                                flex: 1,
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                alignItems: "center",
+                            }}
+                        >
+                            <IconButton
+                                onClick={handleLogout}
+                                aria-label="Logout"
+                                color="primary"
+                            >
+                                <LogoutIcon />
+                            </IconButton>
+                        </Box>
                     </Box>
 
                     {/* Main container card */}
                     <Card
                         sx={{
-                            width: "85%",
-                            padding: "1.5rem",
-                            borderRadius: "1rem",
+                            width: "100%",
+                            padding: "2.4rem",
+                            borderRadius: "1.2rem",
                             boxShadow: theme.shadows[3],
                             backgroundColor: theme.palette.background.paper,
                         }}
                     >
-                        {/* Category select */}
-                        <CategorySelect
-                            label="Category"
-                            value={selectedCategory}
-                            options={categoryOptions}
-                            onChange={(val) => setSelectedCategory(val)}
-                        />
+                        {/* Two selects side by side */}
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: { xs: "column", sm: "row" },
+                                gap: 2,
+                            }}
+                        >
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                                <CategorySelect
+                                    label="Category"
+                                    value={selectedCategory}
+                                    options={categoryOptions}
+                                    onChange={(val) => setSelectedCategory(val)}
+                                />
+                            </Box>
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                                <CategorySelect
+                                    label="Badge"
+                                    value={selectedBadge}
+                                    options={uniqueBadgeOptions}
+                                    onChange={(val) => setSelectedBadge(val)}
+                                    accentColor={"#9810fa"}
+                                />
+                            </Box>
+                        </Box>
 
                         {/* Elements list */}
                         {loadingElements ? (
@@ -322,26 +361,32 @@ const MainContentsPage: React.FC = () => {
                                     mt: 2,
                                 }}
                             >
-                                No items available for the selected category.
+                                No items available for the selected filters.
                             </Typography>
                         ) : (
                             <Box
                                 sx={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: 2,
+                                    display: "grid",
+                                    gridTemplateColumns: {
+                                        xs: "1fr",
+                                        sm: "repeat(2, minmax(0, 1fr))",
+                                        md: "repeat(3, minmax(0, 1fr))",
+                                        lg: "repeat(3, minmax(0, 1fr))",
+                                    },
+                                    gap: 2.5,
                                     marginTop: 2,
                                 }}
                             >
                                 {filteredElements.map((item) => (
-                                    <ElementCard
-                                        key={item.id}
-                                        title={item.title}
-                                        badge={item.badge}
-                                        address={item.address}
-                                        imageUrl={item.imageUrl}
-                                        date={item.date}
-                                    />
+                                    <Box key={item.id} sx={{ height: "100%" }}>
+                                        <ElementCard
+                                            title={item.title}
+                                            badge={item.badge}
+                                            address={item.address}
+                                            imageUrl={item.imageUrl}
+                                            date={item.date}
+                                        />
+                                    </Box>
                                 ))}
                             </Box>
                         )}

@@ -21,147 +21,163 @@ const ElementCard: React.FC<ElementCardProps> = ({
     const theme = useTheme();
 
     return (
-        // Outer wrapper to emulate gradient border around the card
         <Card
             onClick={onClick}
             sx={{
-                // 1. The thickness is set here. The color is transparent to show the gradient below.
                 border: "3px solid transparent",
-
-                // 2. Interleave two backgrounds.
-                //    - The first is the background color of the card (padding-box)
-                //    - The second is the gradient (border-box)
                 background: `
-                    linear-gradient(${theme.palette.background.default}, ${theme.palette.background.default}) padding-box, 
+                    linear-gradient(${theme.palette.background.paper}, ${theme.palette.background.paper}) padding-box, 
                     linear-gradient(90deg, rgba(21, 93, 252, 0.50) 0%, rgba(152, 16, 250, 0.50) 100%) border-box
                 `,
-
                 borderRadius: "1rem",
                 cursor: onClick ? "pointer" : "default",
-                boxShadow: "none", // Remove native shadow to avoid dirtying the border
+                boxShadow: "none",
                 display: "flex",
-                flexDirection: "row",
-                alignItems: "stretch",
+                flexDirection: "column",
                 position: "relative",
                 width: "100%",
+                height: "100%",        // make all cards equal height
                 overflow: "hidden",
             }}
         >
-
-            {/* Description badge in the top-right corner */}
-            {badge && (
-                <Box
-                    sx={{
-                        position: "absolute",
-                        top: 8,
-                        right: 8,
-                        px: 1.5,
-                        py: 0.5,
-                        borderRadius: theme.shape.borderRadius,
-                        background: "linear-gradient(90deg, rgba(21, 93, 252, 0.50) 0%, rgba(152, 16, 250, 0.50) 100%)",
-                        boxShadow: theme.shadows[1],
-                    }}
-                >
-                    <Typography
-                        variant="caption"
-                        sx={{
-                            color: theme.palette.common.white,
-                            fontWeight: 600,
-                        }}
-                    >
-                        {badge}
-                    </Typography>
-                </Box>
-            )}
-
-            {/* Left image area */}
             <Box
                 sx={{
-                    width: 140,
-                    minWidth: 140,
-                    height: 140,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: 1,
-                }}
-            >
-                {imageUrl ? (
-                    <Box
-                        component="img"
-                        src={imageUrl}
-                        alt={title}
-                        sx={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            borderRadius: "0.75rem",
-                        }}
-                    />
-                ) : (
-                    <Typography
-                        variant="caption"
-                        sx={{
-                            color: theme.palette.text.disabled,
-                            textAlign: "center",
-                            paddingX: 1,
-                        }}
-                    >
-                        No image
-                    </Typography>
-                )}
-            </Box>
-
-            {/* Right text area */}
-            <Box
-                sx={{
-                    flex: 1,
-                    padding: 1.5,
+                    p: 1.2,
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "center",
-                    gap: 0.25,
+                    gap: 1,
+                    height: "100%",
                 }}
             >
-                <Typography
-                    variant="subtitle1"
+                {/* Image area (16:9, uniform size) */}
+                <Box
                     sx={{
-                        fontWeight: 700,
-                        color: theme.palette.text.primary,
-                        display: "-webkit-box",
-                        WebkitLineClamp: 1,
-                        WebkitBoxOrient: "vertical",
+                        position: "relative",
+                        width: "100%",
+                        aspectRatio: "16 / 9",
+                        borderRadius: "0.9rem",
                         overflow: "hidden",
+                        backgroundColor: theme.palette.action.hover,
+                        flexShrink: 0,
                     }}
                 >
-                    {title}
-                </Typography>
+                    {/* Badge over the image (solid) */}
+                    {badge && (
+                        <Box
+                            sx={{
+                                position: "absolute",
+                                top: 8,
+                                right: 8,
+                                px: 1.6,
+                                py: 0.7,
+                                borderRadius: theme.shape.borderRadius,
+                                background:
+                                    "linear-gradient(90deg, rgb(138, 174, 254) 0%, rgb(204, 136, 253) 100%)",
+                                boxShadow: theme.shadows[2],
+                                zIndex: 2,
+                            }}
+                        >
+                            <Typography
+                                variant="caption"
+                                sx={{
+                                    color: theme.palette.common.white,
+                                    fontWeight: 700,
+                                }}
+                            >
+                                {badge}
+                            </Typography>
+                        </Box>
+                    )}
 
-                {address && (
+                    {imageUrl ? (
+                        <Box
+                            component="img"
+                            src={imageUrl}
+                            alt={title}
+                            loading="eager"
+                            sx={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover", // switch to "contain" is possible
+                                display: "block",
+                            }}
+                        />
+                    ) : (
+                        <Box
+                            sx={{
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                backgroundColor: theme.palette.action.hover,
+                            }}
+                        >
+                            <Typography
+                                variant="caption"
+                                sx={{
+                                    color: theme.palette.text.disabled,
+                                    textAlign: "center",
+                                    px: 1,
+                                }}
+                            >
+                                No image
+                            </Typography>
+                        </Box>
+                    )}
+                </Box>
+
+                {/* Text area under the image */}
+                <Box
+                    sx={{
+                        px: 0.4,
+                        pb: 0.2,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 0.4,
+                        flex: 1, // pushes to fill remaining height so all cards align
+                    }}
+                >
                     <Typography
-                        variant="body2"
+                        variant="subtitle1"
                         sx={{
-                            color: theme.palette.text.disabled,
+                            fontWeight: 700,
+                            color: theme.palette.text.primary,
                             display: "-webkit-box",
                             WebkitLineClamp: 1,
                             WebkitBoxOrient: "vertical",
                             overflow: "hidden",
                         }}
                     >
-                        {address}
+                        {title}
                     </Typography>
-                )}
 
-                {date && (
-                    <Typography
-                        variant="caption"
-                        sx={{
-                            color: theme.palette.text.disabled,
-                        }}
-                    >
-                        {date}
-                    </Typography>
-                )}
+                    {address && (
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                color: theme.palette.text.primary,
+                                display: "-webkit-box",
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                            }}
+                        >
+                            {address}
+                        </Typography>
+                    )}
+
+                    {date && (
+                        <Typography
+                            variant="caption"
+                            sx={{
+                                color: theme.palette.text.primary,
+                            }}
+                        >
+                            {date}
+                        </Typography>
+                    )}
+                </Box>
             </Box>
         </Card>
     );
