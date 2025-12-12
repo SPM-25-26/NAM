@@ -1,5 +1,5 @@
-﻿using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Collectors;
-using nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjection;
+﻿using nam.Server.Models.Services.Application.Implemented.DataInjection.Collectors;
+using nam.Server.Models.Services.Application.Interfaces.DataInjection;
 
 namespace nam.Server.Workers
 {

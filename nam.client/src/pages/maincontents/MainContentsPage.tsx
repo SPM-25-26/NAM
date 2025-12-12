@@ -16,19 +16,19 @@ import CategorySelect from "../../components/SelectComponent";
 import type { CategoryOption } from "../../components/SelectComponent";
 
 /**
- * Shape of the external events API response.
+ * API response shape for card list items
  */
-type ApiEventItem = {
+type ApiCardItem = {
     entityId: string;
     entityName: string;
     imagePath: string;
     badgeText: string;
     address: string;
-    date: string;
+    date?: string;
 };
 
 /**
- * Internal element shape used by the UI.
+ * Internal element representation for UI rendering
  */
 type ElementItem = {
     id: string;
@@ -37,15 +37,34 @@ type ElementItem = {
     address: string;
     imageUrl?: string;
     date?: string;
-    category?: string;
+    category: string;
 };
 
-const IMAGE_BASE_URL = "https://eppoi.io";
+/**
+ * Category configuration mapping UI categories to API endpoints
+ */
+type CategoryConfig = {
+    value: string;
+    label: string;
+    endpoint: string;
+};
+
+
+/**
+ * Available categories with their corresponding API endpoints
+ */
+const CATEGORY_CONFIGS: CategoryConfig[] = [
+    { value: "Article", label: "Article", endpoint: 'article/card-list' },
+    { value: "ArtCulture", label: "Art&Culture", endpoint: 'art-culture/card-list' },
+    { value: "Events", label: "Events", endpoint: 'public-event/card-list' },
+    { value: "Organization", label: "Organization", endpoint: 'organizations/card-list' },
+    { value: "Nature", label: "Nature", endpoint: 'nature/card-list' },
+];
 
 const MainContentsPage: React.FC = () => {
     const theme = useTheme();
 
-    // Auth state
+    // Authentication state
     const [loadingAuth, setLoadingAuth] = useState(true);
     const [authenticated, setAuthenticated] = useState(false);
 
@@ -54,30 +73,31 @@ const MainContentsPage: React.FC = () => {
     const [loadingElements, setLoadingElements] = useState(false);
     const [elementsError, setElementsError] = useState<string | null>(null);
 
-    // Category state
+    // Filter state
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
 
-    const categoryOptions: CategoryOption[] = [
-        { value: null, label: "All" },
-        { value: "ArtCulture", label: "Art&Culture" },
-        { value: "Article", label: "Article" },
-        { value: "EatAndDrink", label: "Eat&Drink" },
-        { value: "EntertainmentLeisure", label: "Entertainment&Leisure" },
-        { value: "Events", label: "Events" },
-        { value: "Nature", label: "Nature" },
-        { value: "Routes", label: "Routes" },
-        { value: "Services", label: "Services" },
-        { value: "Shopping", label: "Shopping" },
-        { value: "Sleep", label: "Sleep" },
-        { value: "TypicalProducts", label: "TypicalProducts" },
-    ];
+    /**
+     * Category options for the dropdown, including "All" option
+     */
+    const categoryOptions: CategoryOption[] = useMemo(() => {
+        return [
+            { value: null, label: "All" },
+            ...CATEGORY_CONFIGS.map((config) => ({
+                value: config.value,
+                label: config.label,
+            })),
+        ];
+    }, []);
 
-    // Check authentication on mount
+    /**
+     * Verify user authentication on component mount
+     */
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const response = await fetch(buildApiUrl("poi/poiList"), {
+                // Using auth/validate-token primarily to check valid session/cookies
+                const response = await fetch(buildApiUrl("auth/validate-token"), {
                     method: "GET",
                     credentials: "include",
                 });
@@ -98,66 +118,110 @@ const MainContentsPage: React.FC = () => {
         checkAuth();
     }, []);
 
-    // Fetch events from external API once authenticated
+    /**
+     * Fetches the actual image blob from /image/external and returns a local object URL
+     */
+    const fetchImageBlob = async (imagePath: string): Promise<string | undefined> => {
+        if (!imagePath) return undefined;
+
+        // Clean the path first as requested previously
+        const cleanedPath = imagePath
+            .replace(/-thumb-/g, "-")
+            .replace(/-thumb(?=\.[^.]+$)/, "");
+
+        try {
+            const response = await fetch(buildApiUrl("image/external?imagePath=" + cleanedPath), {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+                credentials: "include",
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                return URL.createObjectURL(blob);
+            }
+        } catch (error) {
+            console.error("Failed to fetch image:", error);
+        }
+        return undefined;
+    };
+
+    /**
+     * Fetches card list data from a specific category endpoint
+     */
+    const fetchCategoryData = async (
+        endpoint: string,
+        category: string
+    ): Promise<ElementItem[]> => {
+
+        const response = await fetch(buildApiUrl(endpoint + '?municipality=Matelica&language=it'), {
+            method: "GET",
+            headers: {
+                Accept: "application/json",
+            },
+            credentials: "include",
+        });
+
+        if (!response.ok) {
+            throw new Error(
+                `Failed to fetch ${category}:  HTTP ${response.status}`
+            );
+        }
+
+        const json: unknown = await response.json();
+        const data = (json ?? []) as ApiCardItem[];
+
+        // Map data and fetch images in parallel for this batch
+        // Note: This might be heavy if there are many items.
+        const itemsWithImages = await Promise.all(
+            data.map(async (item: ApiCardItem, index: number) => {
+                let imageUrl: string | undefined = undefined;
+
+                if (item.imagePath) {
+                    imageUrl = await fetchImageBlob(item.imagePath);
+                }
+
+                return {
+                    id: item.entityId?.toString() ?? `${category}-${index}`,
+                    title: item.entityName || "Untitled",
+                    badge: item.badgeText || "",
+                    address: item.address || "",
+                    imageUrl: imageUrl,
+                    date: item.date,
+                    category: category,
+                };
+            })
+        );
+
+        return itemsWithImages;
+    };
+
+    /**
+     * Fetch data from all category endpoints in parallel
+     */
     useEffect(() => {
         if (!authenticated) return;
 
-        const fetchElements = async () => {
+        const fetchAllElements = async () => {
             try {
                 setLoadingElements(true);
                 setElementsError(null);
 
-                const url =
-                    "https://apispm.eppoi.io/api/events/card-list" +
-                    "?municipality=Massignano&language=it";
-
-                const response = await fetch(url, {
-                    method: "GET",
-                    headers: {
-                        Accept: "application/json",
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(
-                        `Elements API returned status ${response.status}`
-                    );
-                }
-
-                const json: unknown = await response.json();
-                const data = (json ?? []) as ApiEventItem[];
-
-                const mapped: ElementItem[] = data.map(
-                    (item: ApiEventItem, index: number) => {
-                        const rawImagePath = item.imagePath;
-
-                        // remove "-thumb" everywhere to get higher-res image
-                        const cleanedPath =
-                            rawImagePath
-                                ?.replace(/-thumb-/g, "-")
-                                .replace(/-thumb(?=\.[^.]+$)/, "") || rawImagePath;
-
-                        const imageUrl =
-                            cleanedPath && cleanedPath.startsWith("http")
-                                ? cleanedPath
-                                : cleanedPath
-                                    ? `${IMAGE_BASE_URL}${cleanedPath.startsWith("/") ? "" : "/"
-                                    }${cleanedPath}`
-                                    : undefined;
-
-                        return {
-                            id: item.entityId?.toString() ?? `element-${index}`,
-                            title: item.entityName || "Untitled",
-                            badge: item.badgeText || "",
-                            address: item.address || "",
-                            imageUrl,
-                            date: item.date || undefined,
-                            category: "Events",
-                        };
-                    }
+                // Fetch all categories in parallel
+                const categoryPromises = CATEGORY_CONFIGS.map((config) =>
+                    fetchCategoryData(config.endpoint, config.value).catch((err) => {
+                        console.error(`Error fetching ${config.value}:`, err);
+                        return []; // Return empty array on error to continue with other categories
+                    })
                 );
 
-                setElements(mapped);
+                const results = await Promise.all(categoryPromises);
+
+                // Flatten all results into a single array
+                const allElements = results.flat();
+                setElements(allElements);
             } catch (err) {
                 console.error("Error while fetching elements:", err);
                 setElementsError(
@@ -168,9 +232,21 @@ const MainContentsPage: React.FC = () => {
             }
         };
 
-        fetchElements();
+        fetchAllElements();
+
+        // Cleanup function to revoke object URLs when component unmounts or elements update
+        return () => {
+            elements.forEach(el => {
+                if (el.imageUrl && el.imageUrl.startsWith('blob:')) {
+                    URL.revokeObjectURL(el.imageUrl);
+                }
+            });
+        };
     }, [authenticated]);
 
+    /**
+     * Handle user logout
+     */
     const handleLogout = async () => {
         try {
             const response = await fetch(buildApiUrl("auth/logout"), {
@@ -188,26 +264,49 @@ const MainContentsPage: React.FC = () => {
         }
     };
 
-    // Build dynamic badge options from fetched elements
+    /**
+     * Extract unique badge options from fetched elements
+     * Filtered by selected category if applicable
+     */
     const uniqueBadgeOptions: CategoryOption[] = useMemo(() => {
         const badges = new Set<string>();
-        elements.forEach((el) => {
+
+        // Only consider elements from the selected category
+        const relevantElements = selectedCategory
+            ? elements.filter((el) => el.category === selectedCategory)
+            : elements;
+
+        relevantElements.forEach((el) => {
             if (el.badge) badges.add(el.badge);
         });
+
         return [
-            { value: null, label: "Tutti i badge" },
-            ...Array.from(badges).map((b) => ({ value: b, label: b })),
+            { value: null, label: "All Badges" },
+            ...Array.from(badges).sort().map((b) => ({ value: b, label: b })),
         ];
-    }, [elements]);
+    }, [elements, selectedCategory]);
 
-    const filteredElements = elements.filter((e) => {
-        const categoryOk =
-            selectedCategory == null || e.category === selectedCategory;
-        const badgeOk = selectedBadge == null || e.badge === selectedBadge;
-        return categoryOk && badgeOk;
-    });
+    /**
+     * Filter elements based on selected category and badge
+     */
+    const filteredElements = useMemo(() => {
+        return elements.filter((element) => {
+            const categoryMatch =
+                selectedCategory === null || element.category === selectedCategory;
+            const badgeMatch =
+                selectedBadge === null || element.badge === selectedBadge;
+            return categoryMatch && badgeMatch;
+        });
+    }, [elements, selectedCategory, selectedBadge]);
 
-    // Loader while checking auth
+    /**
+     * Reset badge filter when category changes
+     */
+    useEffect(() => {
+        setSelectedBadge(null);
+    }, [selectedCategory]);
+
+    // Show loader during authentication check
     if (loadingAuth) {
         return (
             <Box
@@ -224,8 +323,8 @@ const MainContentsPage: React.FC = () => {
         );
     }
 
+    // Prevent rendering if not authenticated
     if (!authenticated) {
-        // If redirect fails, avoid rendering protected content
         return null;
     }
 
@@ -236,7 +335,6 @@ const MainContentsPage: React.FC = () => {
                 minHeight: "100vh",
             }}
         >
-
             <Container maxWidth="lg">
                 <Box
                     sx={{
@@ -247,7 +345,7 @@ const MainContentsPage: React.FC = () => {
                         paddingBottom: 4,
                     }}
                 >
-                    {/* Header row: logo centered, logout aligned right */}
+                    {/* Header:  logo centered, logout button right-aligned */}
                     <Box
                         sx={{
                             display: "flex",
@@ -275,7 +373,7 @@ const MainContentsPage: React.FC = () => {
                                     gap: 1,
                                 }}
                             >
-                                <FlightIcon sx={{ transform: "rotate(45deg)" }} />{" "}
+                                <FlightIcon sx={{ transform: "rotate(45deg)" }} />
                                 Eppoi
                             </Typography>
                         </Box>
@@ -297,7 +395,7 @@ const MainContentsPage: React.FC = () => {
                         </Box>
                     </Box>
 
-                    {/* Main container card */}
+                    {/* Main content card */}
                     <Card
                         sx={{
                             width: "100%",
@@ -307,7 +405,7 @@ const MainContentsPage: React.FC = () => {
                             backgroundColor: theme.palette.background.paper,
                         }}
                     >
-                        {/* Two selects side by side */}
+                        {/* Filter controls */}
                         <Box
                             sx={{
                                 display: "flex",
@@ -315,6 +413,7 @@ const MainContentsPage: React.FC = () => {
                                 gap: 2,
                             }}
                         >
+                            {/* Category filter */}
                             <Box sx={{ flex: 1, minWidth: 0 }}>
                                 <CategorySelect
                                     label="Category"
@@ -323,18 +422,19 @@ const MainContentsPage: React.FC = () => {
                                     onChange={(val) => setSelectedCategory(val)}
                                 />
                             </Box>
+                            {/* Badge filter */}
                             <Box sx={{ flex: 1, minWidth: 0 }}>
                                 <CategorySelect
                                     label="Badge"
                                     value={selectedBadge}
                                     options={uniqueBadgeOptions}
                                     onChange={(val) => setSelectedBadge(val)}
-                                    accentColor={"#9810fa"}
+                                    accentColor="#9810fa"
                                 />
                             </Box>
                         </Box>
 
-                        {/* Elements list */}
+                        {/* Content area */}
                         {loadingElements ? (
                             <Box
                                 sx={{
@@ -373,6 +473,7 @@ const MainContentsPage: React.FC = () => {
                                         md: "repeat(3, minmax(0, 1fr))",
                                         lg: "repeat(3, minmax(0, 1fr))",
                                     },
+                                    gridAutoRows: "1fr",
                                     gap: 2.5,
                                     marginTop: 2,
                                 }}

@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Models\Services\Infrastructure\Services\Implemented\Auth\TokenGeneration.cs~RF5f9df18.TMP" />
+    <None Remove="Models\Services\Infrastructure\Implemented\Auth\TokenGeneration.cs~RF5f9df18.TMP" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,7 +58,6 @@
 
   <ItemGroup>
     <Folder Include="Logs\" />
-    <Folder Include="Models\Services\Application\" />
   </ItemGroup>
 
 </Project>

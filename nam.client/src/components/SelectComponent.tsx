@@ -13,9 +13,12 @@ interface SelectComponentProps {
     value: string | null;
     options: CategoryOption[];
     onChange: (value: string | null) => void;
-    accentColor?: string; // optional custom color for border and selected chips
+    accentColor?: string;// optional custom color for border and selected chips
 }
 
+/**
+ * Horizontal scrollable chip selector component with navigation arrows
+ */
 const SelectComponent: React.FC<SelectComponentProps> = ({
     value,
     options,
@@ -25,18 +28,21 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
     const theme = useTheme();
     const accent = accentColor ?? theme.palette.primary.main;
 
-    // Ref to the horizontal scroll container
+    // Reference to the scrollable container
     const scrollRef = useRef<HTMLDivElement | null>(null);
 
+    /**
+     * Scrolls the chip container left or right
+     */
     const handleScroll = (direction: "left" | "right") => {
         const node = scrollRef.current;
         if (!node) return;
 
-        const delta = 150; // how many pixels to scroll per click
+        const scrollAmount = 150; // Pixels to scroll per click
         const newScrollLeft =
             direction === "right"
-                ? node.scrollLeft + delta
-                : node.scrollLeft - delta;
+                ? node.scrollLeft + scrollAmount
+                : node.scrollLeft - scrollAmount;
 
         node.scrollTo({
             left: newScrollLeft,
@@ -55,7 +61,7 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
                 borderStyle: "solid",
             }}
         >
-            {/* Container for arrows + horizontally scrollable chips */}
+            {/* Container for scroll arrows and chips */}
             <Box
                 sx={{
                     display: "flex",
@@ -63,7 +69,7 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
                     gap: 1,
                 }}
             >
-                {/* Left arrow */}
+                {/* Left scroll arrow */}
                 <Box
                     sx={{
                         display: "flex",
@@ -77,13 +83,14 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
                     />
                 </Box>
 
-                {/* Scrollable chip row */}
+                {/* Horizontally scrollable chip container */}
                 <Box
                     ref={scrollRef}
                     sx={{
                         flex: 1,
                         overflowX: "auto",
                         overflowY: "hidden",
+                        // Hide scrollbar across browsers
                         "&::-webkit-scrollbar": {
                             display: "none",
                         },
@@ -96,7 +103,7 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
                         spacing={1}
                         sx={{
                             py: 0.5,
-                            width: "max-content", // prevents chips from shrinking
+                            width: "max-content", // Prevents chips from shrinking
                         }}
                     >
                         {options.map((opt) => {
@@ -131,7 +138,7 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
                     </Stack>
                 </Box>
 
-                {/* Right arrow */}
+                {/* Right scroll arrow */}
                 <Box
                     sx={{
                         display: "flex",

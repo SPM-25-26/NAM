@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using nam.Server.Endpoints.Auth;
-using nam.Server.Models.Services.Infrastructure.Services.Interfaces.Auth;
+using nam.Server.Models.Services.Infrastructure.Interfaces.Auth;
 using nam.ServerTests.mock;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,7 +10,7 @@ using System.Security.Claims;
 namespace nam.ServerTests
 {
     [TestClass]
-    public sealed class LogoutTests
+    public sealed class TokenLogoutTest
     {
         private AuthServiceTestBuilder _builder = null!;
         private IAuthService _authService = null!;

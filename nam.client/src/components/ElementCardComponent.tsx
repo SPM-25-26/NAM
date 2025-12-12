@@ -158,7 +158,7 @@ const ElementCard: React.FC<ElementCardProps> = ({
                             sx={{
                                 color: theme.palette.text.primary,
                                 display: "-webkit-box",
-                                WebkitLineClamp: 2,
+                                WebkitLineClamp: 1,
                                 WebkitBoxOrient: "vertical",
                                 overflow: "hidden",
                             }}
