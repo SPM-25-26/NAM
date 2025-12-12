@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-using nam.Server.Endpoints;
-using nam.Server.Models.ApiResponse;
+using nam.Server.Endpoints.Auth;
 using nam.Server.Models.DTOs;
-using nam.Server.Models.Services.Infrastructure;
+using nam.Server.Models.Services.Infrastructure.Services.Interfaces.Auth;
 using nam.Server.Models.Validators;
 using nam.ServerTests.mock;
 using Serilog;

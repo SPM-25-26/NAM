@@ -5,13 +5,26 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using nam.Server.Data;
 using nam.Server.Endpoints;
+using nam.Server.Endpoints.Auth;
+using nam.Server.Endpoints.MunicipalityEntities;
+using nam.Server.Models.Entities.MunicipalityEntities;
 using nam.Server.Models.Options;
-using nam.Server.Models.Services.Infrastructure;
+using nam.Server.Models.Services.Infrastructure.Repositories.Implemented.MunicipalityEntities;
+using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces.MunicipalityEntities;
+using nam.Server.Models.Services.Infrastructure.Services.Implemented;
+using nam.Server.Models.Services.Infrastructure.Services.Implemented.Auth;
+using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Fetchers;
+using nam.Server.Models.Services.Infrastructure.Services.Implemented.DataInjection.Sync;
+using nam.Server.Models.Services.Infrastructure.Services.Implemented.MunicipalityEntities;
+using nam.Server.Models.Services.Infrastructure.Services.Interfaces;
+using nam.Server.Models.Services.Infrastructure.Services.Interfaces.Auth;
+using nam.Server.Models.Services.Infrastructure.Services.Interfaces.DataInjection;
+using nam.Server.Models.Services.Infrastructure.Services.Interfaces.MunicipalityEntities;
+using nam.Server.Models.Swagger;
+using nam.Server.Workers;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
-
 using System.Text;
-using nam.Server.Models.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -146,6 +159,34 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// Register HttpClient for data injection services
+builder.Services.AddHttpClient();
+
+// Register data injection services
+builder.Services.AddTransient<ISyncService, NewSyncService>();
+builder.Services.AddTransient<IFetcher, HttpFetcherService>();
+
+// Register background workers
+builder.Services.AddHostedService<DailyDataSyncWorker>();
+
+// Municipality entities services
+builder.Services.AddScoped<IArtCultureRepository, ArtCultureRepository>(); //TODO move to a proper place
+builder.Services.AddScoped<IMunicipalityEntityService<ArtCultureNatureCard, ArtCultureNatureDetail>, ArtCultureService>();
+
+builder.Services.AddScoped<IPublicEventRepository, PublicEventRepository>(); //TODO move to a proper place
+builder.Services.AddScoped<IMunicipalityEntityService<PublicEventCard, PublicEventMobileDetail>, PublicEventService>();
+
+builder.Services.AddScoped<IArticleRepository, ArticleRepository>(); //TODO move to a proper place
+builder.Services.AddScoped<IMunicipalityEntityService<ArticleCard, ArticleDetail>, ArticleService>();
+
+builder.Services.AddScoped<INatureRepository, NatureRepository>(); //TODO move to a proper place
+builder.Services.AddScoped<IMunicipalityEntityService<Nature, ArtCultureNatureDetail>, NatureService>();
+
+builder.Services.AddScoped<IMunicipalityCardRepository, MunicipalityCardRepository>(); //TODO move to a proper place
+builder.Services.AddScoped<IMunicipalityEntityService<MunicipalityCard, MunicipalityHomeInfo>, MunicipalityCardService>();
+
+builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>(); //TODO move to a proper place
+builder.Services.AddScoped<IMunicipalityEntityService<OrganizationCard, OrganizationMobileDetail>, OrganizationService>();
 
 var app = builder.Build();
 
@@ -163,7 +204,7 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+//app.UseStaticFiles();
 
 app.UseRouting();
 
@@ -178,4 +219,11 @@ app.UseAuthorization();
 app.MapRazorPages();
 app.MapAuth();
 app.MapPoi();
+app.MapArtCulture();
+app.MapImages();
+app.MapPublicEvent();
+app.MapArticle();
+app.MapNature();
+app.MapMunicipalityCard();
+app.MapOrganization();
 app.Run();
