@@ -188,6 +188,9 @@ builder.Services.AddScoped<IMunicipalityEntityService<MunicipalityCard, Municipa
 builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>(); //TODO move to a proper place
 builder.Services.AddScoped<IMunicipalityEntityService<OrganizationCard, OrganizationMobileDetail>, OrganizationService>();
 
+builder.Services.AddScoped<IEntertainmentLeisureRepository, EntertainmentLeisureRepository>(); //TODO move to a proper place
+builder.Services.AddScoped<IMunicipalityEntityService<EntertainmentLeisureCard, EntertainmentLeisureDetail>, EntertainmentLeisureService>();
+
 var app = builder.Build();
 
 
@@ -226,4 +229,5 @@ app.MapArticle();
 app.MapNature();
 app.MapMunicipalityCard();
 app.MapOrganization();
+app.MapEntertainmentLeisure();
 app.Run();
