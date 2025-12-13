@@ -20,6 +20,7 @@ using nam.Server.Models.Services.Infrastructure.Interfaces;
 using nam.Server.Models.Services.Infrastructure.Interfaces.Auth;
 using nam.Server.Models.Services.Infrastructure.Repositories.Implemented.MunicipalityEntities;
 using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces.MunicipalityEntities;
+using nam.Server.Models.Services.Infrastructure.Services.Implemented.MunicipalityEntities;
 using nam.Server.Models.Swagger;
 using nam.Server.Workers;
 using Serilog;
@@ -221,7 +222,6 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapAuth();
-app.MapPoi();
 app.MapArtCulture();
 app.MapImages();
 app.MapPublicEvent();

@@ -55,10 +55,11 @@ type CategoryConfig = {
  */
 const CATEGORY_CONFIGS: CategoryConfig[] = [
     { value: "Article", label: "Article", endpoint: 'article/card-list' },
-    { value: "ArtCulture", label: "Art&Culture", endpoint: 'art-culture/card-list' },
+    { value: "ArtCulture", label: "ArtCulture", endpoint: 'art-culture/card-list' },
     { value: "Events", label: "Events", endpoint: 'public-event/card-list' },
     { value: "Organization", label: "Organization", endpoint: 'organizations/card-list' },
     { value: "Nature", label: "Nature", endpoint: 'nature/card-list' },
+    { value: "EntertainmentLeisure", label: "Entertainment&Leisure", endpoint: 'entertainment-leisure/card-list' }
 ];
 
 const MainContentsPage: React.FC = () => {
