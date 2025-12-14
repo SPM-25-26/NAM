@@ -1,11 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import FlightIcon from "@mui/icons-material/Flight";
-import LogoutIcon from "@mui/icons-material/Logout";
 import {
   Box,
   Card,
   Container,
-  IconButton,
   Typography,
   useTheme,
   CircularProgress,
@@ -14,6 +12,9 @@ import { buildApiUrl } from "../../config";
 import ElementCard from "../../components/ElementCardComponent";
 import CategorySelect from "../../components/SelectComponent";
 import type { CategoryOption } from "../../components/SelectComponent";
+import { useNavigate } from "react-router-dom";
+import { stringToCategoryAPI } from "../detail_element/hooks/IDetailElement";
+import MyAppBar from "../../components/appbar";
 
 /**
  * API response shape for card list items
@@ -24,6 +25,7 @@ type ApiCardItem = {
   imagePath: string;
   badgeText: string;
   address: string;
+  taxCode?: string;
   date?: string;
 };
 
@@ -75,7 +77,7 @@ const CATEGORY_CONFIGS: CategoryConfig[] = [
 
 const MainContentsPage: React.FC = () => {
   const theme = useTheme();
-
+  const navigate = useNavigate();
   // Authentication state
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
@@ -201,7 +203,8 @@ const MainContentsPage: React.FC = () => {
         }
 
         return {
-          id: item.entityId?.toString() ?? `${category}-${index}`,
+          id:
+            item.entityId?.toString() ?? item.taxCode ?? `${category}-${index}`,
           title: item.entityName || "Untitled",
           badge: item.badgeText || "",
           address: item.address || "",
@@ -362,56 +365,12 @@ const MainContentsPage: React.FC = () => {
             paddingBottom: 4,
           }}
         >
-          {/* Header:  logo centered, logout button right-aligned */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-              mb: 2.5,
-            }}
-          >
-            <Box sx={{ flex: 1, minWidth: 48 }} />
-            <Box
-              sx={{
-                flex: 1,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              <Typography
-                variant="h5"
-                sx={{
-                  color: theme.palette.primary.main,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <FlightIcon sx={{ transform: "rotate(45deg)" }} />
-                Eppoi
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                flex: 1,
-                display: "flex",
-                justifyContent: "flex-end",
-                alignItems: "center",
-              }}
-            >
-              <IconButton
-                onClick={handleLogout}
-                aria-label="Logout"
-                color="primary"
-              >
-                <LogoutIcon />
-              </IconButton>
-            </Box>
-          </Box>
-
+          <MyAppBar
+            title={"Eppoi"}
+            logout={handleLogout}
+            back
+            icon={<FlightIcon sx={{ transform: "rotate(45deg)" }} />}
+          />
           {/* Main content card */}
           <Card
             sx={{
@@ -503,6 +462,17 @@ const MainContentsPage: React.FC = () => {
                       address={item.address}
                       imageUrl={item.imageUrl}
                       date={item.date}
+                      onClick={() => {
+                        console.log("Navigating to detail of", item.id);
+                        navigate("/detail-element", {
+                          state: {
+                            id: item.id,
+                            category: stringToCategoryAPI(
+                              item.category ?? "sleep"
+                            ),
+                          },
+                        });
+                      }}
                     />
                   </Box>
                 ))}

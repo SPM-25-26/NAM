@@ -118,10 +118,10 @@ export interface IParagraph {
 
 const CategoryApi = {
   ART_CULTURE: "art-culture",
-  ARTICLE: "articles",
+  ARTICLE: "article",
   EAT_AND_DRINK: "eat-and-drink",
   ENTERTAINMENT_LEISURE: "entertainment-leisure",
-  EVENTS: "events",
+  EVENTS: "public-event",
   NATURE: "nature",
   ROUTES: "routes",
   ORGANIZATION: "organizations",

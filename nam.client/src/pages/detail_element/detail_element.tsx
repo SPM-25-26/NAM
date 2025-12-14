@@ -44,10 +44,10 @@ import StatusCard from "../../components/status_screen";
 import SectionHeader from "./component/section_header";
 import { DetailRow } from "./component/detail_row";
 import { loadingView } from "../../components/loading";
+import { buildApiUrl } from "../../config";
 
 //TODO: replace when migration complete
-const BASE_URL_IMG = "https://eppoi.io";
-
+const BASE_URL_IMG = buildApiUrl("image/external?imagePath=");
 interface EventState {
   id: string;
   category: CategoryApi;
@@ -69,9 +69,9 @@ export function EventDetail() {
         type="error"
         title="🚫 Errore"
         message={error}
-        buttonText="BAck"
+        buttonText="Back"
         onAction={() => {
-          navigate("/choice");
+          navigate("/maincontents");
         }}
       />
     );
@@ -81,9 +81,9 @@ export function EventDetail() {
         type="empty"
         title="🚫 Not Found"
         message="Data not found"
-        buttonText="BAck"
+        buttonText="Back"
         onAction={() => {
-          navigate("/choice");
+          navigate("/maincontents");
         }}
       />
     );
@@ -106,7 +106,7 @@ export function EventDetail() {
     )
       return null;
     return (
-      <Stack direction="row" spacing={1}>
+      <Stack direction="row" spacing={1} sx={{ p: 1 }}>
         {data.timeToRead && (
           <Chip
             icon={<AccessTime />}
@@ -138,9 +138,14 @@ export function EventDetail() {
       </Stack>
     );
   };
-
+  function cleanPath(referenceImagePath: string) {
+    return referenceImagePath
+      .replace(/-thumb-/g, "-")
+      .replace(/-thumb(?=\.[^.]+$)/, "");
+  }
   const renderParagraphArticle = () => {
     if ((data.paragraphs ?? []).length < 1) return null;
+
     return (
       <Box className="story-content" sx={{ mb: 3 }}>
         {(data.paragraphs ?? [])
@@ -165,7 +170,10 @@ export function EventDetail() {
                     objectFit: "cover",
                     mt: 1,
                   }}
-                  image={`${BASE_URL_IMG}${paragraph.referenceImagePath}`}
+                  image={buildApiUrl(
+                    "image/external?imagePath=" +
+                      cleanPath(paragraph.referenceImagePath)
+                  )}
                   alt={`Image reference for ${paragraph.referenceName}`}
                 />
               )}
@@ -375,7 +383,7 @@ export function EventDetail() {
               {service.imagePath && (
                 <CardMedia
                   component="img"
-                  image={`${BASE_URL_IMG}${service.imagePath}`}
+                  image={`${BASE_URL_IMG}${cleanPath(service.imagePath)}`}
                   alt={service.name ?? "Service image"}
                   sx={{
                     width: 60,
@@ -423,9 +431,9 @@ export function EventDetail() {
 
   const renderingContact = () => {
     if (
-      data.email == undefined &&
-      data.telephone == undefined &&
-      data.website == undefined
+      (data.email ?? "").length == 0 &&
+      (data.telephone ?? "").length == 0 &&
+      (data.website ?? "").length == 0
     )
       return null;
     return (
@@ -463,10 +471,10 @@ export function EventDetail() {
 
   const renderingOrganizer = () => {
     if (
-      data.organizer?.legalName == undefined &&
-      data.organizer?.website == undefined &&
-      data.facebook == undefined &&
-      data.instagram == undefined
+      (data.organizer?.legalName ?? "").length == 0 &&
+      (data.organizer?.website ?? "").length == 0 &&
+      (data.facebook ?? "").length == 0 &&
+      (data.instagram ?? "").length == 0
     )
       return null;
 
@@ -505,13 +513,15 @@ export function EventDetail() {
   };
 
   const renderingCreativeWork = () => {
-    if ((data.creativeWorks ?? []).length < 1) return null;
+    if (!data?.creativeWorks?.length) return null;
+
     return (
-      <Box sx={{ mb: 5 }}>
+      <Box sx={{ p: 2 }}>
         <SectionHeader title="Creative Works" IconComponent={WorkRounded} />
+
         <List dense>
-          {(data.creativeWorks ?? []).map((work, index) => (
-            <ListItem key={index} disablePadding>
+          {data.creativeWorks.map((work) => (
+            <ListItem key={work.url} sx={{ px: 2, py: 1 }}>
               <ListItemText
                 primary={
                   <Typography
@@ -528,15 +538,22 @@ export function EventDetail() {
                     target="_blank"
                     rel="noopener noreferrer"
                     color="primary"
+                    style={{
+                      display: "block",
+                      whiteSpace: "normal",
+                      wordBreak: "break-word",
+                      overflowWrap: "anywhere",
+                    }}
                   >
                     {work.url}
                   </Link>
                 }
-                sx={{ mb: 1 }}
+                sx={{ mb: 0.5 }}
               />
             </ListItem>
           ))}
         </List>
+
         <Divider sx={{ my: 3 }} />
       </Box>
     );
@@ -627,8 +644,8 @@ export function EventDetail() {
               }
             >
               <img
-                srcSet={`${BASE_URL_IMG}${img}`}
-                src={`${BASE_URL_IMG}${img}`}
+                srcSet={`${BASE_URL_IMG}${cleanPath(img)}`}
+                src={`${BASE_URL_IMG}${cleanPath(img)}`}
                 alt={`Gallery Image ${i + 1}`}
                 loading="lazy"
                 style={{ borderRadius: 8 }}
@@ -666,8 +683,8 @@ export function EventDetail() {
                 <CardMedia
                   component="img"
                   height="140"
-                  image={`${BASE_URL_IMG}${neighbor.imagePath}`}
-                  alt={`Immagine di ${neighbor.title}`}
+                  image={`${BASE_URL_IMG}${cleanPath(neighbor.imagePath)}`}
+                  alt={`Image of ${neighbor.title}`}
                   sx={{ objectFit: "cover" }}
                 />
                 <CardContent>
@@ -695,7 +712,7 @@ export function EventDetail() {
                     />
                     {neighbor.extraInfo && (
                       <Chip
-                        label={`Distanza: ${neighbor.extraInfo}`}
+                        label={`Distance: ${neighbor.extraInfo}`}
                         size="small"
                         color="secondary"
                       />
@@ -711,24 +728,34 @@ export function EventDetail() {
   };
 
   return (
-    <Container component="main" maxWidth="sm" sx={{ p: 0 }}>
-      <MyAppBar title={data.title ?? data.officialName ?? "Details"} back />
-      <Box sx={{ p: 2 }} />
-      {renderSubtitle()}
-      {renderScript()}
-      {renderMainBadgeInformation()}
-      {renderParagraphArticle()}
-      {renderMainDetails()}
-      {renderAddress()}
-      {renderDescription()}
-      {renderingSectionAndTicket()}
-      {renderingServices()}
-      {renderingContact()}
-      {renderingOrganizer()}
-      {renderingCreativeWork()}
-      {renderingOffers()}
-      {renderingGallery()}
-      {renderingNeighbors()}
+    <Container maxWidth="lg">
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          paddingTop: 1,
+          paddingBottom: 4,
+        }}
+      >
+        <MyAppBar title={data.title ?? data.officialName ?? "Details"} back />
+        <Box sx={{ p: 2 }} />
+        {renderSubtitle()}
+        {renderScript()}
+        {renderMainBadgeInformation()}
+        {renderParagraphArticle()}
+        {renderMainDetails()}
+        {renderAddress()}
+        {renderDescription()}
+        {renderingSectionAndTicket()}
+        {renderingServices()}
+        {renderingContact()}
+        {renderingOrganizer()}
+        {renderingCreativeWork()}
+        {renderingOffers()}
+        {renderingGallery()}
+        {renderingNeighbors()}
+      </Box>
     </Container>
   );
 }

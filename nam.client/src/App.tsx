@@ -7,7 +7,6 @@ import LoginPage from "./pages/login/LoginPage";
 import MainContentsPage from "./pages/maincontents/MainContentsPage";
 import VerifyEmailPage from "./pages/verifymail/VerifyEmailPage";
 import { EventDetail } from "./pages/detail_element/detail_element";
-import ChoicePageTest from "./pages/detail_element/choice";
 
 function App() {
   return (
@@ -21,8 +20,6 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="*" element={<NotFoundPage />} />
         <Route path="/detail-element" element={<EventDetail />} />
-        {/* TODO: remove route */}
-        <Route path="/choice-test" element={<ChoicePageTest />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import type { CategoryApi, Element } from "./IDetailElement";
+import { buildApiUrl } from "../../../config";
 //TODO: replace with internal url
-const BASE_URL = "https://apispm.eppoi.io/api/";
+
 export function useLocationEvent(identifier: string, category: CategoryApi) {
   const [data, setData] = useState<Element | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -18,7 +19,9 @@ export function useLocationEvent(identifier: string, category: CategoryApi) {
         const pathDetails = "/detail/";
         const query = "?language=en";
         const res = await fetch(
-          BASE_URL + category.toString() + pathDetails + identifier + query,
+          buildApiUrl(
+            `${category.toString()}${pathDetails}${identifier}${query}`
+          ),
           {
             method: "GET",
             headers: {
