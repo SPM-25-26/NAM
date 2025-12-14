@@ -1,105 +1,100 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-using nam.Server.Endpoints;
-using nam.Server.Models.Services.Infrastructure;
+using nam.Server.Endpoints.Auth;
+using nam.Server.Models.ApiResponse;
+using nam.Server.Models.DTOs;
+using nam.Server.Models.Services.Infrastructure.Interfaces.Auth;
+using nam.Server.Models.Validators;
 using nam.ServerTests.mock;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using Serilog;
 
 namespace nam.ServerTests
 {
     [TestClass]
     public sealed class ResetPasswordTest
     {
+
         private AuthServiceTestBuilder _builder = null!;
         private IAuthService _authService = null!;
 
         [TestInitialize]
         public void Setup()
         {
-            // Initialize the builder and the service (which uses the in-memory DB)
             _builder = new AuthServiceTestBuilder();
             _authService = _builder.Build();
+
+            var logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            AuthEndpoints.ConfigureLogger(logger);
         }
 
         [TestCleanup]
         public void Cleanup()
         {
             _builder.Dispose();
+            Log.CloseAndFlush();
         }
 
         [TestMethod]
-        public async Task Logout_ReturnsOk_AndRevokesToken_WhenUserIsAuthenticated()
+        public async Task RegisterUser_ReturnsOk_WhenRegistrationIsSuccessfulAsync()
         {
-            // Arrange: HttpContext with authenticated user and claim jti/exp
-            var httpContext = new DefaultHttpContext();
-
-            var jti = Guid.NewGuid().ToString();
-            // Exp claims are in Unix seconds
-            var exp = DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds().ToString();
-
-            var claims = new List<Claim>
+            RegisterUserValidator validator = new();
+            RegisterUserDto registrationData = new()
             {
-                new Claim(JwtRegisteredClaimNames.Jti, jti),
-                new Claim(JwtRegisteredClaimNames.Exp, exp),
+                Email = "validmail@gmail.com",
+                Password = "ValidPassword123!",
+                ConfirmPassword = "ValidPassword123!"
             };
 
-            var identity = new ClaimsIdentity(claims, authenticationType: "TestAuth");
-            var principal = new ClaimsPrincipal(identity);
-            httpContext.User = principal;
+            var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
 
-            // Act
-            // Assume that the endpoint now accepts IAuthService
-            var result = await AuthEndpoints.LogoutAsync(httpContext, CancellationToken.None, _authService);
+            Assert.IsInstanceOfType(result, typeof(Ok<MessageResponse>));
 
-            // Assert - Verify Response
-            // If the endpoint returns TypedResults.Ok(new { message = "..." }) the type could be Ok<object> or Ok<dynamic>
-            // Verify that it is NOT an error
-            Assert.IsNotInstanceOfType(result, typeof(UnauthorizedHttpResult));
-            Assert.IsNotInstanceOfType(result, typeof(BadRequest<string>));
+            var userInDb = await _builder.Context.Users.FirstOrDefaultAsync(u => u.Email == registrationData.Email);
 
-            // Generic check on the OK result
-            // Note: Depending on how the endpoint is written, you might need to use typeof(Ok<LogoutResponse>) or similar.
-            // Here we use dynamic reflection as in your original test.
-            var okResult = result as dynamic;
-            Assert.IsNotNull(okResult);
+            Assert.IsNotNull(userInDb, "User should exist in the database");
+            Assert.AreEqual("validmail@gmail.com", userInDb.Email);
 
-            var value = okResult.Value;
-            Assert.IsNotNull(value);
-
-            // If your endpoint returns an anonymous object or a DTO with the 'message' property
-            // Example: return TypedResults.Ok(new { message = "Logout done..." });
-            // You can access it via reflection/dynamic
-            try
-            {
-                string message = value.GetType().GetProperty("message")?.GetValue(value, null) as string ?? "";
-                Assert.AreEqual("Logout done, token revokated.", message);
-            }
-            catch
-            {
-                // Fallback if the value is directly a string
-                // Assert.AreEqual("Logout done, token revokated.", value.ToString());
-            }
-
-            // Assert - Verify Database side effect
-            // Verify that AuthService has written to the RevokedTokens table
-            var isRevokedInDb = await _builder.Context.RevokedTokens.AnyAsync(t => t.Jti == jti);
-            Assert.IsTrue(isRevokedInDb, "Il token (jti) dovrebbe essere presente nella tabella RevokedTokens del DB.");
+            Assert.AreNotEqual("ValidPassword123!", userInDb.PasswordHash);
         }
 
         [TestMethod]
-        public async Task Logout_ReturnsUnauthorized_WhenUserIsNotAuthenticated()
+        public async Task RegisterUser_ReturnsConflict_WhenEmailAlreadyExists()
         {
-            // Arrange: HttpContext user not authenticated
-            var httpContext = new DefaultHttpContext();
-            httpContext.User = new ClaimsPrincipal(new ClaimsIdentity()); // No AuthType = Not Authenticated
+            RegisterUserValidator validator = new();
+            var existingEmail = "existing@example.com";
 
-            // Act
-            var result = await AuthEndpoints.LogoutAsync(httpContext, CancellationToken.None, _authService);
+            await _builder.SeedUserAsync(existingEmail, "SomePassword123!");
 
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(UnauthorizedHttpResult));
+            RegisterUserDto registrationData = new()
+            {
+                Email = existingEmail,
+                Password = "ValidPassword123!",
+                ConfirmPassword = "ValidPassword123!"
+            };
+
+            var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
+
+            Assert.IsInstanceOfType(result, typeof(Conflict<MessageResponse>));
+        }
+
+        [TestMethod]
+        public async Task RegisterUser_ReturnsValidationProblem_WhenPasswordsDoNotMatch()
+        {
+            RegisterUserValidator validator = new();
+            RegisterUserDto registrationData = new()
+            {
+                Email = "newuser@example.com",
+                Password = "ValidPasswordA123! ",
+                ConfirmPassword = "ValidPasswordB123!"
+            };
+
+            var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
+
+            Assert.IsInstanceOfType(result, typeof(ValidationProblem));
         }
     }
 }

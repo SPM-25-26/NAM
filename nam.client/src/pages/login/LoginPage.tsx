@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import FlightIcon from "@mui/icons-material/Flight";
@@ -15,6 +15,14 @@ import MyButton from "../../components/button";
 import FormBox from "../../components/FormBox";
 import { buildApiUrl } from "../../config";
 
+interface ProblemDetails {
+    type?: string;
+    title?: string;
+    status?: number;
+    detail?: string;
+    instance?: string;
+}
+
 const LoginPage: React.FC = () => {
   const theme = useTheme();
 
@@ -26,12 +34,34 @@ const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                const response = await fetch(buildApiUrl("auth/validate-token"), {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                });
+
+                if (response.ok) {
+                    window.location.href = "/maincontents";
+                }
+            } catch {
+                // 
+            }
+        };
+
+        checkSession();
+    }, []);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
 
     // Clear API error when user modifies form
     if (apiError) {
@@ -57,32 +87,29 @@ const LoginPage: React.FC = () => {
         }),
       });
 
-      if (!response.ok) {
-        let errorMessage =
-          "Login failed. Please check your credentials and try again.";
+            if (!response.ok) {
+                let errorMessage = "Login failed. Please check your credentials.";
+                try {
+                    const errorData = (await response.json()) as ProblemDetails;
+                    if (errorData.detail) {
+                        errorMessage = errorData.detail;
+                    }
+                } catch {
+                    //
+                }
+                setApiError(errorMessage);
+                return;
+            }
 
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.title || errorData.message || errorMessage;
-        } catch {
-          // If response body is not JSON, keep default error message
+            window.location.href = "/maincontents";
+
+        } catch (error) {
+            console.error("Login error:", error);
+            setApiError("An error occurred during login. Please try again.");
+        } finally {
+            setIsLoading(false);
         }
-
-        setApiError(errorMessage);
-        return;
-      }
-
-      const data = await response.json();
-      console.log(data.message);
-
-      window.location.href = "/maincontents";
-    } catch (error) {
-      console.error("Login error:", error);
-      setApiError("An error occurred during login. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
 
   const handleLoginClick = () => {
     if (!formData.email || !formData.password) {

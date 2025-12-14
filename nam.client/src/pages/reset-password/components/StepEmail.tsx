@@ -19,8 +19,8 @@ const StepEmail: React.FC<StepEmailProps> = ({
   updateEmail,
   handleSendEmail,
 }) => {
-  return (
-    <Box sx={{ width: "100%", maxWidth: 400, textAlign: "center" }}>
+    return (
+        <Box sx={{ width: "100%", maxWidth: 400, textAlign: "center" }}>
       <Typography variant="h5" sx={{ mb: 1 }}>
         Enter your Email
       </Typography>
@@ -41,6 +41,7 @@ const StepEmail: React.FC<StepEmailProps> = ({
         value={email}
         onChange={(e) => updateEmail(e.target.value)}
         IconComponent={EmailOutlined}
+
       />
 
       <MyButton
