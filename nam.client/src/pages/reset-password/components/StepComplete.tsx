@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme} from "@mui/material";
 import { CheckCircleOutline } from "@mui/icons-material";
 import MyButton from "../../../components/button";
 
@@ -7,9 +7,11 @@ interface StepCompleteProps {
   handleGoToLogin: () => void;
 }
 
+
 const StepComplete: React.FC<StepCompleteProps> = ({ handleGoToLogin }) => {
-  return (
-    <Box sx={{ width: "100%", maxWidth: 400, textAlign: "center" }}>
+    const theme = useTheme();
+    return (
+        <Box sx={{ width: "100%", maxWidth: 400, textAlign: "center", backgroundColor: theme.palette.background.paper }}>
       <CheckCircleOutline color="success" sx={{ fontSize: 80, mb: 2 }} />
       <Typography variant="h4" sx={{ mb: 1 }}>
         Password Updated

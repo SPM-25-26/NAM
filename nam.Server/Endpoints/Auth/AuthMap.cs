@@ -64,6 +64,12 @@ namespace nam.Server.Endpoints.Auth
            .WithSummary("User login")
            .WithDescription("Authenticates the user with email/username and password. Returns a JWT access token if successful.");
 
+            // GET /api/auth/validate-token
+            groupBuilder.MapGet("/validate-token", AuthEndpoints.ValidateToken)
+                 .RequireAuthorization()
+                 .Produces(StatusCodes.Status200OK)
+                 .Produces(StatusCodes.Status401Unauthorized);
+
             // POST /api/auth/logout
             groupBuilder.MapPost("/logout", AuthEndpoints.LogoutAsync)
                 .RequireAuthorization()

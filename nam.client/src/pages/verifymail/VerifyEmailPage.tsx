@@ -18,11 +18,9 @@ const VerifyEmailPage: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
 
-    // 'idle' | 'loading' | 'success' | 'error'
     const [status, setStatus] = useState<string>("loading");
     const [message, setMessage] = useState<string>("Verifying your email...");
 
-    // Use a ref to prevent double-firing in React Strict Mode
     const hasFetched = useRef(false);
 
     useEffect(() => {
@@ -37,21 +35,22 @@ const VerifyEmailPage: React.FC = () => {
             }
 
             try {
-                // POST /api/auth/verify-email
                 const response = await fetch(buildApiUrl("auth/verify-email"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, token }),
                 });
 
-                if (!response.ok) {
+                if (response.ok) {
+                    const data = await response.json();
+                    setStatus("success");
+                    setMessage(data.message || "Your email has been successfully verified.");
+                } else {
+                    const errorData = await response.json();
                     setStatus("error");
-                    setMessage("Verification failed. The link may be invalid or expired.");
-                    return;
+                    setMessage(errorData.detail || "Verification failed. The link may be invalid or expired.");
                 }
 
-                setStatus("success");
-                setMessage("Your email has been successfully verified.");
             } catch (error) {
                 console.error("Verification error:", error);
                 setStatus("error");
@@ -82,7 +81,6 @@ const VerifyEmailPage: React.FC = () => {
                         paddingY: 4,
                     }}
                 >
-                    {/* Logo and Title */}
                     <Box
                         sx={{
                             display: "flex",
@@ -105,7 +103,6 @@ const VerifyEmailPage: React.FC = () => {
                         </Typography>
                     </Box>
 
-                    {/* Main Card */}
                     <Card
                         sx={{
                             width: "85%",
@@ -114,7 +111,7 @@ const VerifyEmailPage: React.FC = () => {
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
-                            minHeight: "300px", // Ensure consistent height during loading
+                            minHeight: "300px",
                             justifyContent: "center"
                         }}
                     >

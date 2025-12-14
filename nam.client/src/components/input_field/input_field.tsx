@@ -38,6 +38,7 @@ const MyInputField: React.FC<MyInputFieldProps> = ({
     <Box className="input_field_container">
       <InputLabel>{label}</InputLabel>
       <TextField
+        className="inputtextfield"
         value={value}
         placeholder={placeholder}
         onChange={onChange}
