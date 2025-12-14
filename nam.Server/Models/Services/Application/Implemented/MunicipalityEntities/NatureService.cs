@@ -1,9 +1,9 @@
 ﻿using nam.Server.Models.Entities.MunicipalityEntities;
-using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces.MunicipalityEntities;
+using nam.Server.Models.Services.Infrastructure.Interfaces;
 
 namespace nam.Server.Models.Services.Application.Implemented.MunicipalityEntities
 {
-    public class NatureService(INatureRepository natureRepository) : MunicipalityEntityService<Nature, ArtCultureNatureDetail>(natureRepository)
+    public class NatureService(IUnitOfWork unitOfWork) : MunicipalityEntityService<Nature, ArtCultureNatureDetail>(unitOfWork.Nature)
     {
     }
 }

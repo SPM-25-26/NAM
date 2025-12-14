@@ -22,6 +22,7 @@ namespace nam.Server.Models.Services.Infrastructure.Implemented
             Nature = new NatureRepository(_context);
             Organization = new OrganizationRepository(_context);
             PublicEvent = new PublicEventRepository(_context);
+            EntertainmentLeisure = new EntertainmentLeisureRepository(_context);
         }
 
         public Task CompleteAsync()
@@ -41,5 +42,6 @@ namespace nam.Server.Models.Services.Infrastructure.Implemented
         public INatureRepository Nature { get; }
         public IOrganizationRepository Organization { get; }
         public IPublicEventRepository PublicEvent { get; }
+        public IEntertainmentLeisureRepository EntertainmentLeisure { get; }
     }
 }
