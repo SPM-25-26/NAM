@@ -21,6 +21,14 @@ namespace nam.Server.Data
                 .WithOne()
                 .HasForeignKey("MunicipalityHomeInfoLegalName1")
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<FeatureCard>()
+            .Property(u => u.Category)
+            .HasConversion<string>();
+
+            builder.Entity<MobileCategoryDetail>()
+            .Property(u => u.Category)
+            .HasConversion<string>();
         }
 
         public DbSet<User> Users { get; set; }
