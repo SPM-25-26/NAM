@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace nam.Server.Models.Entities.MunicipalityEntities
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum MobileCategory
     {
         Sleep,
