@@ -463,9 +463,10 @@ const MainContentsPage: React.FC = () => {
                       imageUrl={item.imageUrl}
                       date={item.date}
                       onClick={() => {
-                        console.log("Navigating to detail of", item.id);
                         navigate("/detail-element", {
                           state: {
+                            //TODO: enable mock view
+                            // id: "mock_test",
                             id: item.id,
                             category: stringToCategoryAPI(
                               item.category ?? "sleep"

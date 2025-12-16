@@ -20,7 +20,9 @@ export const DetailRow: React.FC<DetailRowProps> = ({
   return (
     <Stack direction="row" alignItems="center" spacing={1} mb={1}>
       {/* 1. Optional Icon */}
-      {IconComponent && <IconComponent color="action" fontSize="small" />}
+      {IconComponent && (
+        <IconComponent fontSize="small" sx={{ color: "#C084FC" }} />
+      )}
       {/* Field label */}
       <Typography sx={{ fontWeight: "bold" }}>{label}</Typography>
 

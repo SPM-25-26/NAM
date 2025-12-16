@@ -15,6 +15,7 @@ import {
   CardActionArea,
   CardContent,
   Grid,
+  useTheme,
 } from "@mui/material";
 
 import {
@@ -35,6 +36,7 @@ import {
   LocationSearching,
   Timer,
   Description,
+  GroupAdd,
 } from "@mui/icons-material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLocationEvent } from "./hooks/useDetailEvents";
@@ -45,6 +47,7 @@ import SectionHeader from "./component/section_header";
 import { DetailRow } from "./component/detail_row";
 import { loadingView } from "../../components/loading";
 import { buildApiUrl } from "../../config";
+import MyButton from "../../components/button";
 
 //TODO: replace when migration complete
 const BASE_URL_IMG = buildApiUrl("image/external?imagePath=");
@@ -54,6 +57,10 @@ interface EventState {
 }
 
 export function EventDetail() {
+  const theme = useTheme();
+  const colorBrand = "#9810fa";
+  const colorBrandGradient =
+    "linear-gradient(90deg, rgb(138, 174, 254) 0%, rgb(204, 136, 253) 100%)";
   const location = useLocation();
   const eventState = location.state as EventState | undefined;
 
@@ -111,9 +118,9 @@ export function EventDetail() {
           <Chip
             icon={<AccessTime />}
             label={`Read: ${data.timeToRead}`}
-            color="primary"
             variant="outlined"
             size="small"
+            color="primary"
           />
         )}
         {data.updatedAt && (
@@ -122,17 +129,17 @@ export function EventDetail() {
             label={`last update: ${new Date(data.updatedAt).toLocaleString(
               "en-EN"
             )}`}
-            color="primary"
             variant="outlined"
             size="small"
+            color="primary"
           />
         )}
         {data.type && (
           <Chip
             label={data.type}
-            color="primary"
             variant="outlined"
             size="small"
+            color="primary"
           />
         )}
       </Stack>
@@ -147,7 +154,7 @@ export function EventDetail() {
     if ((data.paragraphs ?? []).length < 1) return null;
 
     return (
-      <Box className="story-content" sx={{ mb: 3 }}>
+      <Box sx={{ width: "100%" }}>
         {(data.paragraphs ?? [])
           .sort((a, b) => a.position - b.position)
           .map((paragraph) => (
@@ -183,7 +190,7 @@ export function EventDetail() {
                   className="reference-box"
                   sx={{
                     borderLeft: "4px solid",
-                    borderColor: "primary.main",
+                    borderColor: theme.palette.primary.main,
                     p: 2,
                     bgcolor: "action.hover",
                     mt: 2,
@@ -193,7 +200,10 @@ export function EventDetail() {
                   <Stack direction="row" alignItems="center" spacing={1}>
                     <Typography
                       variant="subtitle2"
-                      sx={{ fontWeight: "bold", color: "primary.dark" }}
+                      sx={{
+                        fontWeight: "bold",
+                        color: theme.palette.primary.main,
+                      }}
                     >
                       <LinkOutlined
                         fontSize="small"
@@ -209,9 +219,12 @@ export function EventDetail() {
                       <Chip
                         label={paragraph.referenceCategory}
                         size="small"
-                        color="secondary"
                         variant="outlined"
-                        sx={{ ml: 1, height: 20 }}
+                        sx={{
+                          ml: 1,
+                          height: 20,
+                          color: theme.palette.primary.main,
+                        }}
                       />
                     )}
                   </Stack>
@@ -245,23 +258,29 @@ export function EventDetail() {
             {data.typology && (
               <Chip
                 label={`Type: ${data.typology}`}
-                color="primary"
                 variant="outlined"
                 size="small"
+                sx={{
+                  color: "white",
+                  background: colorBrandGradient,
+                }}
               />
             )}
             {data.audience && (
               <Chip
                 label={`Audience: ${data.audience}`}
-                color="secondary"
                 variant="outlined"
                 size="small"
+                sx={{
+                  color: "white",
+                  background: colorBrandGradient,
+                }}
               />
             )}
           </Stack>
           {(data.startDate || data.endDate) && (
             <Stack direction="row" alignItems="center" spacing={1}>
-              <Event color="primary" />
+              <Event sx={{ color: colorBrand }} />
               <Stack direction="column" alignItems="flex-end" spacing={0.5}>
                 {data.startDate && (
                   <Typography variant="body2">
@@ -289,39 +308,77 @@ export function EventDetail() {
     )
       return null;
     return (
-      <Box sx={{ textAlign: "center", mb: 3 }}>
+      <Box sx={{ textAlign: "center", mb: 3, width: "100%" }}>
         <Stack
-          direction="row"
+          direction="column"
           alignItems="center"
           justifyContent="center"
           spacing={1}
+          mb={2}
         >
-          <LocationOn color="error" />
-          <Typography
-            variant="subtitle1"
-            component="h2"
-            sx={{ fontWeight: "bold", textTransform: "uppercase" }}
-          ></Typography>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="center"
+            spacing={1}
+          >
+            <LocationOn color="error" />
+            <Typography
+              variant="subtitle1"
+              component="h2"
+              sx={{ fontWeight: "bold", textTransform: "uppercase" }}
+            >
+              {data.address}
+            </Typography>
+          </Stack>
+          {/* Go Button */}
+          {data.latitude !== undefined && data.longitude !== undefined && (
+            <MyButton
+              label="Open in Google Maps"
+              action={() => {
+                const url = `https://www.google.com/maps?q=${data.latitude},${data.longitude}`;
+                window.open(url, "_blank");
+              }}
+            />
+          )}
         </Stack>
-        {data.latitude !== undefined && data.longitude !== undefined && (
-          <Typography variant="caption" color="text.secondary">
-            ({data.latitude}, {data.longitude})
-          </Typography>
-        )}
         <Divider sx={{ mb: 3 }} />
       </Box>
+      // <Box sx={{ textAlign: "center", mb: 3, width: "100%" }}>
+      //   <Stack
+      //     direction="row"
+      //     alignItems="center"
+      //     justifyContent="center"
+      //     spacing={1}
+      //   >
+      //     <LocationOn color="error" />
+      //     <Typography
+      //       variant="subtitle1"
+      //       component="h2"
+      //       sx={{ fontWeight: "bold", textTransform: "uppercase" }}
+      //     >
+      //       {data.address}
+      //     </Typography>
+      //   </Stack>
+      //   {data.latitude !== undefined && data.longitude !== undefined && (
+      //     <Typography variant="caption" color="text.secondary">
+      //       ({data.latitude}, {data.longitude})
+      //     </Typography>
+      //   )}
+      //   <Divider sx={{ mb: 3 }} />
+      // </Box>
     );
   };
   const renderDescription = () => {
     if ((data.description ?? "").length < 1) return null;
     return (
-      <Box sx={{ mb: 3 }}>
-        <SectionHeader title={"Description"} IconComponent={Description} />
-        <Typography
-          variant="body2"
-          component="p"
-          sx={{ whiteSpace: "pre-line", lineHeight: 1.6 }}
-        >
+      <Box sx={{ width: "100%" }}>
+        <SectionHeader
+          title={"Description"}
+          IconComponent={Description}
+          color={colorBrand}
+        />
+        <Typography variant="body2" component="p">
           {data.description}
         </Typography>
         <Divider sx={{ my: 3 }} />
@@ -331,13 +388,18 @@ export function EventDetail() {
   const renderingSectionAndTicket = () => {
     if ((data.ticketsAndCosts ?? []).length < 1) return null;
     return (
-      <Box sx={{ mb: 5 }}>
-        <SectionHeader title={"Partecipate"} />
+      <Box sx={{ width: "100%" }}>
+        <SectionHeader
+          title={"Partecipate"}
+          color={colorBrand}
+          IconComponent={GroupAdd}
+        />
         <List disablePadding>
           {(data.ticketsAndCosts ?? []).map((ticket, i) => (
             <ListItem
               id={`ticket-${i}`}
               disableGutters
+              sx={{ flexDirection: "column", alignItems: "flex-start", mb: 2 }}
               secondaryAction={
                 <Chip
                   icon={<Paid />}
@@ -348,23 +410,70 @@ export function EventDetail() {
                 />
               }
             >
-              <ListItemText
-                primary={
-                  <Typography
-                    variant="body1"
-                    component="p"
-                    sx={{ fontWeight: "bold" }}
-                  >
-                    {ticket.description}
+              <Stack spacing={0.5}>
+                {/* Ticket title */}
+                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                  {ticket.description}
+                </Typography>
+
+                {/* User type */}
+                {ticket.userTypeName && ticket.userTypeDescription && (
+                  <Typography variant="body2" color="text.secondary">
+                    {ticket.userTypeName} – {ticket.userTypeDescription}
                   </Typography>
-                }
-                secondary={
+                )}
+
+                {/* Validity */}
+                {ticket.validityDescription && (
                   <Typography variant="body2" color="text.secondary">
                     {ticket.validityDescription}
                   </Typography>
-                }
-              />
+                )}
+                {ticket.validityStartDate && ticket.validityEndDate && (
+                  <Typography variant="caption" color="text.secondary">
+                    From: {ticket.validityStartDate} To:{" "}
+                    {ticket.validityEndDate}
+                  </Typography>
+                )}
+
+                {/* Ticket details */}
+                {ticket.ticketDescription && (
+                  <Typography variant="body2" sx={{ mt: 0.5 }}>
+                    {ticket.ticketDescription}
+                  </Typography>
+                )}
+              </Stack>
             </ListItem>
+            // <ListItem
+            //   id={`ticket-${i}`}
+            //   disableGutters
+            //   secondaryAction={
+            //     <Chip
+            //       icon={<Paid />}
+            //       label={`${ticket.priceSpecificationCurrencyValue} ${ticket.currency}`}
+            //       color="success"
+            //       variant="filled"
+            //       sx={{ fontWeight: "bold" }}
+            //     />
+            //   }
+            // >
+            //   <ListItemText
+            //     primary={
+            //       <Typography
+            //         variant="body1"
+            //         component="p"
+            //         sx={{ fontWeight: "bold" }}
+            //       >
+            //         {ticket.description}
+            //       </Typography>
+            //     }
+            //     secondary={
+            //       <Typography variant="body2" color="text.secondary">
+            //         {ticket.validityDescription}
+            //       </Typography>
+            //     }
+            //   />
+            // </ListItem>
           ))}
         </List>
         <Divider sx={{ my: 3 }} />
@@ -375,8 +484,12 @@ export function EventDetail() {
   const renderingServices = () => {
     if ((data.services ?? []).length < 1) return null;
     return (
-      <Box>
-        <SectionHeader title="Services" IconComponent={Info} />
+      <Box sx={{ width: "100%" }}>
+        <SectionHeader
+          title="Services"
+          IconComponent={Info}
+          color={colorBrand}
+        />
         <List disablePadding>
           {(data.services ?? []).map((service, i) => (
             <ListItem disableGutters key={`service-${i}`}>
@@ -406,9 +519,13 @@ export function EventDetail() {
                       <Chip
                         label={service.identifier}
                         size="small"
-                        color="primary"
                         variant="outlined"
-                        sx={{ ml: 1 }}
+                        sx={{
+                          ml: 1,
+                          background: colorBrandGradient,
+                          WebkitBackgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                        }}
                       />
                     )}
                   </Typography>
@@ -437,8 +554,12 @@ export function EventDetail() {
     )
       return null;
     return (
-      <Box sx={{ mb: 5 }}>
-        <SectionHeader title="Contact" IconComponent={ContactPage} />
+      <Box sx={{ width: "100%" }}>
+        <SectionHeader
+          title="Contact"
+          IconComponent={ContactPage}
+          color={colorBrand}
+        />
         {data.email && (
           <DetailRow
             label={"Email:"}
@@ -479,8 +600,12 @@ export function EventDetail() {
       return null;
 
     return (
-      <Box sx={{ mb: 5 }}>
-        <SectionHeader title="Organizer" IconComponent={GroupWork} />
+      <Box sx={{ width: "100%" }}>
+        <SectionHeader
+          title="Organizer"
+          IconComponent={GroupWork}
+          color={colorBrand}
+        />
         {data.organizer?.legalName && (
           <DetailRow label={"Name"} value={data.organizer.legalName} />
         )}
@@ -516,12 +641,15 @@ export function EventDetail() {
     if (!data?.creativeWorks?.length) return null;
 
     return (
-      <Box sx={{ p: 2 }}>
-        <SectionHeader title="Creative Works" IconComponent={WorkRounded} />
-
-        <List dense>
+      <Box sx={{ width: "100%" }}>
+        <SectionHeader
+          title="Creative Works"
+          IconComponent={WorkRounded}
+          color={colorBrand}
+        />
+        <List>
           {data.creativeWorks.map((work) => (
-            <ListItem key={work.url} sx={{ px: 2, py: 1 }}>
+            <ListItem key={work.url}>
               <ListItemText
                 primary={
                   <Typography
@@ -548,12 +676,10 @@ export function EventDetail() {
                     {work.url}
                   </Link>
                 }
-                sx={{ mb: 0.5 }}
               />
             </ListItem>
           ))}
         </List>
-
         <Divider sx={{ my: 3 }} />
       </Box>
     );
@@ -562,8 +688,8 @@ export function EventDetail() {
   const renderingOffers = () => {
     if ((data.offers ?? []).length < 1) return null;
     return (
-      <Box sx={{ mb: 5 }}>
-        <SectionHeader title="Offers" IconComponent={Paid} />
+      <Box sx={{ width: "100%" }}>
+        <SectionHeader title="Offers" IconComponent={Paid} color={colorBrand} />
         <List disablePadding>
           {(data.offers ?? []).map((offer, i) => (
             <ListItem key={`offer-${i}`} disableGutters>
@@ -630,8 +756,12 @@ export function EventDetail() {
   const renderingGallery = () => {
     if ((data.gallery ?? []).length < 1) return null;
     return (
-      <Box sx={{ mb: 5 }}>
-        <SectionHeader title="Gallery" IconComponent={Image} />
+      <Box sx={{ mb: 5, width: "100%" }}>
+        <SectionHeader
+          title="Gallery"
+          IconComponent={Image}
+          color={colorBrand}
+        />
 
         <ImageList cols={2} gap={8}>
           {(data.gallery ?? []).map((img, i) => (
@@ -661,10 +791,11 @@ export function EventDetail() {
     if ((data.neighbors ?? []).length < 1) return null;
 
     return (
-      <Box>
+      <Box sx={{ mb: 5, width: "100%" }}>
         <SectionHeader
           title={"Nearby Points of Interest"}
           IconComponent={LocationSearching}
+          color={colorBrand}
         />
 
         <Grid container spacing={3}>
@@ -714,7 +845,11 @@ export function EventDetail() {
                       <Chip
                         label={`Distance: ${neighbor.extraInfo}`}
                         size="small"
-                        color="secondary"
+                        sx={{
+                          background:
+                            "linear-gradient(90deg, rgb(138, 174, 254) 0%, rgb(204, 136, 253) 100%)",
+                          color: "white",
+                        }}
                       />
                     )}
                   </Box>
@@ -728,34 +863,41 @@ export function EventDetail() {
   };
 
   return (
-    <Container maxWidth="lg">
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          paddingTop: 1,
-          paddingBottom: 4,
-        }}
-      >
-        <MyAppBar title={data.title ?? data.officialName ?? "Details"} back />
-        <Box sx={{ p: 2 }} />
-        {renderSubtitle()}
-        {renderScript()}
-        {renderMainBadgeInformation()}
-        {renderParagraphArticle()}
-        {renderMainDetails()}
-        {renderAddress()}
-        {renderDescription()}
-        {renderingSectionAndTicket()}
-        {renderingServices()}
-        {renderingContact()}
-        {renderingOrganizer()}
-        {renderingCreativeWork()}
-        {renderingOffers()}
-        {renderingGallery()}
-        {renderingNeighbors()}
-      </Box>
-    </Container>
+    <Box
+      sx={{
+        backgroundColor: theme.palette.background.default,
+        minHeight: "100vh",
+      }}
+    >
+      <Container maxWidth="lg">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            paddingTop: 1,
+            paddingBottom: 4,
+          }}
+        >
+          <MyAppBar title={data.title ?? data.officialName ?? "Details"} back />
+          <Box sx={{ p: 2, width: "100%" }} />
+          {renderSubtitle()}
+          {renderScript()}
+          {renderMainBadgeInformation()}
+          {renderParagraphArticle()}
+          {renderMainDetails()}
+          {renderAddress()}
+          {renderDescription()}
+          {renderingSectionAndTicket()}
+          {renderingServices()}
+          {renderingContact()}
+          {renderingOrganizer()}
+          {renderingCreativeWork()}
+          {renderingOffers()}
+          {renderingGallery()}
+          {renderingNeighbors()}
+        </Box>
+      </Container>
+    </Box>
   );
 }
