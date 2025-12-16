@@ -63,7 +63,6 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
 
                     var paragraph = new Paragraph
                     {
-                        Id = p.Id != Guid.Empty ? p.Id : Guid.NewGuid(),
                         Position = p.Position,
                         Title = p.Title ?? string.Empty,
                         Script = p.Script ?? string.Empty,

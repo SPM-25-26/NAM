@@ -22,8 +22,8 @@ namespace nam.Server.Models.DTOs.MunicipalityInjection
 
         public List<string>? Themes { get; set; } = [];
 
-        public List<Paragraph> Paragraphs { get; set; } = [];
+        public List<ParagraphDto> Paragraphs { get; set; } = [];
 
-        public MunicipalityForLocalStorageSetting MunicipalityData { get; set; }
+        public MunicipalityForLocalStorageSetting? MunicipalityData { get; set; }
     }
 }

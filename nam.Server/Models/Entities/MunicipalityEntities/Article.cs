@@ -63,14 +63,11 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
     public class Paragraph
     {
         [Key]
-        public Guid Id { get; set; }
+        [MaxLength(255)]
+        public required string Title { get; set; }
 
         [Required]
         public int Position { get; set; }
-
-        [Required]
-        [MaxLength(255)]
-        public required string Title { get; set; }
 
         [Required]
         public required string Script { get; set; }
