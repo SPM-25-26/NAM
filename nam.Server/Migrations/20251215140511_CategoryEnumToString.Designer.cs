@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using nam.Server.Data;
 
@@ -11,9 +12,11 @@ using nam.Server.Data;
 namespace nam.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251215140511_CategoryEnumToString")]
+    partial class CategoryEnumToString
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -160,7 +163,7 @@ namespace nam.Server.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<Guid?>("SiteIdentifier")
+                    b.Property<Guid?>("SiteId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("SubjectDiscipline")
@@ -193,7 +196,7 @@ namespace nam.Server.Migrations
 
                     b.HasIndex("NearestCarParkId");
 
-                    b.HasIndex("SiteIdentifier");
+                    b.HasIndex("SiteId");
 
                     b.ToTable("ArtCultureNatureDetails");
                 });
@@ -283,7 +286,7 @@ namespace nam.Server.Migrations
 
             modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.AssociatedService", b =>
                 {
-                    b.Property<Guid>("Identifier")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -292,6 +295,11 @@ namespace nam.Server.Migrations
 
                     b.Property<Guid?>("EntertainmentLeisureDetailIdentifier")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Identifier")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ImagePath")
                         .IsRequired()
@@ -303,7 +311,7 @@ namespace nam.Server.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.HasKey("Identifier");
+                    b.HasKey("Id");
 
                     b.HasIndex("ArtCultureNatureDetailIdentifier");
 
@@ -510,18 +518,23 @@ namespace nam.Server.Migrations
 
             modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.FeatureCard", b =>
                 {
-                    b.Property<Guid>("EntityId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ArtCultureNatureDetailIdentifier")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Category")
-                        .HasColumnType("int");
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("EntertainmentLeisureDetailIdentifier")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EntityId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ExtraInfo")
                         .HasColumnType("nvarchar(max)");
@@ -546,7 +559,7 @@ namespace nam.Server.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.HasKey("EntityId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ArtCultureNatureDetailIdentifier");
 
@@ -569,8 +582,9 @@ namespace nam.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Category")
-                        .HasColumnType("int");
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImagePath")
                         .HasMaxLength(500)
@@ -932,25 +946,29 @@ namespace nam.Server.Migrations
 
             modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.Organizer", b =>
                 {
-                    b.Property<string>("TaxCode")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("LegalName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TaxCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Website")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("TaxCode");
+                    b.HasKey("Id");
 
                     b.ToTable("Organizers");
                 });
 
             modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.OwnedPoi", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Identifier")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Category")
                         .HasMaxLength(200)
@@ -967,7 +985,7 @@ namespace nam.Server.Migrations
                     b.Property<string>("OrganizationMobileDetailTaxCode")
                         .HasColumnType("nvarchar(100)");
 
-                    b.HasKey("Id");
+                    b.HasKey("Identifier");
 
                     b.HasIndex("OrganizationMobileDetailTaxCode");
 
@@ -1128,8 +1146,8 @@ namespace nam.Server.Migrations
                     b.Property<Guid?>("NearestCarParkId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("OrganizerTaxCode")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid?>("OrganizerId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PrimaryImage")
                         .HasColumnType("nvarchar(max)");
@@ -1158,18 +1176,23 @@ namespace nam.Server.Migrations
 
                     b.HasIndex("NearestCarParkId");
 
-                    b.HasIndex("OrganizerTaxCode");
+                    b.HasIndex("OrganizerId");
 
                     b.ToTable("PublicEventMobileDetails");
                 });
 
             modelBuilder.Entity("nam.Server.Models.Entities.MunicipalityEntities.SiteCard", b =>
                 {
-                    b.Property<Guid>("Identifier")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Identifier")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -1184,7 +1207,7 @@ namespace nam.Server.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.HasKey("Identifier");
+                    b.HasKey("Id");
 
                     b.ToTable("SiteCards");
                 });
@@ -1237,7 +1260,7 @@ namespace nam.Server.Migrations
 
                     b.HasOne("nam.Server.Models.Entities.MunicipalityEntities.SiteCard", "Site")
                         .WithMany()
-                        .HasForeignKey("SiteIdentifier");
+                        .HasForeignKey("SiteId");
 
                     b.Navigation("MunicipalityData");
 
@@ -1465,7 +1488,7 @@ namespace nam.Server.Migrations
 
                     b.HasOne("nam.Server.Models.Entities.MunicipalityEntities.Organizer", "Organizer")
                         .WithMany()
-                        .HasForeignKey("OrganizerTaxCode");
+                        .HasForeignKey("OrganizerId");
 
                     b.Navigation("MunicipalityData");
 

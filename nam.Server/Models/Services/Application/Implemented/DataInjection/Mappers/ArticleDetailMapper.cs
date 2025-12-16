@@ -41,11 +41,7 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
                 Themes = new List<string>(),
                 Paragraphs = new List<Paragraph>(),
                 MunicipalityData = dto.MunicipalityData is not null
-                    ? new MunicipalityForLocalStorageSetting
-                    {
-                        Name = dto.MunicipalityData.Name ?? string.Empty,
-                        LogoPath = dto.MunicipalityData.LogoPath ?? string.Empty
-                    }
+                    ? dto.MunicipalityData
                     : new MunicipalityForLocalStorageSetting { Name = string.Empty, LogoPath = string.Empty }
             };
 
@@ -67,6 +63,7 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
 
                     var paragraph = new Paragraph
                     {
+                        Id = p.Id != Guid.Empty ? p.Id : Guid.NewGuid(),
                         Position = p.Position,
                         Title = p.Title ?? string.Empty,
                         Script = p.Script ?? string.Empty,

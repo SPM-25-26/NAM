@@ -17,15 +17,10 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
             }
 
             // Identifier
-            Guid identifier = Guid.NewGuid();
-            if (!string.IsNullOrWhiteSpace(dto.Identifier))
-            {
-                Guid.TryParse(dto.Identifier, out identifier);
-                if (identifier == Guid.Empty)
-                {
-                    identifier = Guid.NewGuid();
-                }
-            }
+
+            Guid.TryParse(dto.Identifier, out var identifier);
+            if (identifier == Guid.Empty)
+                identifier = Guid.NewGuid();
 
             // Basic scalar mapping (use empty strings for nulls to satisfy required fields)
             var detail = new ArtCultureNatureDetail
@@ -118,9 +113,12 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
             {
                 foreach (var n in dto.Neighbors)
                 {
+                    Guid.TryParse(n.EntityId, out var neighborId);
+                    if (neighborId == Guid.Empty)
+                        neighborId = Guid.NewGuid();
                     detail.Neighbors.Add(new FeatureCard
                     {
-                        EntityId = n?.EntityId ?? string.Empty,
+                        EntityId = neighborId,
                         Title = n?.Title ?? string.Empty,
                         Category = n?.Category ?? MobileCategory.ArtCulture,
                         ImagePath = n?.ImagePath ?? string.Empty,
@@ -134,9 +132,12 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
             {
                 foreach (var a in dto.AssociatedServices)
                 {
+                    Guid.TryParse(a.Identifier, out var serviceId);
+                    if (serviceId == Guid.Empty)
+                        serviceId = Guid.NewGuid();
                     detail.AssociatedServices.Add(new AssociatedService
                     {
-                        Identifier = a?.Identifier ?? string.Empty,
+                        Identifier = serviceId,
                         Name = a?.Name ?? string.Empty,
                         ImagePath = a?.ImagePath ?? string.Empty
                     });
@@ -158,9 +159,12 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
             // Site
             if (dto.Site != null)
             {
+                Guid.TryParse(dto.Site.Identifier, out var siteId);
+                if (siteId == Guid.Empty)
+                    siteId = Guid.NewGuid();
                 detail.Site = new SiteCard
                 {
-                    Identifier = dto.Site.Identifier ?? string.Empty,
+                    Identifier = siteId,
                     OfficialName = dto.Site.OfficialName ?? string.Empty,
                     ImagePath = dto.Site.ImagePath ?? string.Empty,
                     Category = dto.Site.Category ?? string.Empty

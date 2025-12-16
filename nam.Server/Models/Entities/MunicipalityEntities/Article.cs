@@ -63,9 +63,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
     public class Paragraph
     {
         [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        //public ArticleDetail? ArticleDetail { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         public int Position { get; set; }

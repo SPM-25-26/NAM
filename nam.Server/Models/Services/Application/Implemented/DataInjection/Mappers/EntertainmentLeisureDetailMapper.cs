@@ -18,9 +18,7 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
 
             Guid.TryParse(dto.Identifier, out Guid identifier);
             if (identifier == Guid.Empty)
-            {
                 identifier = Guid.NewGuid();
-            }
 
 
             // Basic scalar mapping
@@ -59,9 +57,12 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
             {
                 foreach (var n in dto.Neighbors)
                 {
+                    Guid.TryParse(n.EntityId, out Guid neighId);
+                    if (neighId == Guid.Empty)
+                        neighId = Guid.NewGuid();
                     detail.Neighbors.Add(new FeatureCard
                     {
-                        EntityId = n?.EntityId ?? string.Empty,
+                        EntityId = neighId,
                         Title = n?.Title ?? string.Empty,
                         Category = n?.Category ?? MobileCategory.EntertainmentLeisure,
                         ImagePath = n?.ImagePath ?? string.Empty,
@@ -87,9 +88,12 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
             {
                 foreach (var a in dto.AssociatedServices)
                 {
+                    Guid.TryParse(a.Identifier, out var serviceId);
+                    if (serviceId == Guid.Empty)
+                        serviceId = Guid.NewGuid();
                     detail.AssociatedServices.Add(new AssociatedService
                     {
-                        Identifier = a?.Identifier ?? string.Empty,
+                        Identifier = serviceId,
                         Name = a?.Name ?? string.Empty,
                         ImagePath = a?.ImagePath ?? string.Empty
                     });

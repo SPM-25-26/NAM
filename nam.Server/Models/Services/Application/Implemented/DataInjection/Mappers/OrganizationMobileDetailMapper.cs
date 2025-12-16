@@ -27,13 +27,19 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
                 Facebook = dto.Facebook,
                 Latitude = dto.Latitude,
                 Longitude = dto.Longitude,
-                Neighbors = dto.Neighbors?.Select(n => new FeatureCard
+                Neighbors = dto.Neighbors?.Select(n =>
                 {
-                    EntityId = n.EntityId,
-                    Title = n.Title,
-                    Category = n.Category ?? default,
-                    ImagePath = n.ImagePath,
-                    ExtraInfo = n.ExtraInfo
+                    Guid.TryParse(n.EntityId, out var neighId);
+                    if (neighId == Guid.Empty)
+                        neighId = Guid.NewGuid();
+                    return new FeatureCard
+                    {
+                        EntityId = neighId,
+                        Title = n.Title,
+                        Category = n.Category ?? default,
+                        ImagePath = n.ImagePath,
+                        ExtraInfo = n.ExtraInfo
+                    };
                 }).ToList(),
                 NearestCarPark = dto.NearestCarPark != null ? new NearestCarPark
                 {
@@ -44,13 +50,15 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
                 } : null,
                 OwnedPoi = dto.OwnedPoi?
                 .Where(p => p != null)
-                .Select(p => new OwnedPoi
-                {
-                    Identifier = p.Identifier,
-                    OfficialName = p.OfficialName,
-                    ImagePath = p.ImagePath,
-                    Category = p.Category
-                }).ToList(),
+                .Select(p =>
+                     new OwnedPoi
+                     {
+                         Id = Guid.TryParse(p.Identifier, out var guid) ? guid : Guid.NewGuid(),
+                         OfficialName = p.OfficialName,
+                         ImagePath = p.ImagePath,
+                         Category = p.Category
+                     }
+                ).ToList(),
                 Offers = dto.Offers?.Select(o => new Offer
                 {
                     Description = o.Description,
