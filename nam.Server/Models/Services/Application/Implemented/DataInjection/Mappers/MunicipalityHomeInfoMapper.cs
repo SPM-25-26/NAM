@@ -47,9 +47,12 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
 
         private FeatureCard MapFeatureCard(FeatureCardDto dto)
         {
+            Guid.TryParse(dto.EntityId, out var cardId);
+            if (cardId == Guid.Empty)
+                cardId = Guid.NewGuid();
             return new FeatureCard
             {
-                EntityId = string.IsNullOrWhiteSpace(dto.EntityId) ? null : dto.EntityId!.Trim(),
+                EntityId = cardId,
                 Title = string.IsNullOrWhiteSpace(dto.Title) ? null : dto.Title!.Trim(),
                 Category = dto.Category ?? default,
                 ImagePath = string.IsNullOrWhiteSpace(dto.ImagePath) ? null : dto.ImagePath!.Trim(),

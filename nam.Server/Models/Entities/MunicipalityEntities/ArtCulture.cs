@@ -151,9 +151,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
     public class FeatureCard
     {
         [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-        [MaxLength(100)]
-        public string? EntityId { get; set; }
+        public Guid EntityId { get; set; }
 
         [MaxLength(255)]
         public string? Title { get; set; }
@@ -169,11 +167,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
     public class AssociatedService
     {
         [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        [Required]
-        [MaxLength(100)]
-        public required string Identifier { get; set; }
+        public Guid Identifier { get; set; }
 
         [Required]
         [MaxLength(255)]
@@ -203,11 +197,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
     public class SiteCard
     {
         [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        [Required]
-        [MaxLength(100)]
-        public required string Identifier { get; set; }
+        public Guid Identifier { get; set; }
 
         [Required]
         [MaxLength(255)]

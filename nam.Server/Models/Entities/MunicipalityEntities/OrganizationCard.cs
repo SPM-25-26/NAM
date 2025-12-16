@@ -88,8 +88,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
     public class OwnedPoi
     {
         [Key]
-        [MaxLength(200)]
-        public string? Identifier { get; set; }
+        public Guid Id { get; set; }
 
         [MaxLength(500)]
         public string? OfficialName { get; set; }

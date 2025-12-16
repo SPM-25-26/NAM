@@ -16,8 +16,6 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
                 };
             }
 
-            // Identifier
-            Guid.TryParse(dto.Identifier, out Guid identifier);
             // Map NearestCarPark
             NearestCarPark? nearestCarPark = null;
             if (dto.NearestCarPark != null)
@@ -33,11 +31,10 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
 
             // Map Organizer
             Organizer? organizer = null;
-            if (dto.Organizer != null)
+            if (dto.Organizer != null && dto.Organizer.TaxCode != null)
             {
                 organizer = new Organizer
                 {
-                    Id = Guid.NewGuid(),
                     TaxCode = dto.Organizer.TaxCode?.Trim(),
                     LegalName = dto.Organizer.LegalName?.Trim(),
                     Website = dto.Organizer.Website?.Trim()
@@ -50,7 +47,6 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
             {
                 municipality = new MunicipalityForLocalStorageSetting
                 {
-                    Id = Guid.NewGuid(),
                     Name = dto.MunicipalityData.Name ?? string.Empty,
                     LogoPath = dto.MunicipalityData.LogoPath ?? string.Empty
                 };
@@ -62,8 +58,7 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
             {
                 neighbors = dto.Neighbors.Select(n => new FeatureCard
                 {
-                    Id = Guid.NewGuid(),
-                    EntityId = n.EntityId?.Trim(),
+                    EntityId = Guid.TryParse(n.EntityId, out var guid) ? guid : Guid.NewGuid(),
                     Title = n.Title?.Trim(),
                     Category = n.Category ?? default,
                     ImagePath = n.ImagePath?.Trim(),
@@ -92,14 +87,14 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
 
             var entity = new PublicEventMobileDetail
             {
-                Identifier = identifier,
+                Identifier = Guid.TryParse(dto.Identifier, out Guid identifier) ? identifier : Guid.NewGuid(),
                 Title = dto.Title?.Trim(),
                 Address = dto.Address?.Trim(),
                 Description = dto.Description?.Trim(),
                 Typology = dto.Typology?.Trim(),
                 PrimaryImage = dto.PrimaryImage?.Trim(),
-                Gallery = dto.Gallery != null ? new List<string>(dto.Gallery) : new List<string>(),
-                VirtualTours = dto.VirtualTours != null ? new List<string>(dto.VirtualTours) : new List<string>(),
+                Gallery = dto.Gallery != null ? dto.Gallery : [],
+                VirtualTours = dto.VirtualTours != null ? dto.VirtualTours : [],
                 Audience = dto.Audience?.Trim(),
                 Email = dto.Email?.Trim(),
                 Telephone = dto.Telephone?.Trim(),
