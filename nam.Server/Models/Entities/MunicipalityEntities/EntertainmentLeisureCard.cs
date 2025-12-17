@@ -46,15 +46,15 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         public double Longitude { get; set; }
 
-        public ICollection<string> Gallery { get; set; } = new List<string>();
+        public ICollection<string> Gallery { get; set; } = [];
 
-        public ICollection<string> VirtualTours { get; set; } = new List<string>();
+        public ICollection<string> VirtualTours { get; set; } = [];
 
-        public ICollection<FeatureCard> Neighbors { get; set; } = new List<FeatureCard>();
+        public ICollection<FeatureCardRelationship<EntertainmentLeisureDetail>> Neighbors { get; set; } = [];
 
         public NearestCarPark? NearestCarPark { get; set; }
 
-        public ICollection<AssociatedService> AssociatedServices { get; set; } = new List<AssociatedService>();
+        public ICollection<AssociatedService> AssociatedServices { get; set; } = [];
 
         public MunicipalityForLocalStorageSetting? MunicipalityData { get; set; }
     }

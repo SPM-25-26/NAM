@@ -29,6 +29,7 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
         {
             return await context.EntertainmentLeisureDetails
                .Include(c => c.Neighbors)
+               .ThenInclude(n => n.FeatureCard)
                .Include(c => c.NearestCarPark)
                .Include(c => c.AssociatedServices)
                .Include(c => c.MunicipalityData)

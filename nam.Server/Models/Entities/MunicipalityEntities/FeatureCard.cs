@@ -20,6 +20,21 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         [JsonIgnore]
         public List<FeatureCardRelationship<ArtCultureNatureDetail>> ArtCultureRelations { get; set; } = [];
+
+        [JsonIgnore]
+        public List<FeatureCardRelationship<EntertainmentLeisureDetail>> EntertainmentLeisureRelations { get; set; } = [];
+
+        //[JsonIgnore]
+        //public List<FeatureCardRelationship<MunicipalityHomeInfo>> MunicipalityHomeInfoEventsRelations { get; set; } = [];
+
+        //[JsonIgnore]
+        //public List<FeatureCardRelationship<MunicipalityHomeInfo>> MunicipalityHomeInfoArticlesAndPathsRelations { get; set; } = [];
+
+        //[JsonIgnore]
+        //public List<FeatureCardRelationship<OrganizationMobileDetail>> OrganizationMobileDetailRelations { get; set; } = [];
+
+        //[JsonIgnore]
+        //public List<FeatureCardRelationship<PublicEventMobileDetail>> PublicEventMobileDetailRelations { get; set; } = [];
     }
 
     public class FeatureCardRelationship<TEntity>

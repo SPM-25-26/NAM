@@ -53,22 +53,24 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
             }
 
             // Neighbors -> FeatureCard
-            if (dto.Neighbors != null && dto.Neighbors.Count != 0)
+            var neigh = dto.Neighbors?
+             .Where(n => n is not null)
+             .Select(n =>
+              new FeatureCard
+              {
+                  EntityId = Guid.TryParse(n.EntityId, out var neighId) ? neighId : Guid.NewGuid(),
+                  Title = n.Title ?? default,
+                  Category = n.Category ?? default,
+                  ImagePath = n?.ImagePath ?? default,
+                  ExtraInfo = n?.ExtraInfo ?? default,
+              })
+             .ToList();
+
+            foreach (var n in neigh)
             {
-                foreach (var n in dto.Neighbors)
-                {
-                    Guid.TryParse(n.EntityId, out Guid neighId);
-                    if (neighId == Guid.Empty)
-                        neighId = Guid.NewGuid();
-                    detail.Neighbors.Add(new FeatureCard
-                    {
-                        EntityId = neighId,
-                        Title = n?.Title ?? string.Empty,
-                        Category = n?.Category ?? MobileCategory.EntertainmentLeisure,
-                        ImagePath = n?.ImagePath ?? string.Empty,
-                        ExtraInfo = n?.ExtraInfo
-                    });
-                }
+                var fcr = new FeatureCardRelationship<EntertainmentLeisureDetail> { FeatureCard = n, RelatedEntity = detail };
+                detail.Neighbors.Add(fcr);
+                n.EntertainmentLeisureRelations.Add(fcr);
             }
 
             // NearestCarPark
