@@ -11,7 +11,7 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
             if (dto == null)
                 throw new ArgumentNullException(nameof(dto));
 
-            return new MunicipalityHomeInfo
+            var entity = new MunicipalityHomeInfo
             {
                 LegalName = string.IsNullOrWhiteSpace(dto.LegalName) ? null : dto.LegalName!.Trim(),
                 Name = string.IsNullOrWhiteSpace(dto.Name) ? null : dto.Name!.Trim(),
@@ -21,13 +21,37 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
                 Longitude = dto.Longitude,
                 LogoPath = string.IsNullOrWhiteSpace(dto.LogoPath) ? null : dto.LogoPath!.Trim(),
                 HomeImages = dto.HomeImages?.Where(img => !string.IsNullOrWhiteSpace(img)).Select(img => img.Trim()).ToList() ?? [],
-                Events = dto.Events?.Where(e => e is not null).Select(MapFeatureCard).ToList() ?? [],
-                ArticlesAndPaths = dto.ArticlesAndPaths?.Where(a => a is not null).Select(MapFeatureCard).ToList() ?? [],
                 PanoramaPath = string.IsNullOrWhiteSpace(dto.PanoramaPath) ? null : dto.PanoramaPath!.Trim(),
                 PanoramaWidth = dto.PanoramaWidth,
                 VirtualTourUrls = dto.VirtualTourUrls?.Where(url => !string.IsNullOrWhiteSpace(url)).Select(url => url.Trim()).ToList() ?? [],
                 NameAndProvince = string.IsNullOrWhiteSpace(dto.NameAndProvince) ? null : dto.NameAndProvince!.Trim()
             };
+
+            var events = dto.Events?
+             .Where(n => n is not null)
+             .Select(MapFeatureCard)
+             .ToList() ?? [];
+
+            foreach (var n in events)
+            {
+                var fcr = new FeatureCardRelationship<MunicipalityHomeInfo> { FeatureCard = n, RelatedEntity = entity };
+                entity.Events.Add(fcr);
+                n.MunicipalityHomeInfoEventsRelations.Add(fcr);
+            }
+
+            var articlesAndPaths = dto.ArticlesAndPaths?
+             .Where(n => n is not null)
+             .Select(MapFeatureCard)
+             .ToList() ?? [];
+
+            foreach (var n in articlesAndPaths)
+            {
+                var fcr = new FeatureCardRelationship<MunicipalityHomeInfo> { FeatureCard = n, RelatedEntity = entity };
+                entity.ArticlesAndPaths.Add(fcr);
+                n.MunicipalityHomeInfoEventsRelations.Add(fcr);
+            }
+
+            return entity;
         }
 
         private MunicipalityHomeContactInfo? MapContactInfo(MunicipalityHomeContactInfoDto? dto)

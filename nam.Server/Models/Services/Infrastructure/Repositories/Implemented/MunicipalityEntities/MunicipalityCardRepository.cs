@@ -26,8 +26,8 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
         {
             return await context.MunicipalityHomeInfos
                 .Include(c => c.Contacts)
-                .Include(c => c.Events)
-                .Include(c => c.ArticlesAndPaths)
+                .Include(c => c.Events).ThenInclude(e => e.FeatureCard)
+                .Include(c => c.ArticlesAndPaths).ThenInclude(e => e.FeatureCard)
                 .FirstOrDefaultAsync(c => c.LegalName == legalName, cancellationToken);
         }
     }

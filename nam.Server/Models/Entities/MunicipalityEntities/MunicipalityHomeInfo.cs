@@ -25,9 +25,9 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         public ICollection<string>? HomeImages { get; set; } = [];
 
-        public ICollection<FeatureCard> Events { get; set; } = [];
+        public ICollection<FeatureCardRelationship<MunicipalityHomeInfo>> Events { get; set; } = [];
 
-        public ICollection<FeatureCard> ArticlesAndPaths { get; set; } = [];
+        public ICollection<FeatureCardRelationship<MunicipalityHomeInfo>> ArticlesAndPaths { get; set; } = [];
 
         [MaxLength(1000)]
         public string? PanoramaPath { get; set; }
