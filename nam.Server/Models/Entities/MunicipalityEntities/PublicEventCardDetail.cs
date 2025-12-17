@@ -37,7 +37,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         public double Longitude { get; set; }
 
-        public virtual List<FeatureCard>? Neighbors { get; set; }
+        public virtual List<FeatureCardRelationship<PublicEventMobileDetail>> Neighbors { get; set; } = [];
 
         public virtual NearestCarPark? NearestCarPark { get; set; }
 

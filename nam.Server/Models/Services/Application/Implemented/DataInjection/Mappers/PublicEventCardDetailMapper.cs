@@ -52,20 +52,6 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
                 };
             }
 
-            // Map Neighbors (FeatureCard)
-            List<FeatureCard>? neighbors = null;
-            if (dto.Neighbors != null && dto.Neighbors.Any())
-            {
-                neighbors = dto.Neighbors.Select(n => new FeatureCard
-                {
-                    EntityId = Guid.TryParse(n.EntityId, out var guid) ? guid : Guid.NewGuid(),
-                    Title = n.Title?.Trim(),
-                    Category = n.Category ?? default,
-                    ImagePath = n.ImagePath?.Trim(),
-                    ExtraInfo = n.ExtraInfo
-                }).ToList();
-            }
-
             // Map Tickets / Offers
             List<Offer>? offers = null;
             if (dto.TicketsAndCosts != null && dto.TicketsAndCosts.Any())
@@ -103,7 +89,6 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
                 Instagram = dto.Instagram?.Trim(),
                 Latitude = dto.Latitude,
                 Longitude = dto.Longitude,
-                Neighbors = neighbors,
                 NearestCarPark = nearestCarPark,
                 Date = dto.Date,
                 StartDate = dto.StartDate,
@@ -113,6 +98,27 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
                 MunicipalityData = municipality,
             };
 
+            // Map Neighbors (FeatureCard)
+            List<FeatureCard>? neighbors = null;
+            var neigh = dto.Neighbors?
+             .Where(n => n is not null)
+             .Select(n =>
+              new FeatureCard
+              {
+                  EntityId = Guid.TryParse(n.EntityId, out var neighId) ? neighId : Guid.NewGuid(),
+                  Title = n.Title ?? default,
+                  Category = n.Category ?? default,
+                  ImagePath = n?.ImagePath ?? default,
+                  ExtraInfo = n?.ExtraInfo ?? default,
+              })
+             .ToList();
+
+            foreach (var n in neigh)
+            {
+                var fcr = new FeatureCardRelationship<PublicEventMobileDetail> { FeatureCard = n, RelatedEntity = entity };
+                entity.Neighbors.Add(fcr);
+                n.PublicEventMobileDetailRelations.Add(fcr);
+            }
             return entity;
         }
     }
