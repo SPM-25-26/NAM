@@ -28,7 +28,7 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
         public async Task<OrganizationMobileDetail?> GetDetailByEntityIdAsync(string entityId, CancellationToken cancellationToken = default)
         {
             return await context.OrganizationMobileDetails
-                .Include(c => c.Neighbors)
+                .Include(c => c.Neighbors).ThenInclude(n => n.FeatureCard)
                 .Include(c => c.NearestCarPark)
                 .Include(c => c.OwnedPoi)
                 .Include(c => c.Offers)

@@ -72,7 +72,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         public double Longitude { get; set; }
 
-        public List<FeatureCard>? Neighbors { get; set; } = [];
+        public List<FeatureCardRelationship<OrganizationMobileDetail>>? Neighbors { get; set; } = [];
 
         public NearestCarPark? NearestCarPark { get; set; }
 

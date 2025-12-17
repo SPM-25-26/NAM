@@ -8,7 +8,7 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
     {
         public OrganizationMobileDetail MapToEntity(OrganizationMobileDetailDto dto)
         {
-            return new OrganizationMobileDetail
+            var entity = new OrganizationMobileDetail
             {
                 TaxCode = dto.TaxCode,
                 LegalName = dto.LegalName,
@@ -27,20 +27,6 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
                 Facebook = dto.Facebook,
                 Latitude = dto.Latitude,
                 Longitude = dto.Longitude,
-                Neighbors = dto.Neighbors?.Select(n =>
-                {
-                    Guid.TryParse(n.EntityId, out var neighId);
-                    if (neighId == Guid.Empty)
-                        neighId = Guid.NewGuid();
-                    return new FeatureCard
-                    {
-                        EntityId = neighId,
-                        Title = n.Title,
-                        Category = n.Category ?? default,
-                        ImagePath = n.ImagePath,
-                        ExtraInfo = n.ExtraInfo
-                    };
-                }).ToList(),
                 NearestCarPark = dto.NearestCarPark != null ? new NearestCarPark
                 {
                     Latitude = dto.NearestCarPark.Latitude,
@@ -93,6 +79,26 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
                     LogoPath = dto.MunicipalityData.LogoPath
                 } : null
             };
+            var neigh = dto.Neighbors?
+             .Where(n => n is not null)
+             .Select(n =>
+              new FeatureCard
+              {
+                  EntityId = Guid.TryParse(n.EntityId, out var neighId) ? neighId : Guid.NewGuid(),
+                  Title = n.Title ?? default,
+                  Category = n.Category ?? default,
+                  ImagePath = n?.ImagePath ?? default,
+                  ExtraInfo = n?.ExtraInfo ?? default,
+              })
+             .ToList();
+
+            foreach (var n in neigh)
+            {
+                var fcr = new FeatureCardRelationship<OrganizationMobileDetail> { FeatureCard = n, RelatedEntity = entity };
+                entity.Neighbors.Add(fcr);
+                n.OrganizationMobileDetailRelations.Add(fcr);
+            }
+            return entity;
         }
     }
 }

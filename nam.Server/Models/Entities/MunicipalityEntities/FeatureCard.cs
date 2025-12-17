@@ -30,8 +30,8 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
         //[JsonIgnore]
         //public List<FeatureCardRelationship<MunicipalityHomeInfo>> MunicipalityHomeInfoArticlesAndPathsRelations { get; set; } = [];
 
-        //[JsonIgnore]
-        //public List<FeatureCardRelationship<OrganizationMobileDetail>> OrganizationMobileDetailRelations { get; set; } = [];
+        [JsonIgnore]
+        public List<FeatureCardRelationship<OrganizationMobileDetail>> OrganizationMobileDetailRelations { get; set; } = [];
 
         //[JsonIgnore]
         //public List<FeatureCardRelationship<PublicEventMobileDetail>> PublicEventMobileDetailRelations { get; set; } = [];
