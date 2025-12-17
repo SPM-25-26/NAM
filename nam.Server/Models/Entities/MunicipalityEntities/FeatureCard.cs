@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace nam.Server.Models.Entities.MunicipalityEntities
 {
@@ -17,22 +18,18 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         public string? ExtraInfo { get; set; }
 
+        [JsonIgnore]
         public List<FeatureCardRelationship<ArtCultureNatureDetail>> ArtCultureRelations { get; set; } = [];
     }
 
-    //public class FeatureCardRelationship<TId>
-    //{
-    //    [Key]
-    //    public Guid Id { get; set; } = Guid.NewGuid();
-
-    //    public FeatureCard? FeatureCard { get; set; }
-    //}
     public class FeatureCardRelationship<TEntity>
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
         public FeatureCard? FeatureCard { get; set; }
+
+        [JsonIgnore]
         public TEntity? RelatedEntity { get; set; }
     }
 }

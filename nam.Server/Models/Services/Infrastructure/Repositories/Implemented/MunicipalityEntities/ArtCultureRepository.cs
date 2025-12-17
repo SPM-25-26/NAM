@@ -37,6 +37,7 @@ namespace nam.Server.Models.Services.Infrastructure.Repositories.Implemented.Mun
                 //.Include(c => c.Gallery)
                 //.Include(c => c.VirtualTours)
                 .Include(c => c.Neighbors)
+                    .ThenInclude(n => n.FeatureCard)
                 .Include(c => c.AssociatedServices)
                 .Include(c => c.NearestCarPark)
                 .Include(c => c.Site)
