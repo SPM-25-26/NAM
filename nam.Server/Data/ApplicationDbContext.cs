@@ -67,6 +67,7 @@ namespace nam.Server.Data
         public DbSet<OrganizationCard> OrganizationCards { get; set; } = null!;
         public DbSet<OrganizationMobileDetail> OrganizationMobileDetails { get; set; } = null!;
         public DbSet<OwnedPoi> OwnedPois { get; set; } = null!;
+        public DbSet<FeatureCardRelationship<ArtCultureNatureDetail>> FeatureCardArtCultureRelationships { get; set; } = null!;
 
     }
 }

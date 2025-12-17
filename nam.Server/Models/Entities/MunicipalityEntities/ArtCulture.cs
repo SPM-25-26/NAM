@@ -79,9 +79,8 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
         public ICollection<CreativeWorkMobile> CreativeWorks { get; set; } = [];
         public ICollection<string> Gallery { get; set; } = [];
         public ICollection<string> VirtualTours { get; set; } = [];
-        public ICollection<FeatureCard> Neighbors { get; set; } = [];
+        public List<FeatureCardRelationship<ArtCultureNatureDetail>> Neighbors { get; set; } = [];
         public ICollection<AssociatedService> AssociatedServices { get; set; } = [];
-
         public NearestCarPark? NearestCarPark { get; set; }
         public SiteCard? Site { get; set; }
         public MunicipalityForLocalStorageSetting? MunicipalityData { get; set; }
@@ -146,22 +145,6 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
         [MaxLength(2048)]
         [Url]
         public required string Url { get; set; }
-    }
-
-    public class FeatureCard
-    {
-        [Key]
-        public Guid EntityId { get; set; }
-
-        [MaxLength(255)]
-        public string? Title { get; set; }
-
-        public MobileCategory Category { get; set; }
-
-        [MaxLength(500)]
-        public string? ImagePath { get; set; }
-
-        public string? ExtraInfo { get; set; }
     }
 
     public class AssociatedService

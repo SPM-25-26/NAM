@@ -16,16 +16,10 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
                 };
             }
 
-            // Identifier
-
-            Guid.TryParse(dto.Identifier, out var identifier);
-            if (identifier == Guid.Empty)
-                identifier = Guid.NewGuid();
-
             // Basic scalar mapping (use empty strings for nulls to satisfy required fields)
             var detail = new ArtCultureNatureDetail
             {
-                Identifier = identifier,
+                Identifier = Guid.TryParse(dto.Identifier, out var identifier) ? identifier : Guid.NewGuid(),
                 OfficialName = dto.OfficialName ?? string.Empty,
                 PrimaryImagePath = dto.PrimaryImagePath ?? string.Empty,
                 FullAddress = dto.FullAddress ?? string.Empty,
@@ -108,25 +102,29 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
                 }
             }
 
+
             // Neighbors -> FeatureCard
-            if (dto.Neighbors != null && dto.Neighbors.Count != 0)
+            var neigh = dto.Neighbors?
+            .Where(n => n is not null)
+            .Select(n =>
+             new FeatureCard
+             {
+                 EntityId = Guid.TryParse(n.EntityId, out var neighId) ? neighId : Guid.NewGuid(),
+                 Title = n.Title ?? default,
+                 Category = n.Category ?? default,
+                 ImagePath = n?.ImagePath ?? default,
+                 ExtraInfo = n?.ExtraInfo ?? default,
+             })
+            .ToList();
+
+            foreach (var n in neigh)
             {
-                foreach (var n in dto.Neighbors)
-                {
-                    Guid.TryParse(n.EntityId, out var neighborId);
-                    if (neighborId == Guid.Empty)
-                        neighborId = Guid.NewGuid();
-                    detail.Neighbors.Add(new FeatureCard
-                    {
-                        EntityId = neighborId,
-                        Title = n?.Title ?? string.Empty,
-                        Category = n?.Category ?? MobileCategory.ArtCulture,
-                        ImagePath = n?.ImagePath ?? string.Empty,
-                        ExtraInfo = n?.ExtraInfo
-                    });
-                }
+                var fcr = new FeatureCardRelationship<ArtCultureNatureDetail> { FeatureCard = n, RelatedEntity = detail };
+                detail.Neighbors.Add(fcr);
+                n.ArtCultureRelations.Add(fcr);
             }
 
+            //detail.Neighbors = neigh is not null ? neigh : [];
             // Associated services
             if (dto.AssociatedServices != null && dto.AssociatedServices.Any())
             {
