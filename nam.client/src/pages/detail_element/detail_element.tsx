@@ -49,7 +49,6 @@ import { loadingView } from "../../components/loading";
 import { buildApiUrl } from "../../config";
 import MyButton from "../../components/button";
 
-//TODO: replace when migration complete
 const BASE_URL_IMG = buildApiUrl("image/external?imagePath=");
 interface EventState {
   id: string;
@@ -620,6 +619,7 @@ export function EventDetail() {
           <DetailRow
             label={"Facebook:"}
             value={data.facebook}
+            text={data.facebook.replace("https://www.facebook.com/", "@")}
             isLink={true}
             IconComponent={Facebook}
           />
@@ -628,6 +628,7 @@ export function EventDetail() {
           <DetailRow
             label={"Instagram:"}
             value={data.instagram}
+            text={data.instagram.replace("https://www.instagram.com/", "@")}
             isLink={true}
             IconComponent={Instagram}
           />
