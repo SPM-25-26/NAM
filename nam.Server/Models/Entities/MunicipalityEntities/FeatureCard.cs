@@ -24,8 +24,8 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
         [JsonIgnore]
         public List<FeatureCardRelationship<EntertainmentLeisureDetail>> EntertainmentLeisureRelations { get; set; } = [];
 
-        [JsonIgnore]
-        public List<FeatureCardRelationship<MunicipalityHomeInfo>> MunicipalityHomeInfoEventsRelations { get; set; } = [];
+        //[JsonIgnore]
+        //public List<FeatureCardRelationship<MunicipalityHomeInfo>> MunicipalityHomeInfoEventsRelations { get; set; } = [];
 
         //[JsonIgnore]
         //public List<FeatureCardRelationship<MunicipalityHomeInfo>> MunicipalityHomeInfoArticlesAndPathsRelations { get; set; } = [];

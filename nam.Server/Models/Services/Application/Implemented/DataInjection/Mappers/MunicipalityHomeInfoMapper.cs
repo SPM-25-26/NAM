@@ -27,29 +27,29 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Mappe
                 NameAndProvince = string.IsNullOrWhiteSpace(dto.NameAndProvince) ? null : dto.NameAndProvince!.Trim()
             };
 
-            var events = dto.Events?
-             .Where(n => n is not null)
-             .Select(MapFeatureCard)
-             .ToList() ?? [];
+            //var events = dto.Events?
+            // .Where(n => n is not null)
+            // .Select(MapFeatureCard)
+            // .ToList() ?? [];
 
-            foreach (var n in events)
-            {
-                var fcr = new FeatureCardRelationship<MunicipalityHomeInfo> { FeatureCard = n, RelatedEntity = entity };
-                entity.Events.Add(fcr);
-                n.MunicipalityHomeInfoEventsRelations.Add(fcr);
-            }
+            //foreach (var n in events)
+            //{
+            //    var fcr = new FeatureCardRelationship<MunicipalityHomeInfo> { FeatureCard = n, RelatedEntity = entity };
+            //    entity.Events.Add(fcr);
+            //    n.MunicipalityHomeInfoEventsRelations.Add(fcr);
+            //}
 
-            var articlesAndPaths = dto.ArticlesAndPaths?
-             .Where(n => n is not null)
-             .Select(MapFeatureCard)
-             .ToList() ?? [];
+            //var articlesAndPaths = dto.ArticlesAndPaths?
+            // .Where(n => n is not null)
+            // .Select(MapFeatureCard)
+            // .ToList() ?? [];
 
-            foreach (var n in articlesAndPaths)
-            {
-                var fcr = new FeatureCardRelationship<MunicipalityHomeInfo> { FeatureCard = n, RelatedEntity = entity };
-                entity.ArticlesAndPaths.Add(fcr);
-                n.MunicipalityHomeInfoEventsRelations.Add(fcr);
-            }
+            //foreach (var n in articlesAndPaths)
+            //{
+            //    var fcr = new FeatureCardRelationship<MunicipalityHomeInfo> { FeatureCard = n, RelatedEntity = entity };
+            //    entity.ArticlesAndPaths.Add(fcr);
+            //    n.MunicipalityHomeInfoArticlesAndPathsRelations.Add(fcr);
+            //}
 
             return entity;
         }
