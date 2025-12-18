@@ -27,11 +27,14 @@ export interface Service {
   imagePath?: string;
 }
 export interface Neighbor {
-  entityId: string;
-  title: string;
-  category: string;
-  imagePath: string;
-  extraInfo: string;
+    id: string;
+    featureCard: {
+        entityId: string;
+        title: string;
+        category: string;
+        imagePath: string;
+        extraInfo: string;
+    };
 }
 export interface Element {
   identifier?: string;

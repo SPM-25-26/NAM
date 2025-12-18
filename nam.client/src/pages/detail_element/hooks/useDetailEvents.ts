@@ -84,20 +84,56 @@ const mockElement: Element = {
   },
 
   neighbors: [
-    {
-      entityId: "poi-101",
-      title: "Modern Art Museum",
-      category: "Museum",
-      imagePath: "Media/POI/primary-e71c75ee-77c2-40c3-9add-a26dc7ed19c8.webp",
-      extraInfo: "5 minutes walk",
-    },
-    {
-      entityId: "poi-102",
-      title: "City Park",
-      category: "Park",
-      imagePath: "Media/POI/primary-e71c75ee-77c2-40c3-9add-a26dc7ed19c8.webp",
-      extraInfo: "Outdoor relaxation area nearby",
-    },
+      {
+          "id": "3d6f1f0a-88fa-4003-be17-013ee15ca9af",
+          "featureCard": {
+              "entityId": "ad065550-f374-43ac-b0cc-6d0af22941b0",
+              "title": "Terme Romane",
+              "category": "ArtCulture",
+              "imagePath": "/Media/POI/primary-thumb-ad065550-f374-43ac-b0cc-6d0af22941b0.webp",
+              "extraInfo": "199 m"
+          }
+      },
+      {
+          "id": "9457e044-9f27-4f32-8f95-0382c037a8b1",
+          "featureCard": {
+              "entityId": "cb25f661-7d70-47b2-a491-997345901512",
+              "title": "Sotterranei e Domus di Palazzo Ottoni",
+              "category": "ArtCulture",
+              "imagePath": "/Media/POI/primary-thumb-cb25f661-7d70-47b2-a491-997345901512.webp",
+              "extraInfo": "1,1 km"
+          }
+      },
+      {
+          "id": "5be75a71-c92a-4081-b8f4-0613f35f1fc2",
+          "featureCard": {
+              "entityId": "ced61939-d2a7-4601-b81e-77b86b6c4b6f",
+              "title": "Chiesa di San Filippo Neri",
+              "category": "ArtCulture",
+              "imagePath": "/Media/POI/primary-thumb-ced61939-d2a7-4601-b81e-77b86b6c4b6f.webp",
+              "extraInfo": "134 m"
+          }
+      },
+      {
+          "id": "98d2c8c7-8d7e-4e5e-9ec3-07018a50c524",
+          "featureCard": {
+              "entityId": "cb25f661-7d70-47b2-a491-997345901512",
+              "title": "Sotterranei e Domus di Palazzo Ottoni",
+              "category": "ArtCulture",
+              "imagePath": "/Media/POI/primary-thumb-cb25f661-7d70-47b2-a491-997345901512.webp",
+              "extraInfo": "1,1 km"
+          }
+      },
+      {
+          "id": "3f02424f-9701-485d-bf28-0acb4849e699",
+          "featureCard": {
+              "entityId": "ced61939-d2a7-4601-b81e-77b86b6c4b6f",
+              "title": "Chiesa di San Filippo Neri",
+              "category": "ArtCulture",
+              "imagePath": "/Media/POI/primary-thumb-ced61939-d2a7-4601-b81e-77b86b6c4b6f.webp",
+              "extraInfo": "134 m"
+          }
+      },
   ],
 
   services: [
