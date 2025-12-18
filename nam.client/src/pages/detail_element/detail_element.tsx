@@ -805,9 +805,9 @@ export function EventDetail() {
               <CardActionArea
                 onClick={() =>
                   navigate("/detail-element", {
-                    state: {
-                      id: neighbor.entityId,
-                      category: stringToCategoryAPI(neighbor.category),
+                      state: {
+                          id: neighbor.featureCard.entityId,
+                          category: stringToCategoryAPI(neighbor.featureCard.category),
                     },
                   })
                 }
@@ -815,8 +815,8 @@ export function EventDetail() {
                 <CardMedia
                   component="img"
                   height="140"
-                  image={`${BASE_URL_IMG}${cleanPath(neighbor.imagePath)}`}
-                  alt={`Image of ${neighbor.title}`}
+                          image={`${BASE_URL_IMG}${cleanPath(neighbor.featureCard.imagePath)}`}
+                          alt={`Image of ${neighbor.featureCard.title}`}
                   sx={{ objectFit: "cover" }}
                 />
                 <CardContent>
@@ -826,7 +826,7 @@ export function EventDetail() {
                     component="div"
                     sx={{ lineHeight: 1.4 }}
                   >
-                    {neighbor.title}
+                              {neighbor.featureCard.title}
                   </Typography>
                   <Box
                     sx={{
@@ -837,14 +837,14 @@ export function EventDetail() {
                     }}
                   >
                     <Chip
-                      label={neighbor.category}
+                                  label={neighbor.featureCard.category}
                       size="small"
                       color="primary"
                       variant="outlined"
                     />
-                    {neighbor.extraInfo && (
+                              {neighbor.featureCard.extraInfo && (
                       <Chip
-                        label={`Distance: ${neighbor.extraInfo}`}
+                                      label={`Distance: ${neighbor.featureCard.extraInfo}`}
                         size="small"
                         sx={{
                           background:
