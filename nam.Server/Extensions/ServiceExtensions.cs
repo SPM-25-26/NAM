@@ -109,6 +109,7 @@ namespace nam.Server.Extensions
                     options.DefaultPolicy = new AuthorizationPolicyBuilder()
                         .RequireAssertion(_ => true) // Allow all requests
                         .Build();
+                    options.FallbackPolicy = options.DefaultPolicy;
                 }
                 // Otherwise (in Prod), use the standard logic (requires authenticated user)
             });
