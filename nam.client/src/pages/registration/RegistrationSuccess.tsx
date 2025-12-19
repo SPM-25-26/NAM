@@ -80,7 +80,7 @@ const StepComplete: React.FC<RegistrationSuccessProps> = ({ handleGoToLogin }) =
                                 color: theme.palette.text.secondary
                             }}
                         >
-                            You have successfully signed up.
+                            You have successfully signed up. Before you can log in, please verify your email address by clicking the link we just sent to your inbox.
                         </Typography>
 
                         <Box sx={{ width: "100%" }}>
