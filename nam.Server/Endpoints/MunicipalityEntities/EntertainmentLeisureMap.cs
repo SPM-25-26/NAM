@@ -9,7 +9,7 @@
 
             RouteGroupBuilder group = builder.MapGroup("/api/entertainment-leisure")
                 .RequireCors("FrontendWithCredentials")
-                //.RequireAuthorization()
+                .RequireAuthorization()
                 .WithTags("Entertainment and Leisure");
 
             group.MapGet("/card-list", EntertainmentLeisureEndpoints.GetCardList)

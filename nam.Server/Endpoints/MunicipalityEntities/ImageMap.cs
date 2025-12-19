@@ -9,7 +9,7 @@
 
             RouteGroupBuilder group = builder.MapGroup("/api/image")
                 .RequireCors("FrontendWithCredentials")
-                //.RequireAuthorization() 
+                .RequireAuthorization() 
                 .WithTags("Image");
 
             group.MapGet("/external", ImageEndpoints.GetExternalImage)

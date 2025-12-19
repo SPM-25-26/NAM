@@ -11,7 +11,7 @@ namespace nam.Server.Endpoints.MunicipalityEntities
 
             RouteGroupBuilder group = builder.MapGroup("/api/organizations/municipalities")
                 .RequireCors("FrontendWithCredentials")
-                //.RequireAuthorization()
+                .RequireAuthorization()
                 .WithTags("MunicipalityCard");
 
             group.MapGet("", MunicipalityCardEndpoints.GetCardList)

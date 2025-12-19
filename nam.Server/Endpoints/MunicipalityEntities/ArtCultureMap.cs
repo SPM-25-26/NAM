@@ -8,10 +8,10 @@
             var logger = builder.ServiceProvider.GetService<Serilog.ILogger>() ?? Serilog.Log.Logger;
             ArtCultureEndpoints.ConfigureLogger(logger);
 
-            // Quando mappi il gruppo di endpoint
+            // When mapping the endpoint group
             RouteGroupBuilder group = builder.MapGroup("/api/art-culture")
                 .RequireCors("FrontendWithCredentials")
-                //.RequireAuthorization() 
+                .RequireAuthorization() 
                 .WithTags("Art and Culture");
 
             group.MapGet("/card-list", ArtCultureEndpoints.GetCardList)

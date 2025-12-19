@@ -7,10 +7,10 @@
             var logger = builder.ServiceProvider.GetService<Serilog.ILogger>() ?? Serilog.Log.Logger;
             ArticleEndpoint.ConfigureLogger(logger);
 
-            // Quando mappi il gruppo di endpoint
+            // When mapping the endpoint group
             RouteGroupBuilder group = builder.MapGroup("/api/article")
                 .RequireCors("FrontendWithCredentials")
-                //.RequireAuthorization()
+                .RequireAuthorization()
                 .WithTags("Article");
 
             group.MapGet("/card-list", ArticleEndpoint.GetCardList)

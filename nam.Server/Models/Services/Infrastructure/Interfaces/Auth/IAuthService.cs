@@ -25,7 +25,7 @@ namespace nam.Server.Models.Services.Infrastructure.Interfaces.Auth
         Task<PasswordResetResponseDto> RequestPasswordReset(PasswordResetRequestDto request);
         Task<PasswordResetResponseDto> ResetPassword(PasswordResetConfirmDto request);
         Task<PasswordResetResponseDto> VerifyAuthCode(ValidationCodeDto request);
-
+        Task<bool> ValidateToken(string userEmail);
         Task<bool> VerifyEmailAsync(string token, CancellationToken cancellationToken);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -15,19 +16,19 @@ using nam.Server.Models.Services.Infrastructure.Implemented;
 using nam.Server.Models.Services.Infrastructure.Implemented.Auth;
 using nam.Server.Models.Services.Infrastructure.Interfaces;
 using nam.Server.Models.Services.Infrastructure.Interfaces.Auth;
-using nam.Server.Models.Services.Infrastructure.Repositories.Implemented.MunicipalityEntities;
-using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces.MunicipalityEntities;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented.MunicipalityEntities;
+using nam.Server.Models.swagger;
 using nam.Server.Models.Swagger;
 using nam.Server.Workers;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace nam.Server.Extensions
 {
     public static class ServiceExtensions
     {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
 
             // Retrieve and configure the database connection string
@@ -88,12 +89,29 @@ namespace nam.Server.Extensions
                                     context.Fail("Token revoked");
                                 }
                             }
+
+                            var userEmail = context.Principal?.FindFirst(ClaimTypes.Email)?.Value
+                            ?? context.Principal?.FindFirst(JwtRegisteredClaimNames.Email)?.Value;
+                            if (userEmail == null || !await tokenService.ValidateToken(userEmail))
+                            {
+                                context.Fail("User not present or token invalid");
+                            }
                         }
                     };
                 });
 
             // Enable authorization services
-            services.AddAuthorization();
+            services.AddAuthorization(options =>
+            {
+                // All authorized in dev mode
+                if (environment.IsDevelopment())
+                {
+                    options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                        .RequireAssertion(_ => true) // Allow all requests
+                        .Build();
+                }
+                // Otherwise (in Prod), use the standard logic (requires authenticated user)
+            });
 
             // Add services to the container.
             services.AddRazorPages();
@@ -157,6 +175,7 @@ namespace nam.Server.Extensions
                     In = ParameterLocation.Header,
                     Description = "Enter your JWT token in the format: Bearer {your token}"
                 });
+                options.OperationFilter<SecurityRequirementsOperationFilter>();
             });
 
             // Register HttpClient for data injection services

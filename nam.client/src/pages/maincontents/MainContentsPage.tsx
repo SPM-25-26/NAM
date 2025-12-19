@@ -389,7 +389,6 @@ const MainContentsPage: React.FC = () => {
           <MyAppBar
             title={"Eppoi"}
             logout={handleLogout}
-            back
             icon={<FlightIcon sx={{ transform: "rotate(45deg)" }} />}
           />
           {/* Main content card */}

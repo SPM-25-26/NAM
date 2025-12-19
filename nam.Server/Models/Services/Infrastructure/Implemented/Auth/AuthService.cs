@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using nam.Server.Data;
 using nam.Server.Models.DTOs;
 using nam.Server.Models.Entities;
@@ -243,6 +244,12 @@ namespace nam.Server.Models.Services.Infrastructure.Implemented.Auth
             await unitOfWork.Users.UpdateAsync(user, cancellationToken);
 
             return true;
+        }
+
+        public Task<bool> ValidateToken(string userEmail)
+        {
+            return unitOfWork.Users.EmailExistsAsync(userEmail);
+
         }
     }
 }

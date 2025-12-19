@@ -9,7 +9,7 @@
 
             RouteGroupBuilder group = builder.MapGroup("/api/public-event")
                 .RequireCors("FrontendWithCredentials")
-                //.RequireAuthorization()
+                .RequireAuthorization()
                 .WithTags("Public Events");
 
             group.MapGet("/card-list", PublicEventEndpoint.GetCardList)

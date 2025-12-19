@@ -31,6 +31,7 @@ export function useLocationEvent(identifier: string, category: CategoryApi) {
             headers: {
               Accept: "application/json",
             },
+            credentials: "include",
           }
         );
         if (res.ok) {
