@@ -308,15 +308,36 @@ const MainContentsPage: React.FC = () => {
 
   /**
    * Filter elements based on selected category and badge
+   * AND deduplicate if no category is selected
    */
   const filteredElements = useMemo(() => {
-    return elements.filter((element) => {
+    //Apply standard filters
+    const matches = elements.filter((element) => {
       const categoryMatch =
         selectedCategory === null || element.category === selectedCategory;
       const badgeMatch =
         selectedBadge === null || element.badge === selectedBadge;
       return categoryMatch && badgeMatch;
     });
+
+    //If a specific categories is selected, we return all
+    if (selectedCategory !== null) {
+        return matches;
+    }
+
+    // 3. Se siamo in visualizzazione "All" (selectedCategory === null),
+    // dobbiamo rimuovere i duplicati basandoci sull'ID.
+    const uniqueIds = new Set();
+    const distinctElements: ElementItem[] = [];
+
+    for (const item of matches) {
+        if (!uniqueIds.has(item.id)) {
+            uniqueIds.add(item.id);
+            distinctElements.push(item);
+        }
+    }
+
+    return distinctElements;
   }, [elements, selectedCategory, selectedBadge]);
 
   /**
@@ -455,7 +476,7 @@ const MainContentsPage: React.FC = () => {
                 }}
               >
                 {filteredElements.map((item) => (
-                  <Box key={item.id} sx={{ height: "100%" }}>
+                    <Box key={`${item.id}-${item.category}`} sx={{ height: "100%" }}>
                     <ElementCard
                       title={item.title}
                       badge={item.badge}

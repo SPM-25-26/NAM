@@ -648,9 +648,10 @@ export function EventDetail() {
           IconComponent={WorkRounded}
           color={colorBrand}
         />
+       {/* Added index argument */}
         <List>
-          {data.creativeWorks.map((work) => (
-            <ListItem key={work.url}>
+          {data.creativeWorks.map((work, index) => (
+              <ListItem key={`${work.url}-${index}`}>
               <ListItemText
                 primary={
                   <Typography
@@ -800,8 +801,12 @@ export function EventDetail() {
         />
 
         <Grid container spacing={3}>
-          {(data.neighbors ?? []).map((neighbor) => (
-            <Card sx={{ height: "100%", width: "100%" }}>
+          {/* Added index argument */}
+          {(data.neighbors ?? []).map((neighbor, index) => (
+              <Card
+              /* Added the key prop */
+                  key={`${neighbor.featureCard.entityId}-${index}`}
+                  sx={{ height: "100%", width: "100%" }}>
               <CardActionArea
                 onClick={() =>
                   navigate("/detail-element", {

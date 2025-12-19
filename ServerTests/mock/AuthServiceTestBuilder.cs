@@ -6,6 +6,7 @@ using nam.Server.Models.Services.Infrastructure.Implemented.Auth;
 using nam.Server.Models.Services.Infrastructure.Interfaces;
 using nam.Server.Models.Services.Infrastructure.Interfaces.Auth;
 using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces;
+using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces.MunicipalityEntities;
 using System.Linq.Expressions;
 using System.Security.Claims;
 
@@ -77,9 +78,30 @@ namespace nam.ServerTests.mock
         {
             _context = context;
             Users = new FakeUserRepository(_context);
+            ArtCulture = null!;
+            Article = null!;
+            MunicipalityCard = null!;
+            Nature = null!;
+            Organization = null!;
+            PublicEvent = null!;
+            EntertainmentLeisure = null!;
         }
 
         public IUserRepository Users { get; }
+
+        public IArtCultureRepository ArtCulture { get; }
+
+        public IArticleRepository Article { get; }
+
+        public IMunicipalityCardRepository MunicipalityCard { get; }
+
+        public INatureRepository Nature { get; }
+
+        public IOrganizationRepository Organization { get; }
+
+        public IPublicEventRepository PublicEvent { get; }
+
+        public IEntertainmentLeisureRepository EntertainmentLeisure { get; }
 
         public Task CompleteAsync()
         {
