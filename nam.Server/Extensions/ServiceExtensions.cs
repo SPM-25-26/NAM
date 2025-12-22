@@ -38,7 +38,8 @@ namespace nam.Server.Extensions
             // Register the DbContext with SQL Server provider
             services.AddDbContext<ApplicationDbContext>(options =>
              options.UseSqlServer(
-                 connectionString
+                 connectionString,
+                 o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
              ));
 
 

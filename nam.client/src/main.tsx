@@ -3,7 +3,16 @@ import { createRoot } from "react-dom/client";
 import { createTheme, ThemeProvider} from "@mui/material";
 import "./index.css";
 import App from "./App.tsx";
+import { registerSW } from 'virtual:pwa-register';
 
+// Register the worker service and refresh automatically if there is an update
+export const updateSW = registerSW({
+    onNeedRefresh() {
+    },
+    onOfflineReady() {
+        console.log('App ready to work offline!');
+    },
+});
 
 export const theme = createTheme({
     palette: {

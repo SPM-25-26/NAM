@@ -3,42 +3,75 @@ using nam.Server.Models.Entities.MunicipalityEntities;
 using nam.Server.Models.Services.Application.Implemented.DataInjection.Providers;
 using nam.Server.Models.Services.Application.Interfaces.DataInjection;
 using nam.Server.Models.Services.Application.Implemented.DataInjection.Mappers;
+using System.Collections.Concurrent;
 
 namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Collectors
 {
     public class PublicEventCollector : IEntityCollector<PublicEventCard>
     {
-        private readonly BaseProvider<List<PublicEventCardDto>, List<PublicEventCard>> cardProvider;
-        private readonly BaseProvider<PublicEventMobileDetailDto, PublicEventMobileDetail> cardDetailProvider;
+        private readonly IFetcher _fetcher;
+        private readonly BaseProvider<List<PublicEventCardDto>, List<PublicEventCard>> _cardProvider;
 
         public PublicEventCollector(IFetcher fetcher)
         {
-            cardProvider = new(
+            _fetcher = fetcher;
+            _cardProvider = new(
                fetcher,
                new PublicEventCardMapper(),
                "api/events/card-list",
                new Dictionary<string, string?> { { "municipality", "" } }
            );
-
-            cardDetailProvider = new(
-                fetcher,
-                new PublicEventCardDetailMapper(),
-                "api/events/detail/{identifier}",
-                new Dictionary<string, string?> { { "identifier", "" } }
-            );
         }
 
-        public Task<List<PublicEventCard>> GetEntities(string municipality)
+        public async Task<List<PublicEventCard>> GetEntities(string municipality)
         {
-            cardProvider.Query["municipality"] = municipality;
-            var eventList = cardProvider.GetEntity();
-            foreach (var publicEvent in eventList.Result)
+            // 1. Retrieve the master list of Public Events
+            _cardProvider.Query["municipality"] = municipality;
+            var eventList = await _cardProvider.GetEntity();
+
+            if (eventList == null || !eventList.Any()) return [];
+
+            var eventsBag = new ConcurrentBag<PublicEventCard>();
+
+            // 2. Fetch Details in parallel
+            await Parallel.ForEachAsync(eventList, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async (publicEvent, ct) =>
             {
-                cardDetailProvider.Query["identifier"] = publicEvent.EntityId.ToString();
-                var detail = cardDetailProvider.GetEntity();
-                publicEvent.Detail = detail.Result;
-            }
-            return eventList;
+                // Instantiate a local provider to ensure thread safety during parallel execution
+                var localDetailProvider = new BaseProvider<PublicEventMobileDetailDto, PublicEventMobileDetail>(
+                    _fetcher,
+                    new PublicEventCardDetailMapper(),
+                    "api/events/detail/{identifier}",
+                    new Dictionary<string, string?> { { "identifier", publicEvent.EntityId.ToString() } }
+                );
+
+                try
+                {
+                    var detail = await localDetailProvider.GetEntity();
+
+                    if (detail != null)
+                    {
+                        // CRITICAL: Force ID alignment.
+                        // Ensure the Detail Identifier matches the Parent EntityId to prevent ID mismatches during sync/cleanup.
+                        detail.Identifier = publicEvent.EntityId;
+
+                        // Link the fetched detail to the parent card
+                        publicEvent.Detail = detail;
+
+                        eventsBag.Add(publicEvent);
+                    }
+                    else
+                    {
+                        // Persist the card even if detail fetch fails
+                        eventsBag.Add(publicEvent);
+                    }
+                }
+                catch (Exception)
+                {
+                    // Log error if necessary
+                }
+            });
+
+            return eventsBag.ToList();
         }
     }
 }

@@ -5,7 +5,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
     public class EntertainmentLeisureCard
     {
         [Key]
-        public Guid? EntityId { get; set; }
+        public Guid EntityId { get; set; }
 
         public string? EntityName { get; set; }
 

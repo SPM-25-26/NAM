@@ -3,6 +3,7 @@ import FlightIcon from "@mui/icons-material/Flight";
 import { Box, Card, Container, Typography, useTheme } from "@mui/material";
 import MyAppBar from "../../components/appbar";
 import MyButton from "../../components/button";
+import { InstallPwaButton } from "../../components/Install";
 
 const HomePage: React.FC = () => {
   const theme = useTheme();
@@ -22,8 +23,8 @@ const HomePage: React.FC = () => {
         minHeight: "100vh",
       }}
     >
-      <MyAppBar title={"Homepage"} back />
-
+      <MyAppBar title={"Homepage"} />
+      <InstallPwaButton />
       <Container maxWidth="sm">
         <Box
           sx={{

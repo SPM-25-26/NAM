@@ -25,3 +25,12 @@ dist-ssr
 
 .env*
 !.env.example
+
+# Ignore output folders
+dist
+dev-dist/
+
+# Ignore specific files generated in the root or public
+public/workbox-*.js
+sw.js
+sw.js.map
