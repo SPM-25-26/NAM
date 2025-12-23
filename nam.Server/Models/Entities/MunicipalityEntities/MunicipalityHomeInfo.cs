@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace nam.Server.Models.Entities.MunicipalityEntities
 {
@@ -59,5 +60,10 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
 
         [MaxLength(200)]
         public string? Instagram { get; set; }
+
+        public string? MunicipalityLegalName { get; set; }
+
+        [ForeignKey(("MunicipalityLegalName"))]
+        public MunicipalityHomeInfo? Municipality { get; set; }
     }
 }
