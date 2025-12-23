@@ -80,22 +80,6 @@ namespace nam.Server.Workers
                 }),
             };
 
-            // Execute collectors in parallel, each with isolated scope (and therefore isolated DbContext/transaction).
-            /*var tasks = collectors.Select(async collector =>
-            {
-                try
-                {
-                    _logger.Information("Starting sync for {Collector}", collector.Name);
-                    await collector.Work();
-                    _logger.Information("Successfully synced data for {Collector}", collector.Name);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(ex, "Failed to sync data for {Collector}", collector.Name);
-                }
-            }).ToArray();
-
-            await Task.WhenAll(tasks);*/
             foreach (var collector in collectors)
             {
                 try

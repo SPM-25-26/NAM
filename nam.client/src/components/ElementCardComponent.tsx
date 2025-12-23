@@ -94,7 +94,7 @@ const ElementCard: React.FC<ElementCardProps> = ({
                             component="img"
                             src={imageUrl}
                             alt={title}
-                            loading="eager"
+                            loading="lazy"
                             sx={{
                                 width: "100%",
                                 height: "100%",
