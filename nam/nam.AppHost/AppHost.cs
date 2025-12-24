@@ -8,9 +8,9 @@ var server = builder.AddProject<Projects.nam_Server>("server")
             .WithReference(qdrant)
             .WithHttpHealthCheck("/health");
 
-var client = builder.AddProject<Projects.nam_client>("client")
-            .WithExternalHttpEndpoints()
+var client = builder.AddViteApp("client", "../../nam.client")
             .WithReference(server)
-            .WaitFor(server);
+            .WaitFor(server)
+            .WithNpmPackageInstallation();
 
 builder.Build().Run();
