@@ -55,9 +55,12 @@
 
   <ItemGroup>
     <Folder Include="Logs\" />
+    <Folder Include="Models\Entities\" />
+    <Folder Include="Models\Services\Application\Implemented\DataInjection\" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\nam\nam.ServiceDefaults\nam.ServiceDefaults.csproj" />
   </ItemGroup>
 

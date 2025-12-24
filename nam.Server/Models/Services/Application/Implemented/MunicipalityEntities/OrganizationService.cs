@@ -1,7 +1,7 @@
-﻿using nam.Server.Models.Entities.MunicipalityEntities;
+﻿using Domain.Entities.MunicipalityEntities;
+using Infrastructure.Repositories.Interfaces.MunicipalityEntities;
+using Infrastructure.UnitOfWork;
 using nam.Server.Models.Services.Application.Interfaces.MunicipalityEntities;
-using nam.Server.Models.Services.Infrastructure.Interfaces;
-using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces.MunicipalityEntities;
 
 namespace nam.Server.Models.Services.Application.Implemented.MunicipalityEntities
 {

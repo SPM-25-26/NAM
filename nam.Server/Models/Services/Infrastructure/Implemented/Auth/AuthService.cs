@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Domain.Entities;
+using Domain.Entities.Auth;
+using Infrastructure;
+using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
-using nam.Server.Data;
 using nam.Server.Models.DTOs;
-using nam.Server.Models.Entities;
-using nam.Server.Models.Entities.Auth;
-using nam.Server.Models.Services.Infrastructure.Interfaces;
 using nam.Server.Models.Services.Infrastructure.Interfaces.Auth;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

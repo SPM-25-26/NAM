@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using nam.Server.Models.Entities.MunicipalityEntities;
+﻿using Domain.Entities.MunicipalityEntities;
+using Microsoft.AspNetCore.Mvc;
 using nam.Server.Models.Services.Application.Interfaces.MunicipalityEntities;
 
 namespace nam.Server.Endpoints.MunicipalityEntities

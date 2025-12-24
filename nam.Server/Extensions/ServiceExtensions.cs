@@ -1,23 +1,18 @@
-﻿using FluentValidation;
+﻿using Domain.Entities.MunicipalityEntities;
+using FluentValidation;
+using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using nam.Server.Models.Entities.MunicipalityEntities;
 using nam.Server.Models.Options;
-using nam.Server.Models.Services.Application.Implemented.DataInjection.Fetchers;
-using nam.Server.Models.Services.Application.Implemented.DataInjection.Sync;
 using nam.Server.Models.Services.Application.Implemented.MunicipalityEntities;
-using nam.Server.Models.Services.Application.Interfaces.DataInjection;
 using nam.Server.Models.Services.Application.Interfaces.MunicipalityEntities;
-using nam.Server.Models.Services.Infrastructure.Implemented;
 using nam.Server.Models.Services.Infrastructure.Implemented.Auth;
-using nam.Server.Models.Services.Infrastructure.Interfaces;
 using nam.Server.Models.Services.Infrastructure.Interfaces.Auth;
 using nam.Server.Models.Services.Infrastructure.Services.Implemented.MunicipalityEntities;
 using nam.Server.Models.swagger;
 using nam.Server.Models.Swagger;
-using nam.Server.Workers;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -180,13 +175,6 @@ namespace nam.Server.Extensions
 
             // Register HttpClient for data injection services
             services.AddHttpClient();
-
-            // Register data injection services
-            services.AddTransient<ISyncService, NewSyncService>();
-            services.AddTransient<IFetcher, HttpFetcherService>();
-
-            // Register background workers
-            services.AddHostedService<DailyDataSyncWorker>();
 
             // Municipality entities services
             services.AddScoped<IMunicipalityEntityService<ArtCultureNatureCard, ArtCultureNatureDetail>, ArtCultureService>();

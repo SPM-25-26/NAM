@@ -9,11 +9,13 @@ var qdrant = builder.AddQdrant("qdrant")
                     .WithLifetime(ContainerLifetime.Persistent)
                     .WithDataVolume();
 
+var dataInjection = builder.AddProject<Projects.DataInjection>("datainjection")
+            .WithReference(db)
+            .WaitFor(db);
+
 var server = builder.AddProject<Projects.nam_Server>("server")
             .WithReference(db)
-            .WithReference(qdrant)
             .WaitFor(db)
-            .WaitFor(qdrant)
             .WithHttpHealthCheck("/health");
 
 var client = builder.AddViteApp("client", "../../nam.client")
@@ -21,5 +23,6 @@ var client = builder.AddViteApp("client", "../../nam.client")
             .WaitFor(server)
             .WithExternalHttpEndpoints()
             .WithNpmPackageInstallation();
+
 
 builder.Build().Run();

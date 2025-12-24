@@ -1,5 +1,5 @@
-﻿using nam.Server.Models.Services.Application.Interfaces.MunicipalityEntities;
-using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces.MunicipalityEntities;
+﻿using Infrastructure.Repositories.Interfaces.MunicipalityEntities;
+using nam.Server.Models.Services.Application.Interfaces.MunicipalityEntities;
 
 namespace nam.Server.Models.Services.Application.Implemented.MunicipalityEntities
 {

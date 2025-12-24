@@ -1,5 +1,5 @@
+using Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using nam.Server.Data;
 using nam.Server.Endpoints.Auth;
 using nam.Server.Endpoints.MunicipalityEntities;
 using nam.Server.Extensions;

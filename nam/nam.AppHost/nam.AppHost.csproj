@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\DataInjection\DataInjection.csproj" />
     <ProjectReference Include="..\..\nam.client\nam.client.esproj" />
     <ProjectReference Include="..\..\nam.Server\nam.Server.csproj" />
   </ItemGroup>
