@@ -3,18 +3,57 @@ using DataInjection.Fetchers;
 using DataInjection.Interfaces;
 using DataInjection.Sync;
 using Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
 
-var builder = Host.CreateApplicationBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
-builder.AddSqlServerDbContext<ApplicationDbContext>("db");
-builder.AddSqlServerClient("db");
+try
+{
+    var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddHostedService<DailyDataSyncWorker>();
+    builder.AddServiceDefaults();
 
-builder.Services.AddTransient<IFetcher, HttpFetcherService>();
-builder.Services.AddTransient<ISyncService, NewSyncService>();
+    builder.AddSqlServerDbContext<ApplicationDbContext>("db");
+    builder.AddSqlServerClient("db");
 
-builder.Services.AddHttpClient();
+    builder.Services.AddSerilog((services, lc) => lc
+            .ReadFrom.Configuration(builder.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext()
+            .WriteTo.Console());
 
-var host = builder.Build();
-host.Run();
+    builder.Services.AddHostedService<DailyDataSyncWorker>();
+
+    builder.Services.AddScoped<IFetcher, HttpFetcherService>();
+    builder.Services.AddScoped<ISyncService, NewSyncService>();
+
+    builder.Services.AddHttpClient();
+
+    var host = builder.Build();
+
+    using (var scope = host.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        Console.WriteLine("Applying migrations...");
+
+        // 2. Applica le migrazioni
+        await dbContext.Database.MigrateAsync();
+
+        Console.WriteLine("Migrations completed!");
+    }
+
+    host.Run();
+
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

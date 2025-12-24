@@ -1,5 +1,4 @@
 using Infrastructure;
-using Microsoft.EntityFrameworkCore;
 using nam.Server.Endpoints.Auth;
 using nam.Server.Endpoints.MunicipalityEntities;
 using nam.Server.Extensions;
@@ -25,19 +24,6 @@ builder.Host.UseSerilog((context, config) =>
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
-
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-    Console.WriteLine("Applicazione delle migrazioni in corso...");
-
-    // 2. Applica le migrazioni
-    await dbContext.Database.MigrateAsync();
-
-    Console.WriteLine("Migrazioni completate con successo!");
-}
-
 
 // Configure middleware pipeline
 if (app.Environment.IsDevelopment())
