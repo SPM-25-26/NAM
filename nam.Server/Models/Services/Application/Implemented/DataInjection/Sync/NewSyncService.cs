@@ -1,6 +1,5 @@
 ﻿using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using nam.Server.Data;
 using nam.Server.Models.Services.Application.Interfaces.DataInjection;
 using System.Collections.Concurrent;
@@ -48,8 +47,8 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Sync
         /// Internal method that handles the sync logic with knowledge of the Primary Key type (TKey).
         /// </summary>
         private async Task ExecuteSyncInternalAsync<TEntity, TKey>(IEntityCollector<TEntity> entityCollector, string pkPropertyName)
-            where TEntity : class
-            where TKey : notnull
+    where TEntity : class
+    where TKey : notnull
         {
             _logger.Information("Executing synchronization for {EntityName} with Key Type: {KeyType}", typeof(TEntity).Name, typeof(TKey).Name);
 
@@ -91,36 +90,42 @@ namespace nam.Server.Models.Services.Application.Implemented.DataInjection.Sync
             foreach (var entity in allEntities)
             {
                 var val = pkPropInfo.GetValue(entity);
-                if (val is TKey keyVal)
+                if (val is TKey keyVal) parentIds.Add(keyVal);
+            }
+
+            // 3. DATABASE TRANSACTION CON EXECUTION STRATEGY
+            // Creiamo la strategia di esecuzione definita nel DbContext (es. SqlServerRetryingExecutionStrategy)
+            var strategy = _dbContext.Database.CreateExecutionStrategy();
+
+            await strategy.ExecuteAsync(async () =>
+            {
+                // La transazione deve essere aperta ALL'INTERNO di ExecuteAsync
+                using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+                try
                 {
-                    parentIds.Add(keyVal);
+                    // A. CLEANUP PROCESS
+                    await CleanRelatedDataAsync<TEntity, TKey>(parentIds);
+
+                    // B. BULK UPSERT
+                    await _dbContext.BulkInsertOrUpdateAsync(allEntities.ToList(), new BulkConfig
+                    {
+                        IncludeGraph = true,
+                        BulkCopyTimeout = 600
+                    });
+
+                    await transaction.CommitAsync();
+                    _logger.Information("Synchronization completed successfully for entity: {EntityName}", typeof(TEntity).Name);
                 }
-            }
-
-            // 3. DATABASE TRANSACTION
-            using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
-            try
-            {
-                // A. CLEANUP PROCESS (Now supports TKey)
-                await CleanRelatedDataAsync<TEntity, TKey>(parentIds);
-
-                // B. BULK UPSERT
-                await _dbContext.BulkInsertOrUpdateAsync(allEntities, new BulkConfig
+                catch (Exception ex)
                 {
-                    IncludeGraph = true,
-                    BulkCopyTimeout = 600
-                });
-
-                await transaction.CommitAsync();
-                _logger.Information("Synchronization completed successfully for entity: {EntityName}", typeof(TEntity).Name);
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                _logger.Error(ex, "Synchronization failed. Transaction rolled back.");
-                throw;
-            }
+                    // Non è strettamente necessario il Rollback manuale qui perché il 'using' della transazione 
+                    // o il fallimento dell'ExecuteAsync lo gestirebbero, ma è buona norma.
+                    await transaction.RollbackAsync();
+                    _logger.Error(ex, "Synchronization failed during transaction. Strategy will retry if transient.");
+                    throw; // Rilancia l'eccezione per permettere alla strategia di fare il retry
+                }
+            });
         }
 
         /// <summary>
