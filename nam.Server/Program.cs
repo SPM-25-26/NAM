@@ -1,3 +1,4 @@
+using nam.Server.Data;
 using nam.Server.Endpoints.Auth;
 using nam.Server.Endpoints.MunicipalityEntities;
 using nam.Server.Extensions;
@@ -6,7 +7,14 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
+builder.AddSqlServerClient("db");
+builder.AddSqlServerDbContext<ApplicationDbContext>("db");
+
+
 builder.Services.AddApplicationServices(builder.Configuration, builder.Environment);
+
 
 
 // Configure Serilog logging
@@ -14,6 +22,8 @@ builder.Host.UseSerilog((context, config) =>
     config.ReadFrom.Configuration(context.Configuration));
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 
 // Configure middleware pipeline

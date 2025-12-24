@@ -1,10 +1,8 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using nam.Server.Data;
 using nam.Server.Models.Entities.MunicipalityEntities;
 using nam.Server.Models.Options;
 using nam.Server.Models.Services.Application.Implemented.DataInjection.Fetchers;
@@ -28,19 +26,19 @@ namespace nam.Server.Extensions
 {
     public static class ServiceExtensions
     {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
-    {
+        public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
+        {
 
-            // Retrieve and configure the database connection string
-            string connectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            //// Retrieve and configure the database connection string
+            //string connectionString = configuration.GetConnectionString("DefaultConnection")
+            //    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-            // Register the DbContext with SQL Server provider
-            services.AddDbContext<ApplicationDbContext>(options =>
-             options.UseSqlServer(
-                 connectionString,
-                 o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
-             ));
+            //// Register the DbContext with SQL Server provider
+            //services.AddDbContext<ApplicationDbContext>(options =>
+            // options.UseSqlServer(
+            //     connectionString,
+            //     o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            // ));
 
 
             // Retrieve the JWT secret key from configuration
@@ -208,6 +206,6 @@ namespace nam.Server.Extensions
 
             // Ritorna services per permettere il "chaining" (concatenazione)
             return services;
+        }
     }
-}
 }
