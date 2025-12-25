@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace nam.Server.DTOs
+namespace Domain.DTOs.Auth
 {
     public record ValidationCodeDto
     {

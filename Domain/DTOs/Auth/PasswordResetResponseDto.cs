@@ -1,4 +1,4 @@
-namespace nam.Server.DTOs
+namespace Domain.DTOs.Auth
 {
     public record PasswordResetResponseDto
     {

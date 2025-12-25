@@ -1,9 +1,9 @@
-﻿using Domain.Entities;
+﻿using Domain.DTOs.Auth;
+using Domain.Entities;
 using Domain.Entities.Auth;
 using Infrastructure;
 using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
-using nam.Server.DTOs;
 using nam.Server.Services.Interfaces.Auth;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

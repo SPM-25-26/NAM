@@ -1,7 +1,7 @@
-﻿using FluentValidation;
+﻿using Domain.DTOs.Auth;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using nam.Server.ApiResponse;
-using nam.Server.DTOs;
 using nam.Server.Services.Interfaces.Auth;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
