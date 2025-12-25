@@ -5,9 +5,8 @@ using Infrastructure.Repositories.Interfaces.MunicipalityEntities;
 using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using nam.Server.Models.Services.Infrastructure.Implemented.Auth;
-using nam.Server.Models.Services.Infrastructure.Interfaces;
-using nam.Server.Models.Services.Infrastructure.Interfaces.Auth;
+using nam.Server.Services.Implemented.Auth;
+using nam.Server.Services.Interfaces.Auth;
 using System.Linq.Expressions;
 using System.Security.Claims;
 

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using nam.Server.Endpoints.Auth;
-using nam.Server.Models.Services.Infrastructure.Interfaces.Auth;
+using nam.Server.Services.Interfaces.Auth;
 using nam.ServerTests.mock;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

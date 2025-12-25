@@ -11,7 +11,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Models\Services\Infrastructure\Implemented\Auth\TokenGeneration.cs~RF5f9df18.TMP" />
+    <Compile Remove="Services\Implemented\DataInjection\**" />
+    <Content Remove="Services\Implemented\DataInjection\**" />
+    <EmbeddedResource Remove="Services\Implemented\DataInjection\**" />
+    <None Remove="Services\Implemented\DataInjection\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Services\Implemented\Auth\TokenGeneration.cs~RF5f9df18.TMP" />
   </ItemGroup>
 
   <ItemGroup>
@@ -55,8 +62,6 @@
 
   <ItemGroup>
     <Folder Include="Logs\" />
-    <Folder Include="Models\Entities\" />
-    <Folder Include="Models\Services\Application\Implemented\DataInjection\" />
   </ItemGroup>
 
   <ItemGroup>
