@@ -1,5 +1,5 @@
-﻿using DataInjection.Interfaces;
-using Domain.DTOs.MunicipalityInjection;
+﻿using DataInjection.DTOs;
+using DataInjection.Interfaces;
 using Domain.Entities.MunicipalityEntities;
 
 namespace DataInjection.Mappers

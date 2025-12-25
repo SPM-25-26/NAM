@@ -1,7 +1,7 @@
-using Domain.DTOs.Auth;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using nam.Server.ApiResponse;
+using nam.Server.DTOs;
 using nam.Server.Endpoints.Auth;
 using nam.Server.Services.Interfaces.Auth;
 using nam.Server.Validators;

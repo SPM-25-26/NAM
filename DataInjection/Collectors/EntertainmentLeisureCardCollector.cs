@@ -1,7 +1,7 @@
-﻿using DataInjection.Interfaces;
+﻿using DataInjection.DTOs;
+using DataInjection.Interfaces;
 using DataInjection.Mappers;
 using DataInjection.Providers;
-using Domain.DTOs.MunicipalityInjection;
 using Domain.Entities.MunicipalityEntities;
 using System.Collections.Concurrent;
 

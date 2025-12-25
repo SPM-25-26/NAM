@@ -1,4 +1,4 @@
-﻿using Domain.DTOs.Auth;
+﻿using nam.Server.DTOs;
 
 namespace nam.Server.Services.Interfaces.Auth
 {

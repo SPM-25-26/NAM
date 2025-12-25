@@ -1,4 +1,4 @@
-﻿using Domain.DTOs.Auth;
+﻿using nam.Server.DTOs;
 using nam.Server.swagger;
 
 namespace nam.Server.Endpoints.Auth

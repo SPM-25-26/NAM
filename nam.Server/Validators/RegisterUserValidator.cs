@@ -1,5 +1,5 @@
-﻿using Domain.DTOs.Auth;
-using FluentValidation;
+﻿using FluentValidation;
+using nam.Server.DTOs;
 
 namespace nam.Server.Validators
 {
