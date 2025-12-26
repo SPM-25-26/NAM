@@ -40,6 +40,10 @@ namespace nam.Server.Endpoints.MunicipalityEntities
             try
             {
                 var result = await municipalityService.GetCardDetailAsync(city, language);
+                if (result == null)
+                {
+                    return TypedResults.NotFound();
+                }
                 return TypedResults.Ok(result);
             }
             catch (Exception ex)

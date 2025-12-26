@@ -12,7 +12,12 @@ namespace nam.Server.Models.Services.Application.Implemented.MunicipalityEntitie
         {
             if (string.IsNullOrWhiteSpace(legalName) || string.IsNullOrWhiteSpace(language))
                 return default;
-            return await municipalityCardRepository.GetDetailByEntityIdAsync(legalName, cancellationToken);
+            var cleanName = legalName.Trim();
+            if (!cleanName.StartsWith("Comune di ", StringComparison.OrdinalIgnoreCase))
+            {
+                cleanName = $"Comune di {cleanName}";
+            }
+            return await municipalityCardRepository.GetDetailByEntityIdAsync(cleanName, cancellationToken);
         }
 
         public async Task<IEnumerable<MunicipalityCard>> GetCardListAsync(string municipality, string language = "it", CancellationToken cancellationToken = default)

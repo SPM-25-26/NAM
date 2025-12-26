@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace nam.Server.Models.Entities.MunicipalityEntities
 {
@@ -64,6 +65,7 @@ namespace nam.Server.Models.Entities.MunicipalityEntities
         public string? MunicipalityLegalName { get; set; }
 
         [ForeignKey(("MunicipalityLegalName"))]
+        [JsonIgnore]
         public MunicipalityHomeInfo? Municipality { get; set; }
     }
 }
