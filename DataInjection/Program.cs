@@ -1,3 +1,4 @@
+using DataInjection;
 using DataInjection.Fetchers;
 using DataInjection.Interfaces;
 using DataInjection.Qdrant;
@@ -35,7 +36,7 @@ try
             .Enrich.FromLogContext()
             .WriteTo.Console());
 
-    //builder.Services.AddHostedService<DailyDataSyncWorker>();
+    builder.Services.AddHostedService<DailyDataSyncWorker>();
     builder.Services.AddHostedService<QdrantDataSyncWorker>();
 
 
