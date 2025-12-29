@@ -1,25 +1,44 @@
 ﻿using DataInjection.Interfaces;
-using DataInjection.Qdrant.Embedders;
-using Qdrant.Client;
-using Qdrant.Client.Grpc;
+using DataInjection.Qdrant.Data;
+using Microsoft.Extensions.VectorData;
+using System.Collections.Concurrent;
 
 namespace DataInjection.Qdrant
 {
-    internal class QdrantEntitySync : ISyncService
+    public class QdrantEntitySync(Serilog.ILogger logger, VectorStoreCollection<Guid, QdrantFormat> store, string collectionName)
     {
-        private readonly QdrantClient client;
-        private IEmbedder embedder;
 
-        public QdrantEntitySync(ulong OutputDimensionality)
+        public async Task ExecuteSyncAsync(IEntityCollector<QdrantFormat> entityCollector)
         {
-            this.client = new QdrantClient("localhost", 55080);
-            client.CreateCollectionAsync("test_collection", new VectorParams { Size = OutputDimensionality, Distance = Distance.Cosine }).Wait();
-            embedder = GeminiEmbedder.Instance;
-        }
+            await store.EnsureCollectionExistsAsync();
 
-        public async Task ExecuteSyncAsync<TEntity>(IEntityCollector<TEntity> entityCollector) where TEntity : class
-        {
-            await entityCollector.GetEntities("Matelica");
+            var municipalities = new List<string> { "Matelica" };//configuration.GetSection("Municipalities").Get<string[]>() ?? [];
+            var allEntities = new ConcurrentBag<QdrantFormat>();
+
+            await Parallel.ForEachAsync(municipalities, async (municipality, ct) =>
+            {
+                try
+                {
+                    var entities = await entityCollector.GetEntities(municipality);
+                    if (entities != null)
+                    {
+                        foreach (var e in entities) allEntities.Add(e);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("Error fetching data for municipality {Municipality}: {ErrorMessage}", municipality, ex.Message);
+                }
+            });
+
+            if (allEntities.IsEmpty)
+            {
+                logger.Warning("No entities were fetched. Aborting synchronization.");
+                return;
+            }
+
+            await store.UpsertAsync(allEntities.ToList());
+
         }
     }
 }

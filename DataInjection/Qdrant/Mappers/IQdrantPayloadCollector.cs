@@ -1,9 +1,9 @@
 ﻿using DataInjection.Interfaces;
-using Qdrant.Client.Grpc;
+using DataInjection.Qdrant.Data;
 
 namespace DataInjection.Qdrant.Mappers
 {
-    internal interface IQdrantPayloadCollector : IEntityCollector<PointStruct>
+    internal interface IQdrantPayloadCollector : IEntityCollector<QdrantFormat>
     {
     }
 }

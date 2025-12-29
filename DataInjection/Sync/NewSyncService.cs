@@ -17,7 +17,7 @@ namespace DataInjection.Sync
         /// Entry point for synchronization.
         /// It inspects the entity to determine the Primary Key type, then invokes the strictly typed internal handler.
         /// </summary>
-        public async Task ExecuteSyncAsync<TEntity>(IEntityCollector<TEntity> entityCollector) where TEntity : class
+        public async Task ExecuteSyncAsync<TEntity>(IEntityCollector<TEntity> entityCollector)
         {
             _logger.Information("Starting synchronization setup for entity: {EntityName}", typeof(TEntity).Name);
 

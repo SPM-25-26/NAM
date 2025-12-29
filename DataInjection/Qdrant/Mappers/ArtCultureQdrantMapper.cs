@@ -1,11 +1,11 @@
 ﻿using DataInjection.Interfaces;
 using DataInjection.Qdrant.Data;
-using DataInjection.Qdrant.Embedders;
 using Domain.Entities.MunicipalityEntities;
+using Microsoft.Extensions.AI;
 
-namespace DataInjection.Qdrant.Stringers
+namespace DataInjection.Qdrant.Mappers
 {
-    internal class ArtCultureQdrantMapper(IEntityCollector<ArtCultureNatureCard> collector, IEmbedder embedder) : AbstractQdrantMapper<ArtCultureNatureCard>(collector, embedder)
+    internal class ArtCultureQdrantMapper(IEntityCollector<ArtCultureNatureCard> collector, IEmbeddingGenerator<string, Embedding<float>> embedder, int outputDimensionality) : AbstractQdrantMapper<ArtCultureNatureCard>(collector, embedder, outputDimensionality)
     {
         public override QdrantPayload MapToQdrantPayload(ArtCultureNatureCard entity)
         {

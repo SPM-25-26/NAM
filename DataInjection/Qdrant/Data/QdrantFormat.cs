@@ -1,11 +1,17 @@
-﻿namespace DataInjection.Qdrant.Data
+﻿using Microsoft.Extensions.VectorData;
+
+namespace DataInjection.Qdrant.Data
 {
-    public record QdrantFormat
+    public class QdrantFormat
     {
-        public Guid Id = Guid.NewGuid();
 
-        public float[] Vector;
+        [VectorStoreKey]
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-        public QdrantPayload Payload;
+        [VectorStoreVector(Dimensions: 3072)]
+        public ReadOnlyMemory<float> Vector { get; set; }
+
+        [VectorStoreData]
+        public int number { get; set; }
     }
 }

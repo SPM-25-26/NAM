@@ -2,11 +2,9 @@
 
 namespace DataInjection.Qdrant.Embedders
 {
-    public class GeminiEmbedder : IEmbedder
+    public class GeminiEmbedder(IGeminiClient geminiClient) : IEmbedder
     {
-        private IGeminiClient geminiClient;
-
-        public async Task<List<float[]>> GetBatchEmbeddingAsync(ICollection<string> strings)
+        public async Task<List<float[]>> GetBatchEmbeddingAsync(ICollection<string> strings, int OutputDimensionality)
         {
             var response = await geminiClient.BatchEmbeddedContentsPrompt(strings.ToList());
             if (response?.Embedding == null)
@@ -17,7 +15,7 @@ namespace DataInjection.Qdrant.Embedders
                 .ToList();
         }
 
-        public async Task<float[]> GetEmbeddingAsync(string text)
+        public async Task<float[]> GetEmbeddingAsync(string text, int OutputDimensionality)
         {
             var response = await geminiClient.EmbeddedContentsPrompt(text);
             if (response?.Embedding == null || response.Embedding.Values == null)

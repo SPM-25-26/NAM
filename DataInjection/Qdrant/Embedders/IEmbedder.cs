@@ -2,8 +2,8 @@
 {
     public interface IEmbedder
     {
-        Task<float[]> GetEmbeddingAsync(string text);
+        Task<float[]> GetEmbeddingAsync(string text, int outputDimensionality);
 
-        Task<List<float[]>> GetBatchEmbeddingAsync(ICollection<string> strings);
+        Task<List<float[]>> GetBatchEmbeddingAsync(ICollection<string> strings, int outputDimensionality);
     }
 }
