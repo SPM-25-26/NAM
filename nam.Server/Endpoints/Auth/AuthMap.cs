@@ -1,5 +1,5 @@
-﻿using nam.Server.Models.DTOs;
-using nam.Server.Models.Swagger;
+﻿using nam.Server.DTOs;
+using nam.Server.swagger;
 
 namespace nam.Server.Endpoints.Auth
 {

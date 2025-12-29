@@ -1,5 +1,5 @@
-﻿using nam.Server.Models.DTOs;
-using nam.Server.Models.Services.Infrastructure.Implemented.Auth;
+﻿using nam.Server.DTOs;
+using nam.Server.Services.Implemented.Auth;
 using nam.ServerTests.mock;
 
 namespace nam.ServerTests

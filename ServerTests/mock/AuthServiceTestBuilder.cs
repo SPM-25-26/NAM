@@ -1,12 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Domain.Entities;
+using Infrastructure;
+using Infrastructure.Repositories.Interfaces;
+using Infrastructure.Repositories.Interfaces.MunicipalityEntities;
+using Infrastructure.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using nam.Server.Data;
-using nam.Server.Models.Entities;
-using nam.Server.Models.Services.Infrastructure.Implemented.Auth;
-using nam.Server.Models.Services.Infrastructure.Interfaces;
-using nam.Server.Models.Services.Infrastructure.Interfaces.Auth;
-using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces;
-using nam.Server.Models.Services.Infrastructure.Repositories.Interfaces.MunicipalityEntities;
+using nam.Server.Services.Implemented.Auth;
+using nam.Server.Services.Interfaces.Auth;
 using System.Linq.Expressions;
 using System.Security.Claims;
 

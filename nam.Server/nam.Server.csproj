@@ -7,13 +7,23 @@
     <SpaRoot>..\nam.client</SpaRoot>
     <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
     <SpaProxyServerUrl>http://localhost:5173</SpaProxyServerUrl>
+    <UserSecretsId>b2bc76ec-b90f-4b5f-b2c2-7368ee98f36b</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Models\Services\Infrastructure\Implemented\Auth\TokenGeneration.cs~RF5f9df18.TMP" />
+    <Compile Remove="Services\Implemented\DataInjection\**" />
+    <Content Remove="Services\Implemented\DataInjection\**" />
+    <EmbeddedResource Remove="Services\Implemented\DataInjection\**" />
+    <None Remove="Services\Implemented\DataInjection\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Services\Implemented\Auth\TokenGeneration.cs~RF5f9df18.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Microsoft.Data.SqlClient" Version="13.1.0" />
+    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.1.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="EFCore.BulkExtensions" Version="9.0.2" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.0" />
@@ -45,12 +55,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\nam.client\nam.client.esproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
-
-  <ItemGroup>
 	  <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
 		  <_Parameter1>nam.ServerTests</_Parameter1>
 	  </AssemblyAttribute>
@@ -58,6 +62,11 @@
 
   <ItemGroup>
     <Folder Include="Logs\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\nam\nam.ServiceDefaults\nam.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>
