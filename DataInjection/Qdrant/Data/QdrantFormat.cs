@@ -12,6 +12,18 @@ namespace DataInjection.Qdrant.Data
         public ReadOnlyMemory<float> Vector { get; set; }
 
         [VectorStoreData]
-        public int number { get; set; }
+        public string apiEndpoint { get; set; }
+
+        [VectorStoreData]
+        public string EntityId { get; set; }
+
+        [VectorStoreData]
+        public string city { get; set; }
+
+        [VectorStoreData]
+        public double lat { get; set; }
+
+        [VectorStoreData]
+        public double lon { get; set; }
     }
 }

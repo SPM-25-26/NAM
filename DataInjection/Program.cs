@@ -1,15 +1,14 @@
-using DataInjection;
 using DataInjection.Fetchers;
 using DataInjection.Interfaces;
 using DataInjection.Qdrant;
 using DataInjection.Qdrant.Data;
-using DataInjection.Qdrant.Embedders;
 using DataInjection.Sync;
 using DotNetEnv;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
+using Polly;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -36,7 +35,7 @@ try
             .Enrich.FromLogContext()
             .WriteTo.Console());
 
-    builder.Services.AddHostedService<DailyDataSyncWorker>();
+    //builder.Services.AddHostedService<DailyDataSyncWorker>();
     builder.Services.AddHostedService<QdrantDataSyncWorker>();
 
 
@@ -44,17 +43,26 @@ try
     builder.Services.AddScoped<ISyncService, NewSyncService>();
 
     builder.Services.AddHttpClient();
+    builder.Services.AddHttpClient<HttpFetcherService>(client => { })
+    .AddStandardResilienceHandler(options =>
+    {
+        // 1. RETRY STRATEGY
+        // Change from "Fixed" to "Exponential" to back off when 429 occurs
+        options.Retry.BackoffType = DelayBackoffType.Exponential;
+        options.Retry.MaxRetryAttempts = 5;
+        options.Retry.Delay = TimeSpan.FromSeconds(2); // Initial delay
+        options.Retry.UseJitter = true; // Randomizes delay to prevent "thundering herd"
 
-    //builder.Services.AddGeminiClient(config =>
-    //{
-    //    config.ApiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
-    //    config.TimeoutSeconds = 30;
-    //    config.EnableRetry = true;
-    //    config.MaxRetryAttempts = 3;
-    //    config.EnableLogging = true;
-    //});
-    builder.Services.AddScoped<IEmbedder, GeminiHttpEmbedder>();
+        // 2. CIRCUIT BREAKER
+        // Make it stay open longer once it trips to give the API time to recover
+        options.CircuitBreaker.BreakDuration = TimeSpan.FromSeconds(30);
+        options.CircuitBreaker.FailureRatio = 0.5; // Trip if 50% of calls fail in the window
+        options.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(60);
 
+        // 3. ATTEMPT TIMEOUT
+        // Ensure individual requests don't hang too long
+        options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(10);
+    });
 
     var host = builder.Build();
 

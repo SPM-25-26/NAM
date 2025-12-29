@@ -7,22 +7,15 @@ namespace DataInjection.Qdrant.Mappers
 {
     internal class ArtCultureQdrantMapper(IEntityCollector<ArtCultureNatureCard> collector, IEmbeddingGenerator<string, Embedding<float>> embedder, int outputDimensionality) : AbstractQdrantMapper<ArtCultureNatureCard>(collector, embedder, outputDimensionality)
     {
-        public override QdrantPayload MapToQdrantPayload(ArtCultureNatureCard entity)
+        public override QdrantFormat MapToQdrantPayload(ArtCultureNatureCard entity)
         {
-            return new QdrantPayload
+            return new QdrantFormat
             {
                 apiEndpoint = "/api/art-culture/card",
-                apiQuery = new Dictionary<string, string>
-                {
-                    { "id", entity.ToString() }
-                },
-                Location = entity.Detail is not null
-                    ? new Location
-                    {
-                        lat = entity.Detail.Latitude,
-                        lon = entity.Detail.Longitude
-                    }
-                    : new Location { lat = 0, lon = 0 }
+                EntityId = entity.EntityId.ToString(),
+                city = entity.Detail.MunicipalityData.Name,
+                lon = entity.Detail.Longitude,
+                lat = entity.Detail.Latitude,
             };
         }
     }
