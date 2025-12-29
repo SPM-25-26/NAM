@@ -2,6 +2,8 @@ using DataInjection;
 using DataInjection.Fetchers;
 using DataInjection.Interfaces;
 using DataInjection.Sync;
+using DotNetEnv;
+using DotnetGeminiSDK;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -9,7 +11,7 @@ using Serilog;
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateBootstrapLogger();
-
+Env.Load();
 try
 {
     var builder = Host.CreateApplicationBuilder(args);
@@ -31,6 +33,16 @@ try
     builder.Services.AddScoped<ISyncService, NewSyncService>();
 
     builder.Services.AddHttpClient();
+
+    builder.Services.AddGeminiClient(config =>
+    {
+        config.ApiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
+        config.TimeoutSeconds = 30;
+        config.EnableRetry = true;
+        config.MaxRetryAttempts = 3;
+        config.EnableLogging = true;
+    });
+
 
     var host = builder.Build();
 
