@@ -26,9 +26,10 @@ try
     builder.AddSqlServerClient("db");
 
     builder.AddQdrantClient("vectordb");
-    builder.Services.AddQdrantCollection<Guid, QdrantFormat>("POI-vectors");
+    builder.Services.AddQdrantCollection<Guid, POIEntity>("POI-vectors");
 
     builder.Services.AddGoogleAIEmbeddingGenerator("gemini-embedding-001", Environment.GetEnvironmentVariable("GEMINI_API_KEY"));
+    //builder.Services.AddGoogleAIGeminiChatCompletion("gemini-2.0-flash-lite", Environment.GetEnvironmentVariable("GEMINI_API_KEY"));
 
     builder.Services.AddSerilog((services, lc) => lc
             .ReadFrom.Configuration(builder.Configuration)
@@ -51,7 +52,7 @@ try
         // Change from "Fixed" to "Exponential" to back off when 429 occurs
         options.Retry.BackoffType = DelayBackoffType.Exponential;
         options.Retry.MaxRetryAttempts = 5;
-        options.Retry.Delay = TimeSpan.FromSeconds(2); // Initial delay
+        options.Retry.Delay = TimeSpan.FromSeconds(60); // Initial delay
         options.Retry.UseJitter = true; // Randomizes delay to prevent "thundering herd"
 
         // 2. CIRCUIT BREAKER

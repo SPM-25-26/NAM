@@ -41,9 +41,9 @@ namespace DataInjection.Qdrant
                     var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
                     var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
                     var embedder = scope.ServiceProvider.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
-                    var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, QdrantFormat>>();
+                    var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
 
-                    var syncService = new QdrantEntitySync(logger , store, collectionName);
+                    var syncService = new QdrantEntitySync(logger, configuration, store, collectionName);
                     IEntityCollector<ArtCultureNatureCard> collector = new ArtCultureCollector(fetcher);
                     await syncService.ExecuteSyncAsync(new ArtCultureQdrantMapper(collector, embedder, outputDimensionality));
                 }))

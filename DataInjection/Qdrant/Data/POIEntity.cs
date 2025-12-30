@@ -2,7 +2,7 @@
 
 namespace DataInjection.Qdrant.Data
 {
-    public class QdrantFormat
+    public class POIEntity
     {
 
         [VectorStoreKey]
@@ -10,6 +10,9 @@ namespace DataInjection.Qdrant.Data
 
         [VectorStoreVector(Dimensions: 3072)]
         public ReadOnlyMemory<float> Vector { get; set; }
+
+        [VectorStoreData]
+        public int chunkPart { get; set; }
 
         [VectorStoreData]
         public string apiEndpoint { get; set; }

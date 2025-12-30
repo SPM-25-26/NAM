@@ -5,15 +5,15 @@ using System.Collections.Concurrent;
 
 namespace DataInjection.Qdrant
 {
-    public class QdrantEntitySync(Serilog.ILogger logger, VectorStoreCollection<Guid, QdrantFormat> store, string collectionName)
+    public class QdrantEntitySync(Serilog.ILogger logger, IConfiguration configuration, VectorStoreCollection<Guid, POIEntity> store, string collectionName)
     {
 
-        public async Task ExecuteSyncAsync(IEntityCollector<QdrantFormat> entityCollector)
+        public async Task ExecuteSyncAsync(IEntityCollector<POIEntity> entityCollector)
         {
             await store.EnsureCollectionExistsAsync();
 
-            var municipalities = new List<string> { "Matelica" };//configuration.GetSection("Municipalities").Get<string[]>() ?? [];
-            var allEntities = new ConcurrentBag<QdrantFormat>();
+            var municipalities = configuration.GetSection("Municipalities").Get<string[]>() ?? [];
+            var allEntities = new ConcurrentBag<POIEntity>();
 
             await Parallel.ForEachAsync(municipalities, async (municipality, ct) =>
             {
@@ -37,7 +37,7 @@ namespace DataInjection.Qdrant
                 return;
             }
 
-            await store.UpsertAsync(allEntities.ToList());
+            await store.UpsertAsync(allEntities);
 
         }
     }

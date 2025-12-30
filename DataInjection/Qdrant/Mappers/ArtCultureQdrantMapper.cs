@@ -7,9 +7,9 @@ namespace DataInjection.Qdrant.Mappers
 {
     internal class ArtCultureQdrantMapper(IEntityCollector<ArtCultureNatureCard> collector, IEmbeddingGenerator<string, Embedding<float>> embedder, int outputDimensionality) : AbstractQdrantMapper<ArtCultureNatureCard>(collector, embedder, outputDimensionality)
     {
-        public override QdrantFormat MapToQdrantPayload(ArtCultureNatureCard entity)
+        public override POIEntity MapToQdrantPayload(ArtCultureNatureCard entity)
         {
-            return new QdrantFormat
+            return new POIEntity
             {
                 apiEndpoint = "/api/art-culture/card",
                 EntityId = entity.EntityId.ToString(),
