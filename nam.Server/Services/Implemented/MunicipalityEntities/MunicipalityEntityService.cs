@@ -24,5 +24,13 @@ namespace nam.Server.Services.Implemented.MunicipalityEntities
 
             return await repository.GetByMunicipalityNameAsync(municipality, cancellationToken);
         }
+
+        public async Task<TEntity?> GetFullCardAsync(string entityId, string language = "it", CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(entityId) || string.IsNullOrWhiteSpace(language))
+                return default;
+            var entityGuid = Guid.Parse(entityId);
+            return await repository.GetFullEntityByIdAsync(entityGuid, cancellationToken);
+        }
     }
 }

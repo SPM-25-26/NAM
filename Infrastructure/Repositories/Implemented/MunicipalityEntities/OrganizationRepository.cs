@@ -35,5 +35,12 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
                 .Include(c => c.MunicipalityData)
                 .FirstOrDefaultAsync(c => c.TaxCode == entityId, cancellationToken);
         }
+
+        public async Task<OrganizationCard?> GetFullEntityByIdAsync(string entityId, CancellationToken cancellationToken = default)
+        {
+            var entity = await GetByEntityIdAsync(entityId, cancellationToken);
+            entity.Detail = await GetDetailByEntityIdAsync(entityId, cancellationToken);
+            return entity;
+        }
     }
 }

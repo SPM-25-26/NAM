@@ -45,5 +45,12 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
                 .AsSplitQuery()
                 .FirstOrDefaultAsync(c => c.Identifier == entityId, cancellationToken);
         }
+
+        public async Task<ArtCultureNatureCard?> GetFullEntityByIdAsync(Guid entityId, CancellationToken cancellationToken = default)
+        {
+            var entity = await GetByEntityIdAsync(entityId, cancellationToken);
+            entity.Detail = await GetDetailByEntityIdAsync(entityId, cancellationToken);
+            return entity;
+        }
     }
 }

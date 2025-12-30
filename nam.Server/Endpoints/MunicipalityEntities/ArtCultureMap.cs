@@ -11,7 +11,7 @@
             // When mapping the endpoint group
             RouteGroupBuilder group = builder.MapGroup("/api/art-culture")
                 .RequireCors("FrontendWithCredentials")
-                .RequireAuthorization() 
+                .RequireAuthorization()
                 .WithTags("Art and Culture");
 
             group.MapGet("/card-list", ArtCultureEndpoints.GetCardList)
@@ -26,6 +26,13 @@
                 .Produces(StatusCodes.Status401Unauthorized)
                 .Produces(StatusCodes.Status500InternalServerError)
                 .WithSummary("Get the details of art culture card")
+                .WithDescription("");
+
+            group.MapGet("/card", ArtCultureEndpoints.GetFullCard)
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status401Unauthorized)
+                .Produces(StatusCodes.Status500InternalServerError)
+                .WithSummary("Get card of art culture")
                 .WithDescription("");
 
             return builder;

@@ -27,6 +27,13 @@
                 .WithSummary("Get the details of article card")
                 .WithDescription("");
 
+            group.MapGet("/card", ArticleEndpoint.GetFullCard)
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status401Unauthorized)
+                .Produces(StatusCodes.Status500InternalServerError)
+                .WithSummary("Get card article")
+                .WithDescription("");
+
             return builder;
         }
     }
