@@ -1,19 +1,32 @@
 ﻿using DataInjection.Interfaces;
-using DataInjection.Providers;
 using DataInjection.Qdrant.Data;
 using Microsoft.Extensions.AI;
+using System.Security.Cryptography;
+using System.Text;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
 namespace DataInjection.Qdrant.Mappers
 {
-    public abstract class POIVectorEntityCollector<TEntity>(IEmbeddingGenerator<string, Embedding<float>> embedder) : IEntityCollector<POIEntity>
+    public abstract class POIVectorEntityCollector<TEntity>(IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : IEntityCollector<POIEntity>
     {
+        private static readonly Guid MyNamespaceId = Guid.Parse("d34b9678-7554-4634-8f7a-8534f37803a5");
         private readonly ISerializer serializer = new SerializerBuilder()
+            .EnsureRoundtrip()
             .WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
 
-        public abstract AbstractProvider<List<TEntity>, List<POIEntity>> GetProvider();
+        public abstract string getEndpoint();
+        public abstract Dictionary<string, string> getQuery();
 
+        public abstract IDtoMapper<TEntity, POIEntity> getMapper();
+
+        private Guid HandleString(string text)
+        {
+            using MD5 md5 = MD5.Create();
+            byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
+            Guid result = new Guid(hash);
+            return result;
+        }
 
         // TODO : Use API to get token count instead of word count
         static List<string> ChunkWithOverlap(string input, int maxTokens = 2024, double overlapRate = 0.15)
@@ -35,15 +48,15 @@ namespace DataInjection.Qdrant.Mappers
 
         async Task<List<POIEntity>> IEntityCollector<POIEntity>.GetEntities(string municipality)
         {
-            var provider = GetProvider();
-            provider.Query["municipality"] = municipality;
-            var entities = await provider.GetEntity();
+            var mapper = getMapper();
+            var query = getQuery();
+            query["municipality"] = municipality;
+            var entities = await fetcher.Fetch<List<TEntity>>(configuration["SERVER_HTTPS"], getEndpoint(), query);
 
             var poiEntities = new List<POIEntity>();
-
             foreach (var e in entities)
             {
-                var entityString = e.ToString();//serializer.Serialize(e);
+                var entityString = serializer.Serialize(e);
                 var chunks = ChunkWithOverlap(entityString);
 
                 int chunkCounter = 0;
@@ -54,18 +67,14 @@ namespace DataInjection.Qdrant.Mappers
 
                     var embeddingResult = await embedder.GenerateAsync(chunk);
                     var vector = embeddingResult.Vector;
+                    var poiEntity = mapper.MapToEntity(e);
+                    poiEntity.Id = Guid.TryParse(poiEntity.EntityId, out var id)
+                        ? id
+                        : HandleString(poiEntity.EntityId);
+                    poiEntity.Vector = vector;
+                    poiEntity.chunkPart = chunkCounter;
 
-                    poiEntities.Add(new POIEntity
-                    {
-                        Id = Guid.NewGuid(),
-                        Vector = vector,
-                        chunkPart = chunkCounter,
-                        apiEndpoint = e.apiEndpoint,
-                        EntityId = e.EntityId,
-                        city = e.city,
-                        lat = e.lat,
-                        lon = e.lon
-                    });
+                    poiEntities.Add(poiEntity);
                 }
             }
             return poiEntities;

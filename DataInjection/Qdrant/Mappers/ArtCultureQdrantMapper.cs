@@ -4,19 +4,18 @@ using Domain.Entities.MunicipalityEntities;
 
 namespace DataInjection.Qdrant.Mappers
 {
-    public class ArtCultureQdrantMapper : IDtoMapper<List<ArtCultureNatureCard>, List<POIEntity>>
+    public class ArtCultureQdrantMapper : IDtoMapper<ArtCultureNatureCard, POIEntity>
     {
-        public List<POIEntity> MapToEntity(List<ArtCultureNatureCard> dto)
+        POIEntity IDtoMapper<ArtCultureNatureCard, POIEntity>.MapToEntity(ArtCultureNatureCard dto)
         {
-            return dto.Select(e =>
-            new POIEntity
+            return new POIEntity
             {
                 apiEndpoint = "/api/art-culture/card",
-                EntityId = e.EntityId.ToString(),
-                //city = e.Detail.MunicipalityData.Name,
-                //lat = e.Detail.Latitude,
-                //lon = e.Detail.Longitude
-            }).ToList();
+                EntityId = dto.EntityId.ToString(),
+                //city = dto.Detail.MunicipalityData.Name,
+                //lat = dto.Detail.Latitude,
+                //lon = dto.Detail.Longitude
+            };
         }
     }
 }

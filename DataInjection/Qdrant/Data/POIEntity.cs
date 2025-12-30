@@ -6,7 +6,7 @@ namespace DataInjection.Qdrant.Data
     {
 
         [VectorStoreKey]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; }
 
         [VectorStoreVector(Dimensions: 3072)]
         public ReadOnlyMemory<float> Vector { get; set; }

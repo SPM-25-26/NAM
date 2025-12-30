@@ -6,20 +6,24 @@ using Microsoft.Extensions.AI;
 
 namespace DataInjection.Qdrant.Mappers
 {
-    public class ArtCultureQdrantCollector(IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : POIVectorEntityCollector<ArtCultureNatureCard>(embedder)
+    public class ArtCultureQdrantCollector(IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : POIVectorEntityCollector<ArtCultureNatureCard>(embedder, configuration, fetcher)
     {
 
         private WebServerProvider<List<ArtCultureNatureCard>, List<POIEntity>> _cardProvider;
 
-        public override AbstractProvider<List<ArtCultureNatureCard>, List<POIEntity>> GetProvider()
+        public override string getEndpoint()
         {
-            return _cardProvider ?? new(
-                configuration,
-               fetcher,
-               new ArtCultureQdrantMapper(),
-               "/api/art-culture/card-list",
-               new Dictionary<string, string?> { { "municipality", "" } }
-            );
+            return "/api/art-culture/card-list";
+        }
+
+        public override IDtoMapper<ArtCultureNatureCard, POIEntity> getMapper()
+        {
+            return new ArtCultureQdrantMapper();
+        }
+
+        public override Dictionary<string, string> getQuery()
+        {
+            return [];
         }
     }
 }

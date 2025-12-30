@@ -33,7 +33,7 @@ namespace DataInjection.Qdrant
 
             if (allEntities.IsEmpty)
             {
-                logger.Warning("No entities were fetched. Aborting synchronization.");
+                logger.Warning("[Qdrant] No entities were fetched. Aborting synchronization.");
                 return;
             }
 
