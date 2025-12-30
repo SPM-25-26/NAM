@@ -35,6 +35,13 @@
                 .WithSummary("Get card of art culture")
                 .WithDescription("");
 
+            group.MapGet("/full-card-list", ArtCultureEndpoints.GetFullCardList)
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status401Unauthorized)
+                .Produces(StatusCodes.Status500InternalServerError)
+                .WithSummary("Get full card list of art culture")
+                .WithDescription("");
+
             return builder;
         }
     }

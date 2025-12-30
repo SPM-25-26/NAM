@@ -33,6 +33,13 @@
                 .WithSummary("Get card of nature")
                 .WithDescription("");
 
+            group.MapGet("/full-card-list", NatureEndpoints.GetFullCardList)
+              .Produces(StatusCodes.Status200OK)
+              .Produces(StatusCodes.Status401Unauthorized)
+              .Produces(StatusCodes.Status500InternalServerError)
+              .WithSummary("Get full card list of nature")
+              .WithDescription("");
+
             return builder;
         }
     }

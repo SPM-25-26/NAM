@@ -35,6 +35,13 @@ namespace nam.Server.Endpoints.MunicipalityEntities
                 .WithSummary("Get card of municipality")
                 .WithDescription("");
 
+            group.MapGet("/full-card-list", MunicipalityCardEndpoints.GetFullCardList)
+              .Produces(StatusCodes.Status200OK)
+              .Produces(StatusCodes.Status401Unauthorized)
+              .Produces(StatusCodes.Status500InternalServerError)
+              .WithSummary("Get full card list of municipality")
+              .WithDescription("");
+
             return builder;
         }
     }

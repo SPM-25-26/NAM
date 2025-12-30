@@ -66,5 +66,23 @@ namespace nam.Server.Endpoints.MunicipalityEntities
                 return TypedResults.Problem(detail: "Internal server error", statusCode: 500);
             }
         }
+
+        public static async Task<IResult> GetFullCardList(
+           [FromServices] IMunicipalityEntityService<ArticleCard, ArticleDetail> articleService,
+           [FromQuery] string municipality,
+           [FromQuery] string language = "it"
+           )
+        {
+            try
+            {
+                var result = await articleService.GetFullCardListAsync(municipality, language);
+                return TypedResults.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error(ex, "Error in GetFullCardList municipality={Municipality}, language={Language}", municipality, language);
+                return TypedResults.Problem(detail: "Internal server error", statusCode: 500);
+            }
+        }
     }
 }

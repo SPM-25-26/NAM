@@ -36,6 +36,16 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
                 .FirstOrDefaultAsync(c => c.TaxCode == entityId, cancellationToken);
         }
 
+        public async Task<IEnumerable<OrganizationCard>> GetFullEntityListById(string municipalityName, CancellationToken cancellationToken = default)
+        {
+            var entities = await GetByMunicipalityNameAsync(municipalityName);
+            foreach (var entity in entities)
+            {
+                entity.Detail = await GetDetailByEntityIdAsync(entity.TaxCode, cancellationToken);
+            }
+            return entities;
+        }
+
         public async Task<OrganizationCard?> GetFullEntityByIdAsync(string entityId, CancellationToken cancellationToken = default)
         {
             var entity = await GetByEntityIdAsync(entityId, cancellationToken);

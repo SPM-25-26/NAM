@@ -51,9 +51,9 @@ namespace nam.Server.Endpoints.MunicipalityEntities
 
         public static async Task<IResult> GetFullCard(
             [FromServices] IMunicipalityEntityService<PublicEventCard, PublicEventMobileDetail> publicEventService,
-           [FromQuery] string identifier,
-           [FromQuery] string language = "it"
-           )
+            [FromQuery] string identifier,
+            [FromQuery] string language = "it"
+            )
         {
             try
             {
@@ -63,6 +63,24 @@ namespace nam.Server.Endpoints.MunicipalityEntities
             catch (Exception ex)
             {
                 _logger?.Error(ex, "Error in GetFullCard identifier={Identifier}, language={Language}", identifier, language);
+                return TypedResults.Problem(detail: "Internal server error", statusCode: 500);
+            }
+        }
+
+        public static async Task<IResult> GetFullCardList(
+            [FromServices] IMunicipalityEntityService<PublicEventCard, PublicEventMobileDetail> publicEventService,
+         [FromQuery] string municipality,
+         [FromQuery] string language = "it"
+         )
+        {
+            try
+            {
+                var result = await publicEventService.GetFullCardListAsync(municipality, language);
+                return TypedResults.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error(ex, "Error in GetFullCardList municipality={Municipality}, language={Language}", municipality, language);
                 return TypedResults.Problem(detail: "Internal server error", statusCode: 500);
             }
         }

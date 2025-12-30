@@ -7,5 +7,8 @@
         Task<TDetail?> GetCardDetailAsync(string entityId, string language = "it", CancellationToken cancellationToken = default);
 
         Task<TEntity?> GetFullCardAsync(string entityId, string language = "it", CancellationToken cancellationToken = default);
+
+        Task<IEnumerable<TEntity>> GetFullCardListAsync(string municipality, string language = "it", CancellationToken cancellationToken = default);
+
     }
 }

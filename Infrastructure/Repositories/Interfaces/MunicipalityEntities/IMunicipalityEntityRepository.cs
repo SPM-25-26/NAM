@@ -8,5 +8,6 @@
 
         Task<TEntity?> GetFullEntityByIdAsync(TKey entityId, CancellationToken cancellationToken = default);
 
+        Task<IEnumerable<TEntity>> GetFullEntityListById(string municipalityName, CancellationToken cancellationToken = default);
     }
 }
