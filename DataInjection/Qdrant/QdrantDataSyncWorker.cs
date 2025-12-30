@@ -1,5 +1,4 @@
-﻿using DataInjection.Collectors;
-using DataInjection.Interfaces;
+﻿using DataInjection.Interfaces;
 using DataInjection.Qdrant.Data;
 using DataInjection.Qdrant.Mappers;
 using Domain.Entities.MunicipalityEntities;
@@ -30,22 +29,22 @@ namespace DataInjection.Qdrant
         {
             _logger.Information("Starting daily qdrant data sync...");
             var collectionName = "test_sync";
-            int outputDimensionality = 3072;
 
             var collectors = new List<(string Name, Func<Task> Work)>
             {
-                (nameof(ArtCultureQdrantMapper), new Func<Task>(async () =>
+                (nameof(POIVectorEntityCollector<ArtCultureNatureCard>), new Func<Task>(async () =>
                 {
                     using var scope = _scopeFactory.CreateScope();
-                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+
                     var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-                    var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
                     var embedder = scope.ServiceProvider.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
                     var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
+                    var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
 
-                    var syncService = new QdrantEntitySync(logger, configuration, store, collectionName);
-                    IEntityCollector<ArtCultureNatureCard> collector = new ArtCultureCollector(fetcher);
-                    await syncService.ExecuteSyncAsync(new ArtCultureQdrantMapper(collector, embedder, outputDimensionality));
+                    var collector = new ArtCultureQdrantCollector(embedder, configuration, fetcher);
+                    var syncService = new QdrantEntitySync(logger, configuration, store);
+                    await syncService.ExecuteSyncAsync(collector);
                 }))
             };
 

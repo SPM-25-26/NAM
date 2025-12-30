@@ -2,6 +2,6 @@
 {
     public interface IFetcher
     {
-        public Task<TDto> Fetch<TDto>(string endpointUrl, Dictionary<string, string?> query, CancellationToken cancellationToken = default);
+        public Task<TDto> Fetch<TDto>(string baseUrl, string endpointUrl, Dictionary<string, string?> query, CancellationToken cancellationToken = default);
     }
 }

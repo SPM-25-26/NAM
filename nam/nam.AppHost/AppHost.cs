@@ -10,16 +10,10 @@ var vectordb = builder.AddQdrant("vectordb")
                     .WithLifetime(ContainerLifetime.Persistent)
                     .WithDataVolume();
 
-var dataInjection = builder.AddProject<Projects.DataInjection>("datainjection")
+var server = builder.AddProject<Projects.nam_Server>("server")
             .WithReference(db)
             .WaitFor(db)
-            .WithReference(vectordb)
-            .WaitFor(vectordb);
-
-//var server = builder.AddProject<Projects.nam_Server>("server")
-//            .WithReference(db)
-//            .WaitFor(db)
-//            .WithHttpHealthCheck("/health");
+            .WithHttpHealthCheck("/health");
 
 //var client = builder.AddViteApp("client", "../../nam.client")
 //            .WithReference(server)
@@ -27,5 +21,12 @@ var dataInjection = builder.AddProject<Projects.DataInjection>("datainjection")
 //            .WithExternalHttpEndpoints()
 //            .WithNpmPackageInstallation();
 
+var dataInjection = builder.AddProject<Projects.DataInjection>("datainjection")
+            .WithReference(db)
+            .WaitFor(db)
+            .WithReference(vectordb)
+            .WaitFor(vectordb)
+            .WithReference(server)
+            .WaitFor(server);
 
 builder.Build().Run();

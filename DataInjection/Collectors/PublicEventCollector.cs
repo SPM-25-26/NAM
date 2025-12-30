@@ -10,12 +10,15 @@ namespace DataInjection.Collectors
     public class PublicEventCollector : IEntityCollector<PublicEventCard>
     {
         private readonly IFetcher _fetcher;
-        private readonly BaseProvider<List<PublicEventCardDto>, List<PublicEventCard>> _cardProvider;
+        private readonly IConfiguration _configuration;
+        private readonly ExternalEndpointProvider<List<PublicEventCardDto>, List<PublicEventCard>> _cardProvider;
 
-        public PublicEventCollector(IFetcher fetcher)
+        public PublicEventCollector(IFetcher fetcher, IConfiguration configuration)
         {
+            _configuration = configuration;
             _fetcher = fetcher;
             _cardProvider = new(
+                _configuration,
                fetcher,
                new PublicEventCardMapper(),
                "api/events/card-list",
@@ -37,8 +40,8 @@ namespace DataInjection.Collectors
             await Parallel.ForEachAsync(eventList, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async (publicEvent, ct) =>
             {
                 // Instantiate a local provider to ensure thread safety during parallel execution
-                var localDetailProvider = new BaseProvider<PublicEventMobileDetailDto, PublicEventMobileDetail>(
-                    _fetcher,
+                var localDetailProvider = new ExternalEndpointProvider<PublicEventMobileDetailDto, PublicEventMobileDetail>(
+                    _configuration, _fetcher,
                     new PublicEventCardDetailMapper(),
                     "api/events/detail/{identifier}",
                     new Dictionary<string, string?> { { "identifier", publicEvent.EntityId.ToString() } }

@@ -10,12 +10,15 @@ namespace DataInjection.Collectors
     public class NatureCollector : IEntityCollector<Nature>
     {
         private readonly IFetcher _fetcher;
-        private readonly BaseProvider<List<ArtCultureNatureCardDto>, List<Nature>> _cardProvider;
+        private readonly IConfiguration _configuration;
+        private readonly ExternalEndpointProvider<List<ArtCultureNatureCardDto>, List<Nature>> _cardProvider;
 
-        public NatureCollector(IFetcher fetcher)
+        public NatureCollector(IFetcher fetcher, IConfiguration configuration)
         {
+            _configuration = configuration;
             _fetcher = fetcher;
             _cardProvider = new(
+                _configuration,
                fetcher,
                new NatureMapper(),
                "api/nature/card-list",
@@ -37,7 +40,8 @@ namespace DataInjection.Collectors
             await Parallel.ForEachAsync(natureList, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async (natureItem, ct) =>
             {
                 // Instantiate a local provider to ensure thread safety during parallel execution
-                var localDetailProvider = new BaseProvider<ArtCultureNatureDetailDto, ArtCultureNatureDetail>(
+                var localDetailProvider = new ExternalEndpointProvider<ArtCultureNatureDetailDto, ArtCultureNatureDetail>(
+                    _configuration,
                     _fetcher,
                     new ArtCultureCardDetailMapper(),
                     "api/nature/detail/{identifier}",

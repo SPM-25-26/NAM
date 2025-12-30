@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 
 namespace DataInjection.Qdrant
 {
-    public class QdrantEntitySync(Serilog.ILogger logger, IConfiguration configuration, VectorStoreCollection<Guid, POIEntity> store, string collectionName)
+    public class QdrantEntitySync(Serilog.ILogger logger, IConfiguration configuration, VectorStoreCollection<Guid, POIEntity> store)
     {
 
         public async Task ExecuteSyncAsync(IEntityCollector<POIEntity> entityCollector)
@@ -15,7 +15,7 @@ namespace DataInjection.Qdrant
             var municipalities = configuration.GetSection("Municipalities").Get<string[]>() ?? [];
             var allEntities = new ConcurrentBag<POIEntity>();
 
-            await Parallel.ForEachAsync(municipalities, async (municipality, ct) =>
+            foreach (var municipality in municipalities)
             {
                 try
                 {
@@ -29,7 +29,7 @@ namespace DataInjection.Qdrant
                 {
                     logger.Error("Error fetching data for municipality {Municipality}: {ErrorMessage}", municipality, ex.Message);
                 }
-            });
+            }
 
             if (allEntities.IsEmpty)
             {

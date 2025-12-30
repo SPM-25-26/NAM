@@ -11,12 +11,15 @@ namespace DataInjection.Collectors
     public class ArtCultureCollector : IEntityCollector<ArtCultureNatureCard>
     {
         private readonly IFetcher _fetcher;
-        private readonly BaseProvider<List<ArtCultureNatureCardDto>, List<ArtCultureNatureCard>> _cardProvider;
+        private readonly IConfiguration _configuration;
+        private readonly ExternalEndpointProvider<List<ArtCultureNatureCardDto>, List<ArtCultureNatureCard>> _cardProvider;
 
-        public ArtCultureCollector(IFetcher fetcher)
+        public ArtCultureCollector(IFetcher fetcher, IConfiguration configuration)
         {
             _fetcher = fetcher;
+            _configuration = configuration;
             _cardProvider = new(
+                configuration,
                fetcher,
                new ArtCultureCardMapper(),
                "api/art-culture/card-list",
@@ -38,7 +41,8 @@ namespace DataInjection.Collectors
             await Parallel.ForEachAsync(cards, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async (card, ct) =>
             {
                 // Instantiate a local provider to ensure thread safety when modifying the Query string during parallel execution.
-                var localDetailProvider = new BaseProvider<ArtCultureNatureDetailDto, ArtCultureNatureDetail>(
+                var localDetailProvider = new ExternalEndpointProvider<ArtCultureNatureDetailDto, ArtCultureNatureDetail>(
+                    _configuration,
                     _fetcher,
                     new ArtCultureCardDetailMapper(),
                     "api/art-culture/detail/{identifier}",

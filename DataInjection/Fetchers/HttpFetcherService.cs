@@ -5,17 +5,15 @@ using System.Text.Json.Serialization;
 
 namespace DataInjection.Fetchers
 {
-    public class HttpFetcherService(IHttpClientFactory httpClientFactory, Serilog.ILogger logger, IConfiguration configuration) : IFetcher
+    public class HttpFetcherService(IHttpClientFactory httpClientFactory, Serilog.ILogger logger) : IFetcher
     {
         protected readonly HttpClient _httpClient = httpClientFactory.CreateClient();
         protected readonly Serilog.ILogger _logger = logger;
-        protected readonly IConfiguration _configuration = configuration;
 
-        public async Task<TDto> Fetch<TDto>(string endpointUrl, Dictionary<string, string?> query, CancellationToken cancellationToken = default)
+        public async Task<TDto> Fetch<TDto>(string baseUrl, string endpointUrl, Dictionary<string, string?> query, CancellationToken cancellationToken = default)
         {
-            var baseUrl = _configuration["DataInjectionApi"];
             if (string.IsNullOrWhiteSpace(baseUrl))
-                throw new InvalidOperationException("Configuration key 'DataInjectionApi' is not set.");
+                throw new InvalidOperationException("baseUrl is not set.");
 
             // Se l'endpoint contiene già dei parametri di percorso (es. {id}), sostituiscili
             var processedEndpoint = ReplacePathParameters(endpointUrl, query);

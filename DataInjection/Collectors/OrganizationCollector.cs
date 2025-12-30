@@ -10,12 +10,15 @@ namespace DataInjection.Collectors
     public class OrganizationCollector : IEntityCollector<OrganizationCard>
     {
         private readonly IFetcher _fetcher;
-        private readonly BaseProvider<List<OrganizationCardDto>, List<OrganizationCard>> _cardProvider;
+        private readonly IConfiguration _configuration;
+        private readonly ExternalEndpointProvider<List<OrganizationCardDto>, List<OrganizationCard>> _cardProvider;
 
-        public OrganizationCollector(IFetcher fetcher)
+        public OrganizationCollector(IFetcher fetcher, IConfiguration configuration)
         {
             _fetcher = fetcher;
+            _configuration = configuration;
             _cardProvider = new(
+                _configuration,
                fetcher,
                new OrganizationCardMapper(),
                "api/organizations/card-list",
@@ -37,7 +40,8 @@ namespace DataInjection.Collectors
             await Parallel.ForEachAsync(organizationCardList, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async (organizationCard, ct) =>
             {
                 // Instantiate a local provider to ensure thread safety (avoid race conditions on Query dictionary)
-                var localDetailProvider = new BaseProvider<OrganizationMobileDetailDto, OrganizationMobileDetail>(
+                var localDetailProvider = new ExternalEndpointProvider<OrganizationMobileDetailDto, OrganizationMobileDetail>(
+                    _configuration,
                     _fetcher,
                     new OrganizationMobileDetailMapper(),
                     "api/organizations/detail/{taxcode}",

@@ -10,12 +10,15 @@ namespace DataInjection.Collectors
     public class EntertainmentLeisureCardCollector : IEntityCollector<EntertainmentLeisureCard>
     {
         private readonly IFetcher _fetcher;
-        private readonly BaseProvider<List<EntertainmentLeisureCardDto>, List<EntertainmentLeisureCard>> _cardProvider;
+        private readonly IConfiguration _configuration;
+        private readonly ExternalEndpointProvider<List<EntertainmentLeisureCardDto>, List<EntertainmentLeisureCard>> _cardProvider;
 
-        public EntertainmentLeisureCardCollector(IFetcher fetcher)
+        public EntertainmentLeisureCardCollector(IFetcher fetcher, IConfiguration configuration)
         {
             _fetcher = fetcher;
+            _configuration = configuration;
             _cardProvider = new(
+                _configuration,
                fetcher,
                new EntertainmentLeisureCardMapper(),
                "api/entertainment-leisure/card-list",
@@ -37,7 +40,8 @@ namespace DataInjection.Collectors
             await Parallel.ForEachAsync(cards, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async (card, ct) =>
             {
                 // Instantiate a local provider to ensure thread safety during parallel execution
-                var localDetailProvider = new BaseProvider<EntertainmentLeisureDetailDto, EntertainmentLeisureDetail>(
+                var localDetailProvider = new ExternalEndpointProvider<EntertainmentLeisureDetailDto, EntertainmentLeisureDetail>(
+                    _configuration,
                     _fetcher,
                     new EntertainmentLeisureDetailMapper(),
                     "api/entertainment-leisure/detail/{identifier}",

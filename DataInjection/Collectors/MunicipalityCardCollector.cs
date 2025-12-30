@@ -10,12 +10,15 @@ namespace DataInjection.Collectors
     public class MunicipalityCardCollector : IEntityCollector<MunicipalityCard>
     {
         private readonly IFetcher _fetcher;
-        private readonly BaseProvider<List<MunicipalityCardDto>, List<MunicipalityCard>> _cardProvider;
+        private readonly IConfiguration _configuration;
+        private readonly ExternalEndpointProvider<List<MunicipalityCardDto>, List<MunicipalityCard>> _cardProvider;
 
-        public MunicipalityCardCollector(IFetcher fetcher)
+        public MunicipalityCardCollector(IFetcher fetcher, IConfiguration configuration)
         {
             _fetcher = fetcher;
+            _configuration = configuration;
             _cardProvider = new(
+                _configuration,
                fetcher,
                new MunicipalityCardMapper(),
                "api/organizations/municipalities",
@@ -37,7 +40,8 @@ namespace DataInjection.Collectors
             await Parallel.ForEachAsync(municipalityCardList, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async (municipalityCard, ct) =>
             {
                 // Instantiate a local provider to ensure thread safety when modifying the Query string
-                var localDetailProvider = new BaseProvider<MunicipalityHomeInfoDto, MunicipalityHomeInfo>(
+                var localDetailProvider = new ExternalEndpointProvider<MunicipalityHomeInfoDto, MunicipalityHomeInfo>(
+                    _configuration,
                     _fetcher,
                     new MunicipalityHomeInfoMapper(),
                     "api/organizations/municipalities/visit",

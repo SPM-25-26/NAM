@@ -33,49 +33,56 @@ public class DailyDataSyncWorker(
                     using var scope = _scopeFactory.CreateScope();
                     var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
                     var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
-                    await syncService.ExecuteSyncAsync(new ArtCultureCollector(fetcher));
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    await syncService.ExecuteSyncAsync(new ArtCultureCollector(fetcher, configuration));
                 }),
                 (nameof(PublicEventCollector), async () =>
                 {
                     using var scope = _scopeFactory.CreateScope();
                     var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
                     var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
-                    await syncService.ExecuteSyncAsync(new PublicEventCollector(fetcher));
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    await syncService.ExecuteSyncAsync(new PublicEventCollector(fetcher, configuration));
                 }),
                 (nameof(ArticleCollector), async () =>
                 {
                     using var scope = _scopeFactory.CreateScope();
                     var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
                     var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
-                    await syncService.ExecuteSyncAsync(new ArticleCollector(fetcher));
+                    await syncService.ExecuteSyncAsync(new ArticleCollector(fetcher, configuration));
                 }),
                 (nameof(NatureCollector), async () =>
                 {
                     using var scope = _scopeFactory.CreateScope();
                     var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
                     var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
-                    await syncService.ExecuteSyncAsync(new NatureCollector(fetcher));
+                    await syncService.ExecuteSyncAsync(new NatureCollector(fetcher, configuration));
                 }),
                 (nameof(OrganizationCollector), async () =>
                 {
                     using var scope = _scopeFactory.CreateScope();
                     var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
                     var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
-                    await syncService.ExecuteSyncAsync(new OrganizationCollector(fetcher));
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    await syncService.ExecuteSyncAsync(new OrganizationCollector(fetcher, configuration));
                 }),
                 (nameof(EntertainmentLeisureCardCollector), async () =>
                 {
                     using var scope = _scopeFactory.CreateScope();
                     var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
                     var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
-                    await syncService.ExecuteSyncAsync(new EntertainmentLeisureCardCollector(fetcher));
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    await syncService.ExecuteSyncAsync(new EntertainmentLeisureCardCollector(fetcher, configuration));
                 }),
                 (nameof(MunicipalityCardCollector), async () =>
                 {
                     using var scope = _scopeFactory.CreateScope();
                     var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
                     var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
-                    await syncService.ExecuteSyncAsync(new MunicipalityCardCollector(fetcher));
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    await syncService.ExecuteSyncAsync(new MunicipalityCardCollector(fetcher, configuration));
                 }),
             };
 

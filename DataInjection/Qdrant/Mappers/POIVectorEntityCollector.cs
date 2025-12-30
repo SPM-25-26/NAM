@@ -1,4 +1,5 @@
 ﻿using DataInjection.Interfaces;
+using DataInjection.Providers;
 using DataInjection.Qdrant.Data;
 using Microsoft.Extensions.AI;
 using YamlDotNet.Serialization;
@@ -6,13 +7,13 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace DataInjection.Qdrant.Mappers
 {
-    public abstract class AbstractQdrantMapper<TEntity>(IEntityCollector<TEntity> collector, IEmbeddingGenerator<string, Embedding<float>> embedder, int outputDimensionality) : IQdrantPayloadCollector
+    public abstract class POIVectorEntityCollector<TEntity>(IEmbeddingGenerator<string, Embedding<float>> embedder) : IEntityCollector<POIEntity>
     {
-        readonly ISerializer serializer = new SerializerBuilder()
-            .WithNamingConvention(CamelCaseNamingConvention.Instance)
-            .Build();
+        private readonly ISerializer serializer = new SerializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
 
-        public abstract POIEntity MapToQdrantPayload(TEntity entity);
+        public abstract AbstractProvider<List<TEntity>, List<POIEntity>> GetProvider();
+
 
         // TODO : Use API to get token count instead of word count
         static List<string> ChunkWithOverlap(string input, int maxTokens = 2024, double overlapRate = 0.15)
@@ -34,13 +35,15 @@ namespace DataInjection.Qdrant.Mappers
 
         async Task<List<POIEntity>> IEntityCollector<POIEntity>.GetEntities(string municipality)
         {
-            var entities = await collector.GetEntities(municipality);
+            var provider = GetProvider();
+            provider.Query["municipality"] = municipality;
+            var entities = await provider.GetEntity();
+
             var poiEntities = new List<POIEntity>();
 
             foreach (var e in entities)
             {
-                var payload = MapToQdrantPayload(e);
-                var entityString = serializer.Serialize(e);
+                var entityString = e.ToString();//serializer.Serialize(e);
                 var chunks = ChunkWithOverlap(entityString);
 
                 int chunkCounter = 0;
@@ -57,13 +60,12 @@ namespace DataInjection.Qdrant.Mappers
                         Id = Guid.NewGuid(),
                         Vector = vector,
                         chunkPart = chunkCounter,
-                        apiEndpoint = payload.apiEndpoint,
-                        EntityId = payload.EntityId,
-                        city = payload.city,
-                        lat = payload.lat,
-                        lon = payload.lon
+                        apiEndpoint = e.apiEndpoint,
+                        EntityId = e.EntityId,
+                        city = e.city,
+                        lat = e.lat,
+                        lon = e.lon
                     });
-
                 }
             }
             return poiEntities;

@@ -10,12 +10,15 @@ namespace DataInjection.Collectors
     public class ArticleCollector : IEntityCollector<ArticleCard>
     {
         private readonly IFetcher _fetcher;
-        private readonly BaseProvider<List<ArticleCardDto>, List<ArticleCard>> _articleProvider;
+        private readonly IConfiguration _configuration;
+        private readonly ExternalEndpointProvider<List<ArticleCardDto>, List<ArticleCard>> _articleProvider;
 
-        public ArticleCollector(IFetcher fetcher)
+        public ArticleCollector(IFetcher fetcher, IConfiguration configuration)
         {
             _fetcher = fetcher;
+            _configuration = configuration;
             _articleProvider = new(
+                _configuration,
                fetcher,
                new ArticleCardMapper(),
                "api/articles/card-list",
@@ -37,7 +40,8 @@ namespace DataInjection.Collectors
             await Parallel.ForEachAsync(articles, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async (article, ct) =>
             {
                 // Instantiate a local provider to ensure thread safety
-                var localDetailProvider = new BaseProvider<ArticleDetailDto, ArticleDetail>(
+                var localDetailProvider = new ExternalEndpointProvider<ArticleDetailDto, ArticleDetail>(
+                    _configuration,
                     _fetcher,
                     new ArticleDetailMapper(),
                     "api/articles/detail/{identifier}",
