@@ -1,7 +1,6 @@
 ﻿using DataInjection.Interfaces;
 using DataInjection.Qdrant.Collectors;
 using DataInjection.Qdrant.Data;
-using Domain.Entities.MunicipalityEntities;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
 
@@ -32,7 +31,35 @@ namespace DataInjection.Qdrant
 
             var collectors = new List<(string Name, Func<Task> Work)>
             {
-                (nameof(POIVectorEntityCollector<ArtCultureNatureCard>), new Func<Task>(async () =>
+                //(nameof(ArtCultureQdrantCollector), new Func<Task>(async () =>
+                //{
+                //    using var scope = _scopeFactory.CreateScope();
+
+                //    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                //    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                //    var embedder = scope.ServiceProvider.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
+                //    var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
+                //    var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
+
+                //    var collector = new ArtCultureQdrantCollector(embedder, configuration, fetcher);
+                //    var syncService = new QdrantEntitySync(logger, configuration, store);
+                //    await syncService.ExecuteSyncAsync(collector);
+                //})),
+                //(nameof(ArticleQdrantCollector), new Func<Task>(async () =>
+                //{
+                //    using var scope = _scopeFactory.CreateScope();
+
+                //    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                //    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                //    var embedder = scope.ServiceProvider.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
+                //    var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
+                //    var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
+
+                //    var collector = new ArticleQdrantCollector(embedder, configuration, fetcher);
+                //    var syncService = new QdrantEntitySync(logger, configuration, store);
+                //    await syncService.ExecuteSyncAsync(collector);
+                //})),
+                (nameof(EntertainmentLeisureCardQdrantCollector), new Func<Task>(async () =>
                 {
                     using var scope = _scopeFactory.CreateScope();
 
@@ -42,7 +69,7 @@ namespace DataInjection.Qdrant
                     var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
                     var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
 
-                    var collector = new ArtCultureQdrantCollector(embedder, configuration, fetcher);
+                    var collector = new EntertainmentLeisureCardQdrantCollector(embedder, configuration, fetcher);
                     var syncService = new QdrantEntitySync(logger, configuration, store);
                     await syncService.ExecuteSyncAsync(collector);
                 }))
