@@ -4,13 +4,13 @@ using Domain.Entities.MunicipalityEntities;
 
 namespace DataInjection.Qdrant.Mappers
 {
-    internal class EntertainmentLeisureQdrantMapper : IDtoMapper<EntertainmentLeisureCard, POIEntity>
+    public class NatureQdrantMapper : IDtoMapper<Nature, POIEntity>
     {
-        public POIEntity MapToEntity(EntertainmentLeisureCard dto)
+        public POIEntity MapToEntity(Nature dto)
         {
             return new POIEntity
             {
-                apiEndpoint = "/api/entertainment-leisure/card",
+                apiEndpoint = "/api/nature/card",
                 EntityId = dto.EntityId.ToString(),
                 city = dto.Detail.MunicipalityData.Name,
                 lat = dto.Detail.Latitude,

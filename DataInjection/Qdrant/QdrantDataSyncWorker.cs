@@ -27,38 +27,37 @@ namespace DataInjection.Qdrant
         private async Task DoWorkAsync()
         {
             _logger.Information("Starting daily qdrant data sync...");
-            var collectionName = "test_sync";
 
             var collectors = new List<(string Name, Func<Task> Work)>
             {
-                //(nameof(ArtCultureQdrantCollector), new Func<Task>(async () =>
-                //{
-                //    using var scope = _scopeFactory.CreateScope();
+                (nameof(ArtCultureQdrantCollector), new Func<Task>(async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
 
-                //    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-                //    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
-                //    var embedder = scope.ServiceProvider.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
-                //    var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
-                //    var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var embedder = scope.ServiceProvider.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
+                    var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
+                    var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
 
-                //    var collector = new ArtCultureQdrantCollector(embedder, configuration, fetcher);
-                //    var syncService = new QdrantEntitySync(logger, configuration, store);
-                //    await syncService.ExecuteSyncAsync(collector);
-                //})),
-                //(nameof(ArticleQdrantCollector), new Func<Task>(async () =>
-                //{
-                //    using var scope = _scopeFactory.CreateScope();
+                    var collector = new ArtCultureQdrantCollector(embedder, configuration, fetcher);
+                    var syncService = new QdrantEntitySync(logger, configuration, store);
+                    await syncService.ExecuteSyncAsync(collector);
+                })),
+                (nameof(ArticleQdrantCollector), new Func<Task>(async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
 
-                //    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-                //    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
-                //    var embedder = scope.ServiceProvider.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
-                //    var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
-                //    var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var embedder = scope.ServiceProvider.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
+                    var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
+                    var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
 
-                //    var collector = new ArticleQdrantCollector(embedder, configuration, fetcher);
-                //    var syncService = new QdrantEntitySync(logger, configuration, store);
-                //    await syncService.ExecuteSyncAsync(collector);
-                //})),
+                    var collector = new ArticleQdrantCollector(embedder, configuration, fetcher);
+                    var syncService = new QdrantEntitySync(logger, configuration, store);
+                    await syncService.ExecuteSyncAsync(collector);
+                })),
                 (nameof(EntertainmentLeisureCardQdrantCollector), new Func<Task>(async () =>
                 {
                     using var scope = _scopeFactory.CreateScope();
@@ -72,7 +71,49 @@ namespace DataInjection.Qdrant
                     var collector = new EntertainmentLeisureCardQdrantCollector(embedder, configuration, fetcher);
                     var syncService = new QdrantEntitySync(logger, configuration, store);
                     await syncService.ExecuteSyncAsync(collector);
-                }))
+                })),
+                (nameof(NatureQdrantCollector), new Func<Task>(async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var embedder = scope.ServiceProvider.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
+                    var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
+                    var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
+
+                    var collector = new NatureQdrantCollector(embedder, configuration, fetcher);
+                    var syncService = new QdrantEntitySync(logger, configuration, store);
+                    await syncService.ExecuteSyncAsync(collector);
+                })),
+                (nameof(OrganizationQdrantCollector), new Func<Task>(async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var embedder = scope.ServiceProvider.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
+                    var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
+                    var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
+
+                    var collector = new OrganizationQdrantCollector(embedder, configuration, fetcher);
+                    var syncService = new QdrantEntitySync(logger, configuration, store);
+                    await syncService.ExecuteSyncAsync(collector);
+                })),
+                (nameof(PublicEventQdrantCollector), new Func<Task>(async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var embedder = scope.ServiceProvider.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
+                    var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
+                    var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
+
+                    var collector = new PublicEventQdrantCollector(embedder, configuration, fetcher);
+                    var syncService = new QdrantEntitySync(logger, configuration, store);
+                    await syncService.ExecuteSyncAsync(collector);
+                })),
             };
 
 

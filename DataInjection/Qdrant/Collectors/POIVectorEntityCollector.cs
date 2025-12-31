@@ -95,6 +95,8 @@ namespace DataInjection.Qdrant.Collectors
                     allEmbeddings.Add(e);
                 }
             }
+            Console.WriteLine($"Embeddings done");
+
 
             //var allEmbeddings = await embedder.GenerateAsync(allTexts);
 
