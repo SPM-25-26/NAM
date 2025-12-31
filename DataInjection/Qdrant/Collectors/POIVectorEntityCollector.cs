@@ -1,11 +1,12 @@
 ﻿using DataInjection.Interfaces;
 using DataInjection.Qdrant.Data;
 using Microsoft.Extensions.AI;
+using Microsoft.ML.Tokenizers;
+using Microsoft.SemanticKernel.Text;
 using System.Security.Cryptography;
 using System.Text;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-
 namespace DataInjection.Qdrant.Collectors
 {
     public abstract class POIVectorEntityCollector<TEntity>(IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : IEntityCollector<POIEntity>
@@ -14,6 +15,10 @@ namespace DataInjection.Qdrant.Collectors
         private readonly ISerializer serializer = new SerializerBuilder()
             .EnsureRoundtrip()
             .WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
+
+        // TODO: Use correct tokenizer, this is not the exact one for gemini but is close enough for now
+        private readonly TiktokenTokenizer tokenizer = TiktokenTokenizer.CreateForModel("gpt-4o");
+
 
         public abstract string getEndpoint();
         public abstract Dictionary<string, string> getQuery();
@@ -32,28 +37,20 @@ namespace DataInjection.Qdrant.Collectors
 
         private Guid HandleString(string text)
         {
-            using MD5 md5 = MD5.Create();
-            byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
-            Guid result = new Guid(hash);
+            byte[] hash = MD5.HashData(Encoding.UTF8.GetBytes(text));
+            Guid result = new(hash);
             return result;
         }
 
-        // TODO : Use API to get token count instead of word count
-        static List<string> ChunkWithOverlap(string input, int maxTokens = 500, double overlapRate = 0.15)
+        private List<string> ChunkWithOverlap(string input, int maxTokens = 1900, double overlapRate = 0.15)
         {
-            int overlapTokens = (int)(maxTokens * overlapRate);
-            var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            var chunks = new List<string>();
-            int start = 0;
-            while (start < words.Length)
-            {
-                int end = Math.Min(start + maxTokens, words.Length);
-                var chunk = string.Join(' ', words[start..end]);
-                chunks.Add(chunk);
-                if (end == words.Length) break;
-                start += maxTokens - overlapTokens;
-            }
-            return chunks;
+            var overlapTokens = (int)(maxTokens * overlapRate);
+#pragma warning disable SKEXP0050
+            TextChunker.TokenCounter geminiCounter = (text) => tokenizer.CountTokens(text);
+            var lines = TextChunker.SplitPlainTextLines(input, maxTokensPerLine: 100, tokenCounter: geminiCounter);
+            var paragraphs = TextChunker.SplitPlainTextParagraphs(lines, maxTokensPerParagraph: maxTokens, overlapTokens: overlapTokens, tokenCounter: geminiCounter);
+#pragma warning restore SKEXP0050
+            return paragraphs;
         }
 
         async Task<List<POIEntity>> IEntityCollector<POIEntity>.GetEntities(string municipality)
