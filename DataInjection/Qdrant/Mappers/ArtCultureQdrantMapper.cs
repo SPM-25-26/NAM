@@ -12,9 +12,9 @@ namespace DataInjection.Qdrant.Mappers
             {
                 apiEndpoint = "/api/art-culture/card",
                 EntityId = dto.EntityId.ToString(),
-                //city = dto.Detail.MunicipalityData.Name,
-                //lat = dto.Detail.Latitude,
-                //lon = dto.Detail.Longitude
+                city = dto.Detail.MunicipalityData.Name,
+                lat = dto.Detail.Latitude,
+                lon = dto.Detail.Longitude
             };
         }
     }

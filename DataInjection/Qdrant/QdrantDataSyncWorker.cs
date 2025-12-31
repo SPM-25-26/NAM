@@ -1,6 +1,6 @@
 ﻿using DataInjection.Interfaces;
+using DataInjection.Qdrant.Collectors;
 using DataInjection.Qdrant.Data;
-using DataInjection.Qdrant.Mappers;
 using Domain.Entities.MunicipalityEntities;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
