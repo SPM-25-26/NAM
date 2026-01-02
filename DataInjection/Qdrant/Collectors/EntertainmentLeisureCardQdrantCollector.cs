@@ -6,7 +6,7 @@ using Microsoft.Extensions.AI;
 
 namespace DataInjection.Qdrant.Collectors
 {
-    public class EntertainmentLeisureCardQdrantCollector(IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : POIVectorEntityCollector<EntertainmentLeisureCard>(embedder, configuration, fetcher)
+    public class EntertainmentLeisureCardQdrantCollector(Serilog.ILogger logger, IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : POIVectorEntityCollector<EntertainmentLeisureCard>(logger, embedder, configuration, fetcher)
     {
         public override string getEndpoint()
         {

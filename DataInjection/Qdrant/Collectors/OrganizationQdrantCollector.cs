@@ -6,7 +6,7 @@ using Microsoft.Extensions.AI;
 
 namespace DataInjection.Qdrant.Collectors
 {
-    public class OrganizationQdrantCollector(IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : POIVectorEntityCollector<OrganizationCard>(embedder, configuration, fetcher)
+    public class OrganizationQdrantCollector(Serilog.ILogger logger, IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : POIVectorEntityCollector<OrganizationCard>(logger, embedder, configuration, fetcher)
     {
         public override string getEndpoint()
         {

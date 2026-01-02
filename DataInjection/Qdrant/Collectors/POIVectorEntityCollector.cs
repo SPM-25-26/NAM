@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 namespace DataInjection.Qdrant.Collectors
 {
-    public abstract class POIVectorEntityCollector<TEntity>(IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : IEntityCollector<POIEntity>
+    public abstract class POIVectorEntityCollector<TEntity>(Serilog.ILogger logger, IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : IEntityCollector<POIEntity>
     {
 
         // TODO: Use correct tokenizer, this is not the exact one for gemini but is close enough for now
@@ -68,28 +68,35 @@ namespace DataInjection.Qdrant.Collectors
                     allMetadata.Add(new ChunkMetadata(e, chunks[i], i + 1));
                 }
             }
-            Console.WriteLine($"Processing entity:\n {allMetadata.First().Text}.\n");
+            logger.Information($"Processing entity:\n {allMetadata.First().Text}.\n");
 
             // Batch Embedding
             var allEmbeddings = new List<Embedding<float>>();
             var allTexts = allMetadata.Select(m => m.Text).ToList();
             var batches = SplitList(allTexts, 5);
-            Console.WriteLine($"Total texts to embed: {allTexts.Count} in {batches.Count} batches.");
-            foreach (var batch in batches)
+            logger.Information($"Total texts to embed: {allTexts.Count} in {batches.Count} batches.");
+            try
             {
-                Console.WriteLine($"Generating embeddings for batch of size {batch.Count}...");
-                var embed = await embedder.GenerateAsync(batch);
-                Console.WriteLine($"Embeddings generated, waiting 60 seconds.");
-
-                await Task.Delay(1000 * 61);
-
-                foreach (var e in embed)
+                foreach (var batch in batches)
                 {
-                    allEmbeddings.Add(e);
-                }
-            }
-            Console.WriteLine($"Embeddings done");
+                    logger.Information($"Generating embeddings for batch of size {batch.Count}...");
+                    var embed = await embedder.GenerateAsync(batch);
+                    logger.Information($"Embeddings generated, waiting 60 seconds.");
 
+                    await Task.Delay(1000 * 61);
+
+                    foreach (var e in embed)
+                    {
+                        allEmbeddings.Add(e);
+                    }
+                }
+                logger.Information($"Embeddings done");
+            }
+            catch (Exception ex)
+            {
+                logger.Error($"Error during embedding generation: {ex.Message}");
+                throw;
+            }
 
             //var allEmbeddings = await embedder.GenerateAsync(allTexts);
 

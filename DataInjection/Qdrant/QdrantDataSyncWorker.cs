@@ -40,7 +40,7 @@ namespace DataInjection.Qdrant
                     var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
                     var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
 
-                    var collector = new ArtCultureQdrantCollector(embedder, configuration, fetcher);
+                    var collector = new ArtCultureQdrantCollector(logger, embedder, configuration, fetcher);
                     var syncService = new QdrantEntitySync(logger, configuration, store);
                     await syncService.ExecuteSyncAsync(collector);
                 })),
@@ -54,7 +54,7 @@ namespace DataInjection.Qdrant
                     var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
                     var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
 
-                    var collector = new ArticleQdrantCollector(embedder, configuration, fetcher);
+                    var collector = new ArticleQdrantCollector(logger, embedder, configuration, fetcher);
                     var syncService = new QdrantEntitySync(logger, configuration, store);
                     await syncService.ExecuteSyncAsync(collector);
                 })),
@@ -68,7 +68,7 @@ namespace DataInjection.Qdrant
                     var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
                     var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
 
-                    var collector = new EntertainmentLeisureCardQdrantCollector(embedder, configuration, fetcher);
+                    var collector = new EntertainmentLeisureCardQdrantCollector(logger, embedder, configuration, fetcher);
                     var syncService = new QdrantEntitySync(logger, configuration, store);
                     await syncService.ExecuteSyncAsync(collector);
                 })),
@@ -82,7 +82,7 @@ namespace DataInjection.Qdrant
                     var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
                     var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
 
-                    var collector = new NatureQdrantCollector(embedder, configuration, fetcher);
+                    var collector = new NatureQdrantCollector(logger, embedder, configuration, fetcher);
                     var syncService = new QdrantEntitySync(logger, configuration, store);
                     await syncService.ExecuteSyncAsync(collector);
                 })),
@@ -96,7 +96,7 @@ namespace DataInjection.Qdrant
                     var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
                     var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
 
-                    var collector = new OrganizationQdrantCollector(embedder, configuration, fetcher);
+                    var collector = new OrganizationQdrantCollector(logger, embedder, configuration, fetcher);
                     var syncService = new QdrantEntitySync(logger, configuration, store);
                     await syncService.ExecuteSyncAsync(collector);
                 })),
@@ -110,7 +110,7 @@ namespace DataInjection.Qdrant
                     var store = scope.ServiceProvider.GetRequiredService<VectorStoreCollection<Guid, POIEntity>>();
                     var logger = scope.ServiceProvider.GetRequiredService<Serilog.ILogger>();
 
-                    var collector = new PublicEventQdrantCollector(embedder, configuration, fetcher);
+                    var collector = new PublicEventQdrantCollector(logger, embedder, configuration, fetcher);
                     var syncService = new QdrantEntitySync(logger, configuration, store);
                     await syncService.ExecuteSyncAsync(collector);
                 })),
