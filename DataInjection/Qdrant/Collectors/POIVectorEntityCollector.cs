@@ -1,20 +1,15 @@
 ﻿using DataInjection.Interfaces;
 using DataInjection.Qdrant.Data;
+using DataInjection.Qdrant.Serializers;
 using Microsoft.Extensions.AI;
 using Microsoft.ML.Tokenizers;
 using Microsoft.SemanticKernel.Text;
 using System.Security.Cryptography;
 using System.Text;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 namespace DataInjection.Qdrant.Collectors
 {
     public abstract class POIVectorEntityCollector<TEntity>(IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : IEntityCollector<POIEntity>
     {
-
-        private readonly ISerializer serializer = new SerializerBuilder()
-            .EnsureRoundtrip()
-            .WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
 
         // TODO: Use correct tokenizer, this is not the exact one for gemini but is close enough for now
         private readonly TiktokenTokenizer tokenizer = TiktokenTokenizer.CreateForModel("gpt-4o");
@@ -65,7 +60,7 @@ namespace DataInjection.Qdrant.Collectors
 
             foreach (var e in entities)
             {
-                var entityString = serializer.Serialize(e);
+                var entityString = e.ToEmbeddingString();
                 var chunks = ChunkWithOverlap(entityString);
 
                 for (int i = 0; i < chunks.Count; i++)
@@ -73,6 +68,7 @@ namespace DataInjection.Qdrant.Collectors
                     allMetadata.Add(new ChunkMetadata(e, chunks[i], i + 1));
                 }
             }
+            Console.WriteLine($"Processing entity:\n {allMetadata.First().Text}.\n");
 
             // Batch Embedding
             var allEmbeddings = new List<Embedding<float>>();

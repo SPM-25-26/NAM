@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Domain.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Entities.MunicipalityEntities
 {
@@ -9,6 +10,7 @@ namespace Domain.Entities.MunicipalityEntities
 
         [Required]
         [MaxLength(500)]
+        [Embeddable]
         public string EntityName { get; set; } = string.Empty;
 
         [Required]
@@ -17,11 +19,13 @@ namespace Domain.Entities.MunicipalityEntities
 
         [Required]
         [MaxLength(100)]
+        [Embeddable]
         public string BadgeText { get; set; } = string.Empty;
 
         [MaxLength(1000)]
         public string Address { get; set; } = string.Empty;
 
+        [Embeddable]
         public ArtCultureNatureDetail? Detail { get; set; }
     }
 }

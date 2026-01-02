@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Domain.Attributes;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -8,14 +9,18 @@ namespace Domain.Entities.MunicipalityEntities
     {
         [Key]
         [MaxLength(500)]
+        [Embeddable]
         public string? LegalName { get; set; }
 
         [MaxLength(255)]
+        [Embeddable]
         public string? Name { get; set; }
 
         [MaxLength(4000)]
+        [Embeddable]
         public string? Description { get; set; }
 
+        [Embeddable]
         public MunicipalityHomeContactInfo? Contacts { get; set; }
 
         public double Latitude { get; set; }
@@ -27,8 +32,10 @@ namespace Domain.Entities.MunicipalityEntities
 
         public ICollection<string>? HomeImages { get; set; } = [];
 
+        [Embeddable]
         public ICollection<FeatureCardRelationship<MunicipalityHomeInfo>> Events { get; set; } = [];
 
+        [Embeddable]
         public ICollection<FeatureCardRelationship<MunicipalityHomeInfo>> ArticlesAndPaths { get; set; } = [];
 
         [MaxLength(1000)]
@@ -39,6 +46,7 @@ namespace Domain.Entities.MunicipalityEntities
         public ICollection<string> VirtualTourUrls { get; set; } = [];
 
         [MaxLength(500)]
+        [Embeddable]
         public string? NameAndProvince { get; set; }
     }
 
