@@ -1,6 +1,7 @@
 ﻿using DataInjection.Interfaces;
 using DataInjection.Qdrant.Collectors;
 using DataInjection.Qdrant.Data;
+using DataInjection.Sync;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
 
@@ -8,13 +9,20 @@ namespace DataInjection.Qdrant
 {
     public class QdrantDataSyncWorker(
         IServiceScopeFactory scopeFactory,
+        ISyncCoordinator syncCoordinator,
         Serilog.ILogger logger) : BackgroundService
     {
         private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+        private readonly ISyncCoordinator _syncCoordinator = syncCoordinator;
         private readonly Serilog.ILogger _logger = logger;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            // Wait for the daily sync to complete before starting
+            _logger.Information("Waiting for daily data sync to complete before starting Qdrant sync...");
+            await _syncCoordinator.WaitForDailySyncCompletionAsync(stoppingToken);
+            _logger.Information("Daily data sync completed. Starting Qdrant sync...");
+
             using var timer = new PeriodicTimer(TimeSpan.FromHours(24));
 
             await DoWorkAsync();
@@ -24,6 +32,7 @@ namespace DataInjection.Qdrant
                 await DoWorkAsync();
             }
         }
+
         private async Task DoWorkAsync()
         {
             _logger.Information("Starting daily qdrant data sync...");
@@ -121,12 +130,12 @@ namespace DataInjection.Qdrant
             {
                 try
                 {
-                    _logger.Information("Starting sync for {Collector}", collector.Name);
+                    _logger.Information("Starting qdrant sync for {Collector}", collector.Name);
 
                     // Execute once at a time
                     await collector.Work();
 
-                    _logger.Information("Successfully synced data for {Collector}", collector.Name);
+                    _logger.Information("Successfully synced qdrant data for {Collector}", collector.Name);
                 }
                 catch (Exception ex)
                 {

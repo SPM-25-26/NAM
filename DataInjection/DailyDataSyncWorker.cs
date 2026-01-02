@@ -1,12 +1,16 @@
 using DataInjection.Collectors;
 using DataInjection.Interfaces;
+using DataInjection.Sync;
+
 namespace DataInjection;
 
 public class DailyDataSyncWorker(
         IServiceScopeFactory scopeFactory,
+        ISyncCoordinator syncCoordinator,
         Serilog.ILogger logger) : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+    private readonly ISyncCoordinator _syncCoordinator = syncCoordinator;
     private readonly Serilog.ILogger _logger = logger;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -14,6 +18,7 @@ public class DailyDataSyncWorker(
         using var timer = new PeriodicTimer(TimeSpan.FromHours(24));
 
         await DoWorkAsync();
+        _syncCoordinator.NotifyDailySyncCompleted();
 
         while (await timer.WaitForNextTickAsync(stoppingToken))
         {

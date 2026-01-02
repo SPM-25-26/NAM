@@ -68,7 +68,6 @@ namespace DataInjection.Qdrant.Collectors
                     allMetadata.Add(new ChunkMetadata(e, chunks[i], i + 1));
                 }
             }
-            logger.Information($"Processing entity:\n {allMetadata.First().Text}.\n");
 
             // Batch Embedding
             var allEmbeddings = new List<Embedding<float>>();
@@ -95,7 +94,7 @@ namespace DataInjection.Qdrant.Collectors
             catch (Exception ex)
             {
                 logger.Error($"Error during embedding generation: {ex.Message}");
-                throw;
+                return [];
             }
 
             //var allEmbeddings = await embedder.GenerateAsync(allTexts);

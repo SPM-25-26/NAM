@@ -64,6 +64,9 @@ try
             .Enrich.FromLogContext()
             .WriteTo.Console());
 
+    // Register sync coordinator as singleton to coordinate between workers
+    builder.Services.AddSingleton<ISyncCoordinator, SyncCoordinator>();
+
     builder.Services.AddHostedService<DailyDataSyncWorker>();
     builder.Services.AddHostedService<QdrantDataSyncWorker>();
 
