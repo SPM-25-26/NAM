@@ -80,7 +80,7 @@ namespace DataInjection.Qdrant.Collectors
                 {
                     logger.Information($"Generating embeddings for batch of size {batch.Count}...");
                     var embed = await embedder.GenerateAsync(batch);
-                    logger.Information($"Embeddings generated, waiting 60 seconds.");
+                    logger.Information($"Embeddings generated, waiting 61 seconds.");
 
                     await Task.Delay(1000 * 61);
 

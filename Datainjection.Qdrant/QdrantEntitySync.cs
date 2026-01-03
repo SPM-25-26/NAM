@@ -13,6 +13,7 @@ namespace DataInjection.Qdrant
             await store.EnsureCollectionExistsAsync();
 
             var municipalities = configuration.GetSection("Municipalities").Get<string[]>() ?? [];
+            logger.Warning("Empty list of municipalities");
             var allEntities = new ConcurrentBag<POIEntity>();
 
             foreach (var municipality in municipalities)
