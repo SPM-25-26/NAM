@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>dotnet-Datainjection.Qdrant-9a7d8dd3-dd03-4f0f-9c16-8d2d5b821e02</UserSecretsId>
+    <UserSecretsId>dotnet-DataInjection.SQL-2c2efc5c-9048-4dfb-a16d-195479637a1b</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\DataInjection.Core\DataInjection.Core.csproj" />
-	  <ProjectReference Include="..\nam\nam.ServiceDefaults\nam.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\DataInjection.Core\DataInjection.Core.csproj" />
+    <ProjectReference Include="..\nam\nam.ServiceDefaults\nam.ServiceDefaults.csproj" />
   </ItemGroup>
 </Project>

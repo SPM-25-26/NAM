@@ -15,23 +15,21 @@ var server = builder.AddProject<Projects.nam_Server>("server")
             .WaitFor(db)
             .WithHttpHealthCheck("/health");
 
-//var client = builder.AddViteApp("client", "../../nam.client")
-//            .WithReference(server)
-//            .WaitFor(server)
-//            .WithExternalHttpEndpoints()
-//            .WithNpmPackageInstallation();
-
-//var dataInjection = builder.AddProject<Projects.DataInjection>("datainjection")
-//            .WithReference(db)
-//            .WaitFor(db)
-//            .WithReference(server)
-//            .WaitFor(server);
+var client = builder.AddViteApp("client", "../../nam.client")
+            .WithReference(server)
+            .WaitFor(server)
+            .WithExternalHttpEndpoints()
+            .WithNpmPackageInstallation();
 
 var qdrantDataInjection = builder.AddProject<Projects.Datainjection_Qdrant>("datainjection-qdrant")
             .WithReference(vectordb)
             .WaitFor(vectordb)
             .WithReference(server)
             .WaitFor(server);
+
+var sqlDataInjection = builder.AddProject<Projects.DataInjection_SQL>("datainjection-sql")
+            .WithReference(db)
+            .WaitFor(db);
 
 
 builder.Build().Run();

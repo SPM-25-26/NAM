@@ -23,7 +23,7 @@ try
         Environment.GetEnvironmentVariable("GEMINI_API_KEY")
     );
 
-    builder.Services.AddHttpClient<QdrantDataSyncWorker>(client =>
+    builder.Services.AddHttpClient<Worker>(client =>
     {
         client.BaseAddress = new Uri(builder.Configuration.GetConnectionString("server")
             ?? throw new InvalidOperationException("Connection string 'server' not found."));
@@ -36,7 +36,7 @@ try
                 .Enrich.FromLogContext()
                 .WriteTo.Console());
 
-    builder.Services.AddHostedService<QdrantDataSyncWorker>();
+    builder.Services.AddHostedService<Worker>();
     builder.Services.AddScoped<IFetcher, HttpFetcherService>();
 
 

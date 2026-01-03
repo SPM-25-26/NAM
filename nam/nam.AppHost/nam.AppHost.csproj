@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Datainjection.Qdrant\Datainjection.Qdrant.csproj" />
-    <ProjectReference Include="..\..\DataInjection\DataInjection.csproj" />
+    <ProjectReference Include="..\..\DataInjection.SQL\DataInjection.SQL.csproj" />
     <ProjectReference Include="..\..\nam.client\nam.client.esproj" />
     <ProjectReference Include="..\..\nam.Server\nam.Server.csproj" />
   </ItemGroup>

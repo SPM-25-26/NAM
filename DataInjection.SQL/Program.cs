@@ -1,6 +1,7 @@
 using DataInjection;
 using DataInjection.Fetchers;
 using DataInjection.Interfaces;
+using DataInjection.Sync;
 using DotNetEnv;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +27,7 @@ try
             .Enrich.FromLogContext()
             .WriteTo.Console());
 
-    builder.Services.AddHostedService<DailyDataSyncWorker>();
+    builder.Services.AddHostedService<Worker>();
 
     builder.Services.AddScoped<IFetcher, HttpFetcherService>();
     builder.Services.AddScoped<ISyncService, NewSyncService>();

@@ -1,4 +1,5 @@
 ﻿using DataInjection.Interfaces;
+using Microsoft.Extensions.Configuration;
 
 namespace DataInjection.Providers
 {
