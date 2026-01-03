@@ -5,8 +5,21 @@ using System.Text;
 
 namespace DataInjection.Qdrant.Serializers
 {
+    /// <summary>
+    /// Provides extension methods for serializing objects into embedding strings
+    /// based on properties marked with the <see cref="Domain.Attributes.EmbeddableAttribute"/>.
+    /// </summary>
     public static class EmbeddingExtensions
     {
+        /// <summary>
+        /// Converts the specified entity to an embedding string representation.
+        /// Only properties marked with <see cref="Domain.Attributes.EmbeddableAttribute"/> are included.
+        /// </summary>
+        /// <typeparam name="T">The type of the entity.</typeparam>
+        /// <param name="entity">The entity to convert.</param>
+        /// <returns>
+        /// A string representation of the entity suitable for embedding, or an empty string if the entity is null.
+        /// </returns>
         public static string ToEmbeddingString<T>(this T entity)
         {
             if (entity is null)
@@ -19,6 +32,12 @@ namespace DataInjection.Qdrant.Serializers
             return sb.ToString().Trim();
         }
 
+        /// <summary>
+        /// Recursively processes an object and appends its embeddable properties to the string builder.
+        /// </summary>
+        /// <param name="obj">The object to process.</param>
+        /// <param name="sb">The string builder to append to.</param>
+        /// <param name="indent">The current indentation level.</param>
         private static void ProcessObject(object obj, StringBuilder sb, int indent)
         {
             if (obj is null)
@@ -63,6 +82,12 @@ namespace DataInjection.Qdrant.Serializers
             }
         }
 
+        /// <summary>
+        /// Processes a collection and appends its items to the string builder.
+        /// </summary>
+        /// <param name="collection">The collection to process.</param>
+        /// <param name="sb">The string builder to append to.</param>
+        /// <param name="indent">The current indentation level.</param>
         private static void ProcessCollection(IEnumerable collection, StringBuilder sb, int indent)
         {
             foreach (var item in collection)
@@ -86,6 +111,11 @@ namespace DataInjection.Qdrant.Serializers
             }
         }
 
+        /// <summary>
+        /// Determines whether the specified type is a simple type (primitive, enum, string, decimal, date/time, or Guid).
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>True if the type is simple; otherwise, false.</returns>
         private static bool IsSimpleType(Type type)
         {
             return type.IsPrimitive
@@ -98,6 +128,11 @@ namespace DataInjection.Qdrant.Serializers
                 || type == typeof(Guid);
         }
 
+        /// <summary>
+        /// Formats a simple value for embedding output.
+        /// </summary>
+        /// <param name="value">The value to format.</param>
+        /// <returns>The formatted string representation of the value.</returns>
         private static string FormatSimpleValue(object value)
         {
             return value switch
@@ -109,6 +144,11 @@ namespace DataInjection.Qdrant.Serializers
             };
         }
 
+        /// <summary>
+        /// Appends indentation spaces to the string builder.
+        /// </summary>
+        /// <param name="sb">The string builder to append to.</param>
+        /// <param name="indent">The number of indentation levels.</param>
         private static void AppendIndent(StringBuilder sb, int indent)
         {
             sb.Append(new string(' ', indent * 2));
