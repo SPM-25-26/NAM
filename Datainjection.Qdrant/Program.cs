@@ -1,8 +1,9 @@
-using DataInjection.Fetchers;
-using DataInjection.Interfaces;
+using DataInjection.Core.Fetchers;
+using DataInjection.Core.Interfaces;
 using DataInjection.Qdrant;
 using DataInjection.Qdrant.Data;
 using DotNetEnv;
+using nam.ServiceDefaults;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()

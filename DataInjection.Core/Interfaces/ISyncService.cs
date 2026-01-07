@@ -1,4 +1,4 @@
-﻿namespace DataInjection.Interfaces
+﻿namespace DataInjection.Core.Interfaces
 {
     /// <summary>
     /// Defines a contract for a synchronization service that executes synchronization logic for entities.

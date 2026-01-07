@@ -1,4 +1,4 @@
-﻿namespace DataInjection.Interfaces
+﻿namespace DataInjection.Core.Interfaces
 {
     /// <summary>
     /// Defines a contract for providing an entity of type <typeparamref name="TEntity"/>.

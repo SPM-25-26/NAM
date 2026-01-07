@@ -1,4 +1,5 @@
-﻿using DataInjection.Interfaces;
+﻿using Datainjection.Qdrant.Sync;
+using DataInjection.Core.Interfaces;
 using DataInjection.Qdrant.Collectors;
 using DataInjection.Qdrant.Data;
 using Microsoft.Extensions.AI;

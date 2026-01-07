@@ -1,7 +1,9 @@
-using DataInjection.Collectors;
-using DataInjection.Interfaces;
+using DataInjection.Core.Interfaces;
+using DataInjection.SQL.Collectors;
+using Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
-namespace DataInjection;
+namespace DataInjection.SQL;
 
 public class Worker(
         IServiceScopeFactory scopeFactory,
@@ -14,17 +16,28 @@ public class Worker(
     {
         using var timer = new PeriodicTimer(TimeSpan.FromHours(24));
 
-        await DoWorkAsync();
+        await DoWorkAsync(stoppingToken);
 
         while (await timer.WaitForNextTickAsync(stoppingToken))
         {
-            await DoWorkAsync();
+            await DoWorkAsync(stoppingToken);
         }
     }
 
-    private async Task DoWorkAsync()
+    private async Task DoWorkAsync(CancellationToken stoppingToken)
     {
         _logger.Information("Starting daily data sync...");
+        using (var scope = _scopeFactory.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            _logger.Information("Applying migrations...");
+
+            // 2. Applica le migrazioni
+            await dbContext.Database.MigrateAsync(stoppingToken);
+
+            _logger.Information("Migrations completed!");
+        }
 
         // List of collectors: add new collectors here.
         var collectors = new List<(string Name, Func<Task> Work)>

@@ -1,4 +1,4 @@
-﻿using DataInjection.Interfaces;
+﻿using DataInjection.Core.Interfaces;
 using DataInjection.Qdrant.Data;
 using Domain.Entities.MunicipalityEntities;
 

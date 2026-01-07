@@ -1,11 +1,10 @@
-using DataInjection;
-using DataInjection.Fetchers;
-using DataInjection.Interfaces;
-using DataInjection.Sync;
+using DataInjection.Core.Fetchers;
+using DataInjection.Core.Interfaces;
+using DataInjection.SQL;
+using DataInjection.SQL.Sync;
 using DotNetEnv;
 using Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.AI;
+using nam.ServiceDefaults;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -35,18 +34,6 @@ try
     builder.Services.AddHttpClient();
 
     var host = builder.Build();
-
-    using (var scope = host.Services.CreateScope())
-    {
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        Console.WriteLine("Applying migrations...");
-
-        // 2. Applica le migrazioni
-        await dbContext.Database.MigrateAsync();
-
-        Console.WriteLine("Migrations completed!");
-    }
 
     host.Run();
 

@@ -1,7 +1,7 @@
-﻿using DataInjection.Interfaces;
+﻿using DataInjection.Core.Interfaces;
 using Microsoft.Extensions.Configuration;
 
-namespace DataInjection.Providers
+namespace DataInjection.Core.Providers
 {
     public class WebServerProvider<TDto, TEntity>(IConfiguration configuration, IFetcher fetcher, IDtoMapper<TDto, TEntity> mapper, string endpoint, Dictionary<string, string?> query) : AbstractProvider<TDto, TEntity>(fetcher, mapper, endpoint, query)
     {

@@ -1,11 +1,11 @@
-﻿using DataInjection.DTOs;
-using DataInjection.Interfaces;
-using DataInjection.Mappers;
-using DataInjection.Providers;
+﻿using DataInjection.Core.Interfaces;
+using DataInjection.Core.Providers;
+using DataInjection.SQL.DTOs;
+using DataInjection.SQL.Mappers;
 using Domain.Entities.MunicipalityEntities;
 using System.Collections.Concurrent;
 
-namespace DataInjection.Collectors
+namespace DataInjection.SQL.Collectors
 {
     public class OrganizationCollector : IEntityCollector<OrganizationCard>
     {

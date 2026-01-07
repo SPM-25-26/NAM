@@ -1,6 +1,6 @@
-﻿using DataInjection.Interfaces;
+﻿using DataInjection.Core.Interfaces;
 
-namespace DataInjection.Providers
+namespace DataInjection.Core.Providers
 {
     /// <summary>
     /// Abstract base provider for fetching and mapping data transfer objects (DTOs) to entities.

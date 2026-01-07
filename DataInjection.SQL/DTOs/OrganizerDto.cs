@@ -1,4 +1,4 @@
-﻿namespace DataInjection.DTOs
+﻿namespace DataInjection.SQL.DTOs
 {
     public class OrganizerDto
     {

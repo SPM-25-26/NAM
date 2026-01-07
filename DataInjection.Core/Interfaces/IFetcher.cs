@@ -1,4 +1,4 @@
-﻿namespace DataInjection.Interfaces
+﻿namespace DataInjection.Core.Interfaces
 {
     /// <summary>
     /// Defines a contract for fetching data transfer objects (DTOs) from a data source.

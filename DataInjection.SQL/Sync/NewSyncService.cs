@@ -1,11 +1,11 @@
-﻿using DataInjection.Interfaces;
+﻿using DataInjection.Core.Interfaces;
 using EFCore.BulkExtensions;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
 using System.Reflection;
 
-namespace DataInjection.Sync
+namespace DataInjection.SQL.Sync
 {
     public class NewSyncService(ApplicationDbContext dbContext, Serilog.ILogger logger, IConfiguration Configuration) : ISyncService
     {

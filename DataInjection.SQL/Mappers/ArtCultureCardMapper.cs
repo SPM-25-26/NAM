@@ -1,8 +1,8 @@
-﻿using DataInjection.DTOs;
-using DataInjection.Interfaces;
+﻿using DataInjection.Core.Interfaces;
+using DataInjection.SQL.DTOs;
 using Domain.Entities.MunicipalityEntities;
 
-namespace DataInjection.Mappers
+namespace DataInjection.SQL.Mappers
 {
 
     public class ArtCultureCardMapper : IDtoMapper<List<ArtCultureNatureCardDto>, List<ArtCultureNatureCard>>

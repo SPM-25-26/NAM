@@ -1,4 +1,4 @@
-﻿namespace DataInjection.Interfaces
+﻿namespace DataInjection.Core.Interfaces
 {
     /// <summary>
     /// Defines a contract for mapping a data transfer object (DTO) to an entity.

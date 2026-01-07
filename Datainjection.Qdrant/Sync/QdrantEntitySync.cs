@@ -1,9 +1,9 @@
-﻿using DataInjection.Interfaces;
+﻿using DataInjection.Core.Interfaces;
 using DataInjection.Qdrant.Data;
 using Microsoft.Extensions.VectorData;
 using System.Collections.Concurrent;
 
-namespace DataInjection.Qdrant
+namespace Datainjection.Qdrant.Sync
 {
     public class QdrantEntitySync(Serilog.ILogger logger, IConfiguration configuration, VectorStoreCollection<Guid, POIEntity> store)
     {

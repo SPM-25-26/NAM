@@ -1,9 +1,9 @@
-﻿using DataInjection.Interfaces;
+﻿using DataInjection.Core.Interfaces;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace DataInjection.Fetchers
+namespace DataInjection.Core.Fetchers
 {
     public class HttpFetcherService(IHttpClientFactory httpClientFactory, Serilog.ILogger logger) : IFetcher
     {

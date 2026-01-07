@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
-namespace Infrastructure.Extensions
+namespace Infrastructure.Configurators
 {
     public static class SerilogConfigurator
     {

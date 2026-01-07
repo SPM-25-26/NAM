@@ -1,6 +1,6 @@
 ﻿using Domain.Entities.MunicipalityEntities;
 
-namespace DataInjection.DTOs
+namespace DataInjection.SQL.DTOs
 {
     public class FeatureCardDto
     {
