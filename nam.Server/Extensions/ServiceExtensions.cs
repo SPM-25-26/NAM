@@ -128,7 +128,7 @@ namespace nam.Server.Extensions
             services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
 
 
-            services.AddScoped<IQuestionaireService, QuestionaireService>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddCors(options =>
             {

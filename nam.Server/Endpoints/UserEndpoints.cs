@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace nam.Server.Endpoints
 {
-    public class QuestionaireEndpoints
+    public class UserEndpoints
     {
         private static Serilog.ILogger? _logger;
 
@@ -16,7 +16,7 @@ namespace nam.Server.Endpoints
         }
 
         public static async Task<IResult> UpdateQuestionaire(
-            [FromServices] IQuestionaireService questionaireService,
+            [FromServices] IUserService questionaireService,
             QuestionaireDto questionaireDto,
             HttpContext httpContext,
             CancellationToken cancellationToken = default)
@@ -42,7 +42,7 @@ namespace nam.Server.Endpoints
             };
             try
             {
-                var updateResult = await questionaireService.UpdateAsync(questionaire, userEmail, cancellationToken);
+                var updateResult = await questionaireService.UpdateQuestionaireAsync(questionaire, userEmail, cancellationToken);
                 if (!updateResult)
                 {
                     _logger.Warning("UpdateQuestionaire: Failed to update questionaire for user {UserEmail}.", userEmail);
@@ -59,7 +59,7 @@ namespace nam.Server.Endpoints
         }
 
         public static async Task<IResult> GetQuestionaire(
-                [FromServices] IQuestionaireService questionaireService,
+                [FromServices] IUserService questionaireService,
                 HttpContext httpContext,
                 CancellationToken cancellationToken = default)
         {
@@ -75,7 +75,7 @@ namespace nam.Server.Endpoints
             }
             try
             {
-                var questionaire = await questionaireService.GetByUserMailAsync(userEmail, cancellationToken);
+                var questionaire = await questionaireService.GetQuestionaireByUserMailAsync(userEmail, cancellationToken);
                 if (questionaire == null)
                 {
                     _logger.Information("GetQuestionaire: Nessun questionario trovato per l'utente {UserEmail}.", userEmail);

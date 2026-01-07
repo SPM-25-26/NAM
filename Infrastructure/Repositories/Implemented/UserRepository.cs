@@ -11,6 +11,7 @@ namespace Infrastructure.Repositories.Implemented
         public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
         {
             return await AppContext.Users
+                .Include(u => u.Questionaire)
                 .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
         }
 
@@ -32,6 +33,30 @@ namespace Infrastructure.Repositories.Implemented
             AppContext.Set<User>().Update(user);
             var result = await AppContext.SaveChangesAsync(cancellationToken);
             return result > 0;
+        }
+
+        public async Task<bool> UpdateQuestionaireByEmailAsync(Questionaire questionaire, string email, CancellationToken cancellationToken = default)
+        {
+            var user = await AppContext.Users
+                .Include(u => u.Questionaire)
+                .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+
+            if (user == null)
+                return false;
+
+            user.Questionaire ??= new Questionaire();
+            user.Questionaire.AgeRange = questionaire.AgeRange;
+
+            try
+            {
+                var result = await AppContext.SaveChangesAsync(cancellationToken);
+                return result > 0;
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
         }
     }
 }
