@@ -1,4 +1,5 @@
 using Infrastructure;
+using nam.Server.Endpoints;
 using nam.Server.Endpoints.Auth;
 using nam.Server.Endpoints.MunicipalityEntities;
 using nam.Server.Extensions;
@@ -61,4 +62,5 @@ app.MapNature();
 app.MapMunicipalityCard();
 app.MapOrganization();
 app.MapEntertainmentLeisure();
+app.MapQuestionaire();
 app.Run();

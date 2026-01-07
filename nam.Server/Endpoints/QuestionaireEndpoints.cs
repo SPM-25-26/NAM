@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using nam.Server.DTOs;
 using nam.Server.Services.Interfaces;
-using nam.Server.Services.Interfaces.Auth;
 using System.Security.Claims;
 
 namespace nam.Server.Endpoints
@@ -18,7 +17,6 @@ namespace nam.Server.Endpoints
 
         public static async Task<IResult> UpdateQuestionaire(
             [FromServices] IQuestionaireService questionaireService,
-            [FromServices] IAuthService authService,
             QuestionaireDto questionaireDto,
             HttpContext httpContext,
             CancellationToken cancellationToken = default)
@@ -58,6 +56,40 @@ namespace nam.Server.Endpoints
                 _logger.Error(ex, "UpdateQuestionaire: An error occurred while updating questionaire for user {UserEmail}.", userEmail);
                 return TypedResults.InternalServerError("An error occurred while updating the questionaire.");
             }
+        }
+
+        public static async Task<IResult> GetQuestionaire(
+                [FromServices] IQuestionaireService questionaireService,
+                HttpContext httpContext,
+                CancellationToken cancellationToken = default)
+        {
+            if (_logger is null)
+            {
+                throw new InvalidOperationException("Logger non configurato. È necessario chiamare ConfigureLogger prima di utilizzare questo endpoint.");
+            }
+            var userEmail = httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                _logger.Warning("GetQuestionaire: Il claim email dell'utente è mancante.");
+                return TypedResults.Unauthorized();
+            }
+            try
+            {
+                var questionaire = await questionaireService.GetByUserMailAsync(userEmail, cancellationToken);
+                if (questionaire == null)
+                {
+                    _logger.Information("GetQuestionaire: Nessun questionario trovato per l'utente {UserEmail}.", userEmail);
+                    return TypedResults.NotFound("Nessun questionario trovato per l'utente specificato.");
+                }
+                _logger.Information("GetQuestionaire: Questionario recuperato con successo per l'utente {UserEmail}.", userEmail);
+                return TypedResults.Ok(questionaire);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "GetQuestionaire: Errore durante il recupero del questionario per l'utente {UserEmail}.", userEmail);
+                return TypedResults.InternalServerError("Si è verificato un errore durante il recupero del questionario.");
+            }
+
         }
     }
 }

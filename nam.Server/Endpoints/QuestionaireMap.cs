@@ -1,9 +1,9 @@
 ﻿namespace nam.Server.Endpoints
 {
-    internal static class QuestionaireMap
+    public static class QuestionaireMap
     {
 
-        public static IEndpointRouteBuilder MapAuth(this IEndpointRouteBuilder builder)
+        public static IEndpointRouteBuilder MapQuestionaire(this IEndpointRouteBuilder builder)
         {
 
             var logger = builder.ServiceProvider.GetService<Serilog.ILogger>() ?? Serilog.Log.Logger;
@@ -13,7 +13,14 @@
             .RequireCors("FrontendWithCredentials")
             .WithTags("Authentication");
 
-            groupBuilder.MapPost("/questionaire", QuestionaireEndpoints.UpdateQuestionaire)
+            groupBuilder.MapPost("/update-questionaire", QuestionaireEndpoints.UpdateQuestionaire)
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status401Unauthorized)
+                .Produces(StatusCodes.Status500InternalServerError)
+                .WithSummary("User registration")
+                .WithDescription("Registers a new user in the system with the provided details.");
+
+            groupBuilder.MapGet("/questionaire", QuestionaireEndpoints.GetQuestionaire)
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized)
                 .Produces(StatusCodes.Status500InternalServerError)
