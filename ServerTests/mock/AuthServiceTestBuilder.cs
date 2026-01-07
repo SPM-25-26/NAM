@@ -103,6 +103,8 @@ namespace nam.ServerTests.mock
 
         public IEntertainmentLeisureRepository EntertainmentLeisure { get; }
 
+        public IQuestionaireRepository Questionaires => throw new NotImplementedException();
+
         public Task CompleteAsync()
         {
             return _context.SaveChangesAsync();

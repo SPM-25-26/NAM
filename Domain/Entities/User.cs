@@ -17,5 +17,7 @@ namespace Domain.Entities
         public required string PasswordHash { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsEmailVerified { get; set; } = false;
+
+        public Questionaire? Questionaire { get; set; } = null;
     }
 }

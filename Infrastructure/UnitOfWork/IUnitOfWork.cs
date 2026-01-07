@@ -6,6 +6,7 @@ namespace Infrastructure.UnitOfWork
     public interface IUnitOfWork
     {
         IUserRepository Users { get; }
+        IQuestionaireRepository Questionaires { get; }
         IArtCultureRepository ArtCulture { get; }
         IArticleRepository Article { get; }
         IMunicipalityCardRepository MunicipalityCard { get; }

@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using nam.Server.Options;
+using nam.Server.Services.Implemented;
 using nam.Server.Services.Implemented.Auth;
 using nam.Server.Services.Implemented.MunicipalityEntities;
+using nam.Server.Services.Interfaces;
 using nam.Server.Services.Interfaces.Auth;
 using nam.Server.Services.Interfaces.MunicipalityEntities;
 using nam.Server.swagger;
@@ -124,6 +126,9 @@ namespace nam.Server.Extensions
 
             // Bind JWT configuration section to strongly-typed options
             services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
+
+
+            services.AddScoped<IQuestionaireService, QuestionaireService>();
 
             services.AddCors(options =>
             {

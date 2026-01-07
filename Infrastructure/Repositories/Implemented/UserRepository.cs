@@ -4,12 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Implemented
 {
-    public class UserRepository : Repository<User, Guid>, IUserRepository
+    public class UserRepository(ApplicationDbContext context) : Repository<User, Guid>(context), IUserRepository
     {
-        public UserRepository(ApplicationDbContext context) : base(context)
-        {
-        }
-
         private ApplicationDbContext AppContext => (ApplicationDbContext)_context;
 
         public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
