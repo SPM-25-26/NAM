@@ -19,6 +19,7 @@ import MyAppBar from "../../components/appbar";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "./hooks/useProfile";
 import { loadingView } from "../../components/loading";
+import SimpleBottomNavigation from "../../components/bottom_bar";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -170,6 +171,7 @@ const ProfilePage = () => {
             </Paper>
           )}
       </Container>
+      <SimpleBottomNavigation />
     </Box>
   );
 };
