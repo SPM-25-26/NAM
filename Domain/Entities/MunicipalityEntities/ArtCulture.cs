@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Domain.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Entities.MunicipalityEntities
 {
@@ -9,6 +10,7 @@ namespace Domain.Entities.MunicipalityEntities
 
         [Required]
         [MaxLength(500)]
+        [Embeddable]
         public string EntityName { get; set; } = string.Empty;
 
         [Required]
@@ -17,11 +19,14 @@ namespace Domain.Entities.MunicipalityEntities
 
         [Required]
         [MaxLength(100)]
+        [Embeddable]
         public string BadgeText { get; set; } = string.Empty;
 
         [MaxLength(1000)]
+        [Embeddable]
         public string Address { get; set; } = string.Empty;
 
+        [Embeddable]
         public ArtCultureNatureDetail? Detail { get; set; }
     }
 
@@ -33,24 +38,28 @@ namespace Domain.Entities.MunicipalityEntities
         [MaxLength(255)]
         public Guid Identifier { get; set; }
 
-
         [Required]
         [MaxLength(500)]
+        [Embeddable]
         public string OfficialName { get; set; } = string.Empty;
 
         [MaxLength(1000)]
         public string PrimaryImagePath { get; set; } = string.Empty;
 
         [MaxLength(1000)]
+        [Embeddable]
         public string FullAddress { get; set; } = string.Empty;
 
         [MaxLength(100)]
+        [Embeddable]
         public string Type { get; set; } = string.Empty;
 
         [MaxLength(500)]
+        [Embeddable]
         public string SubjectDiscipline { get; set; } = string.Empty;
 
         [MaxLength(4000)]
+        [Embeddable]
         public string Description { get; set; } = string.Empty;
 
         [EmailAddress]
@@ -69,20 +78,37 @@ namespace Domain.Entities.MunicipalityEntities
         [MaxLength(500)]
         public string Facebook { get; set; } = string.Empty;
 
+        [Embeddable]
         public double Latitude { get; set; }
 
+        [Embeddable]
         public double Longitude { get; set; }
 
+        [Embeddable]
         public ICollection<CulturalSiteService> Services { get; set; } = [];
+
+        [Embeddable]
         public ICollection<CulturalProject> CulturalProjects { get; set; } = [];
+
+        [Embeddable]
         public ICollection<Catalogue> Catalogues { get; set; } = [];
+
         public ICollection<CreativeWorkMobile> CreativeWorks { get; set; } = [];
         public ICollection<string> Gallery { get; set; } = [];
+
         public ICollection<string> VirtualTours { get; set; } = [];
+
+        [Embeddable]
         public List<FeatureCardRelationship<ArtCultureNatureDetail>> Neighbors { get; set; } = [];
+
+        [Embeddable]
         public ICollection<AssociatedService> AssociatedServices { get; set; } = [];
+
         public NearestCarPark? NearestCarPark { get; set; }
+
         public SiteCard? Site { get; set; }
+
+        [Embeddable]
         public MunicipalityForLocalStorageSetting? MunicipalityData { get; set; }
     }
 
@@ -93,9 +119,11 @@ namespace Domain.Entities.MunicipalityEntities
 
         [Required]
         [MaxLength(255)]
+        [Embeddable]
         public required string Name { get; set; }
 
         [MaxLength(1000)]
+        [Embeddable]
         public string? Description { get; set; }
     }
 
@@ -106,6 +134,7 @@ namespace Domain.Entities.MunicipalityEntities
 
         [Required]
         [MaxLength(255)]
+        [Embeddable]
         public required string Name { get; set; }
 
         [Required]
@@ -121,6 +150,7 @@ namespace Domain.Entities.MunicipalityEntities
 
         [Required]
         [MaxLength(255)]
+        [Embeddable]
         public required string Name { get; set; }
 
         [Required]
@@ -129,6 +159,7 @@ namespace Domain.Entities.MunicipalityEntities
         public required string WebsiteUrl { get; set; }
 
         [MaxLength(2000)]
+        [Embeddable]
         public string? Description { get; set; }
     }
 
@@ -139,6 +170,7 @@ namespace Domain.Entities.MunicipalityEntities
 
         [Required]
         [MaxLength(100)]
+        [Embeddable]
         public required string Type { get; set; }
 
         [Required]

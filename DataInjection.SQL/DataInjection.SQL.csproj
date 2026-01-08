@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-DataInjection.SQL-2c2efc5c-9048-4dfb-a16d-195479637a1b</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Aspire.Microsoft.Data.SqlClient" Version="13.1.0" />
+	  <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.1.0" />
+	  <PackageReference Include="DotNetEnv" Version="3.1.1" />
+	  <PackageReference Include="EFCore.BulkExtensions" Version="9.0.2" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.11">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="Microsoft.SemanticKernel.Connectors.Qdrant" Version="1.68.0-preview" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataInjection.Core\DataInjection.Core.csproj" />
+    <ProjectReference Include="..\nam\nam.ServiceDefaults\nam.ServiceDefaults.csproj" />
+  </ItemGroup>
+</Project>

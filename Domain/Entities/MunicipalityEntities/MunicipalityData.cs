@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Domain.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Entities.MunicipalityEntities
 {
@@ -9,6 +10,7 @@ namespace Domain.Entities.MunicipalityEntities
 
         [Required]
         [MaxLength(255)]
+        [Embeddable]
         public string? Name { get; set; } = string.Empty;
 
         [MaxLength(1000)]

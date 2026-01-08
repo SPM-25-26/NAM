@@ -9,5 +9,8 @@ namespace Infrastructure.Repositories.Interfaces
         Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default);
         Task<bool> AddAsync(User user, CancellationToken cancellationToken = default);
         Task<bool> UpdateAsync(User user, CancellationToken cancellationToken = default);
+
+        Task<bool> UpdateQuestionaireByEmailAsync(Questionaire questionaire, string email, CancellationToken cancellationToken = default);
+
     }
 }

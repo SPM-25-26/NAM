@@ -13,6 +13,7 @@ namespace Infrastructure.UnitOfWork
         {
             _context = context;
             Users = new UserRepository(_context);
+            Questionaires = new UserRepository(_context);
             ArtCulture = new ArtCultureRepository(_context);
             Article = new ArticleRepository(_context);
             MunicipalityCard = new MunicipalityCardRepository(_context);
@@ -33,6 +34,7 @@ namespace Infrastructure.UnitOfWork
         }
 
         public IUserRepository Users { get; }
+        public IUserRepository Questionaires { get; }
         public IArtCultureRepository ArtCulture { get; }
         public IArticleRepository Article { get; }
         public IMunicipalityCardRepository MunicipalityCard { get; }

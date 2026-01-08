@@ -52,5 +52,41 @@ namespace nam.Server.Endpoints.MunicipalityEntities
                 return TypedResults.Problem(detail: "Internal server error", statusCode: 500);
             }
         }
+
+        public static async Task<IResult> GetFullCard(
+            [FromServices] IMunicipalityEntityService<MunicipalityCard, MunicipalityHomeInfo> municipalityService,
+           [FromQuery] string identifier,
+           [FromQuery] string language = "it"
+           )
+        {
+            try
+            {
+                var result = await municipalityService.GetFullCardAsync(identifier, language);
+                return TypedResults.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error(ex, "Error in GetFullCard identifier={Identifier}, language={Language}", identifier, language);
+                return TypedResults.Problem(detail: "Internal server error", statusCode: 500);
+            }
+        }
+
+        public static async Task<IResult> GetFullCardList(
+            [FromServices] IMunicipalityEntityService<MunicipalityCard, MunicipalityHomeInfo> municipalityService,
+          [FromQuery] string municipality,
+          [FromQuery] string language = "it"
+          )
+        {
+            try
+            {
+                var result = await municipalityService.GetFullCardListAsync(municipality, language);
+                return TypedResults.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error(ex, "Error in GetFullCardList municipality={Municipality}, language={Language}", municipality, language);
+                return TypedResults.Problem(detail: "Internal server error", statusCode: 500);
+            }
+        }
     }
 }

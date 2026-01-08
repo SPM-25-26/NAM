@@ -26,6 +26,20 @@
                 .WithSummary("Get the details of entertainment and leisure card")
                 .WithDescription("");
 
+            group.MapGet("/card", EntertainmentLeisureEndpoints.GetFullCard)
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status401Unauthorized)
+                .Produces(StatusCodes.Status500InternalServerError)
+                .WithSummary("Get card of entertainment")
+                .WithDescription("");
+
+            group.MapGet("/full-card-list", EntertainmentLeisureEndpoints.GetFullCardList)
+               .Produces(StatusCodes.Status200OK)
+               .Produces(StatusCodes.Status401Unauthorized)
+               .Produces(StatusCodes.Status500InternalServerError)
+               .WithSummary("Get full card list of entertainment")
+               .WithDescription("");
+
             return builder;
         }
     }

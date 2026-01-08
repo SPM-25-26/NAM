@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Domain.Attributes;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Domain.Entities.MunicipalityEntities
@@ -9,13 +10,16 @@ namespace Domain.Entities.MunicipalityEntities
         public Guid EntityId { get; set; }
 
         [MaxLength(255)]
+        [Embeddable]
         public string? Title { get; set; }
 
+        [Embeddable]
         public MobileCategory Category { get; set; }
 
         [MaxLength(500)]
         public string? ImagePath { get; set; }
 
+        [Embeddable]
         public string? ExtraInfo { get; set; }
 
         [JsonIgnore]
@@ -42,6 +46,7 @@ namespace Domain.Entities.MunicipalityEntities
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
+        [Embeddable]
         public FeatureCard? FeatureCard { get; set; }
 
         [JsonIgnore]

@@ -29,5 +29,22 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
                 .Include(c => c.ArticlesAndPaths).ThenInclude(e => e.FeatureCard)
                 .FirstOrDefaultAsync(c => c.LegalName == legalName, cancellationToken);
         }
+
+        public async Task<IEnumerable<MunicipalityCard>> GetFullEntityListById(string municipalityName, CancellationToken cancellationToken = default)
+        {
+            var entities = await GetByMunicipalityNameAsync(municipalityName);
+            foreach (var entity in entities)
+            {
+                entity.Detail = await GetDetailByEntityIdAsync(entity.LegalName, cancellationToken);
+            }
+            return entities;
+        }
+
+        public async Task<MunicipalityCard?> GetFullEntityByIdAsync(string entityId, CancellationToken cancellationToken = default)
+        {
+            var entity = await GetByEntityIdAsync(entityId, cancellationToken);
+            entity.Detail = await GetDetailByEntityIdAsync(entityId, cancellationToken);
+            return entity;
+        }
     }
 }

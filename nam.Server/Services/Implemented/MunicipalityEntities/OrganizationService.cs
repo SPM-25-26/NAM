@@ -23,5 +23,19 @@ namespace nam.Server.Services.Implemented.MunicipalityEntities
 
             return await organizationRepository.GetByMunicipalityNameAsync(municipality, cancellationToken);
         }
+
+        public async Task<OrganizationCard?> GetFullCardAsync(string entityId, string language = "it", CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(entityId) || string.IsNullOrWhiteSpace(language))
+                return default;
+            return await organizationRepository.GetFullEntityByIdAsync(entityId, cancellationToken);
+        }
+
+        public async Task<IEnumerable<OrganizationCard>> GetFullCardListAsync(string municipality, string language = "it", CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(municipality) || string.IsNullOrWhiteSpace(language))
+                return [];
+            return await organizationRepository.GetFullEntityListById(municipality, cancellationToken);
+        }
     }
 }

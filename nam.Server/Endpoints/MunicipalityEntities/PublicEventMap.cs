@@ -26,6 +26,20 @@
                 .WithSummary("Get the details of public event card")
                 .WithDescription("");
 
+            group.MapGet("/card", PublicEventEndpoint.GetFullCard)
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status401Unauthorized)
+                .Produces(StatusCodes.Status500InternalServerError)
+                .WithSummary("Get card of public event")
+                .WithDescription("");
+
+            group.MapGet("/full-card-list", PublicEventEndpoint.GetFullCardList)
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status500InternalServerError)
+            .WithSummary("Get full card list of event")
+            .WithDescription("");
+
             return builder;
         }
     }

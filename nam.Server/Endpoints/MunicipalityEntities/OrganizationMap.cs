@@ -26,6 +26,20 @@
                 .WithSummary("Get the details of organization card")
                 .WithDescription("");
 
+            group.MapGet("/card", OrganizationEndpoints.GetFullCard)
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status401Unauthorized)
+                .Produces(StatusCodes.Status500InternalServerError)
+                .WithSummary("Get card of organization")
+                .WithDescription("");
+
+            group.MapGet("/full-card-list", OrganizationEndpoints.GetFullCardList)
+             .Produces(StatusCodes.Status200OK)
+             .Produces(StatusCodes.Status401Unauthorized)
+             .Produces(StatusCodes.Status500InternalServerError)
+             .WithSummary("Get full card list of organization")
+             .WithDescription("");
+
             return builder;
         }
     }

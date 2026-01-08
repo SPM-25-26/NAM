@@ -5,5 +5,9 @@
         Task<TEntity?> GetByEntityIdAsync(TKey entityId, CancellationToken cancellationToken = default);
         Task<IEnumerable<TEntity>> GetByMunicipalityNameAsync(string municipalityName, CancellationToken cancellationToken = default);
         Task<TDetail?> GetDetailByEntityIdAsync(TKey entityId, CancellationToken cancellationToken = default);
+
+        Task<TEntity?> GetFullEntityByIdAsync(TKey entityId, CancellationToken cancellationToken = default);
+
+        Task<IEnumerable<TEntity>> GetFullEntityListById(string municipalityName, CancellationToken cancellationToken = default);
     }
 }
