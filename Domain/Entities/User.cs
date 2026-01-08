@@ -18,6 +18,6 @@ namespace Domain.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsEmailVerified { get; set; } = false;
 
-        public Questionaire? Questionaire { get; set; } = null;
+        public Questionaire Questionaire { get; set; } = new Questionaire();
     }
 }

@@ -37,7 +37,7 @@ namespace Infrastructure.Repositories.Implemented
 
         public async Task<bool> UpdateQuestionaireByEmailAsync(Questionaire questionaire, string email, CancellationToken cancellationToken = default)
         {
-            var user = await AppContext.Users
+            var user = await context.Users
                 .Include(u => u.Questionaire)
                 .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
@@ -45,16 +45,42 @@ namespace Infrastructure.Repositories.Implemented
                 return false;
 
             user.Questionaire ??= new Questionaire();
+            user.Questionaire.Interest = questionaire.Interest;
+            user.Questionaire.TravelStyle = questionaire.TravelStyle;
             user.Questionaire.AgeRange = questionaire.AgeRange;
+            user.Questionaire.TravelRange = questionaire.TravelRange;
+            user.Questionaire.TravelCompanions = questionaire.TravelCompanions;
+            user.Questionaire.DiscoveryMode = questionaire.DiscoveryMode;
 
             try
             {
-                var result = await AppContext.SaveChangesAsync(cancellationToken);
-                return result > 0;
+                var result = await UpdateAsync(user!, cancellationToken);
+                return result;
             }
-            catch (DbUpdateConcurrencyException e)
+            catch (DbUpdateConcurrencyException ex)
             {
-                Console.WriteLine(e.Message);
+                foreach (var entry in ex.Entries)
+                    if (entry.Entity is Questionaire)
+                    {
+                        var proposedValues = entry.CurrentValues;
+                        var databaseValues = await entry.GetDatabaseValuesAsync(cancellationToken);
+
+                        foreach (var property in proposedValues.Properties)
+                        {
+                            var proposedValue = proposedValues[property];
+                            var databaseValue = databaseValues![property];
+                            // Resolve conflicts by preferring the database values
+                            proposedValues[property] = databaseValue;
+                        }
+                        // Refresh original values to bypass next concurrency check
+                        entry.OriginalValues.SetValues(databaseValues);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException(
+                            "Don't know how to handle concurrency conflicts for "
+                            + entry.Metadata.Name);
+                    }
                 return false;
             }
         }
