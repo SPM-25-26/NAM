@@ -17,15 +17,15 @@
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized)
                 .Produces(StatusCodes.Status500InternalServerError)
-                .WithSummary("User registration")
-                .WithDescription("Registers a new user in the system with the provided details.");
+                .WithSummary("Aggiorna il questionario utente")
+                .WithDescription("Aggiorna le risposte del questionario per l'utente autenticato.");
 
             groupBuilder.MapGet("/questionaire", UserEndpoints.GetQuestionaire)
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized)
                 .Produces(StatusCodes.Status500InternalServerError)
-                .WithSummary("User registration")
-                .WithDescription("Registers a new user in the system with the provided details.");
+                .WithSummary("Recupera il questionario utente")
+                .WithDescription("Restituisce i dati del questionario per l'utente autenticato.");
 
             return builder;
         }
