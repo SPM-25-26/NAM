@@ -175,6 +175,11 @@ namespace nam.ServerTests.mock
             var changes = await _context.SaveChangesAsync(cancellationToken);
             return changes >= 0;
         }
+
+        public Task<bool> UpdateQuestionaireByEmailAsync(Questionaire questionaire, string email, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class FakeTokenGeneration : ITokenGeneration
