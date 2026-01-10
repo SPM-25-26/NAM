@@ -10,6 +10,6 @@
         /// <param name="itemCategory">Category of the specific POI</param>
         /// <param name="preferredCategories">List of categories the user is interested in</param>
         /// <returns>Final weighted score</returns>
-        double CalculateScore(double vectorScore, double? distanceKm, string itemCategory, List<string> preferredCategories);
+        double CalculateScore(double vectorScore, double? distanceKm, string itemCategory, List<string> preferredCategories, double searchRadiusKm);
     }
 }

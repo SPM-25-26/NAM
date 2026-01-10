@@ -20,7 +20,8 @@ export function MyStepper<TState extends { activeStep: number }>({
   onsubmit,
   onBack,
 }: MyStepperProps<TState>) {
-  const { activeStep } = state;
+    const { activeStep } = state;
+    const currentStepConfig = steps[activeStep];
 
   return (
     <Box
@@ -94,6 +95,7 @@ export function MyStepper<TState extends { activeStep: number }>({
 
         <MyButton
           label={activeStep === steps.length - 1 ? "Complete" : "Continue"}
+          disabled={currentStepConfig?.disableNext}
           action={async () => {
             if (activeStep === steps.length - 1) {
               await onsubmit();

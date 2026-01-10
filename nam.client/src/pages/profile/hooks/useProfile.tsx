@@ -33,7 +33,7 @@ export function useProfile() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(buildApiUrl("/user/profile"), {
+      const response = await fetch(buildApiUrl("/user/questionnaire"), {
         method: "GET",
         credentials: "include",
         headers: {

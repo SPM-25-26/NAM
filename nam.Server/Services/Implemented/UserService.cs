@@ -18,5 +18,22 @@ namespace nam.Server.Services.Implemented
             var result = await unitOfWork.Users.UpdateQuestionaireByEmailAsync(questionaire, userEmail, cancellationToken);
             return result;
         }
+
+        public async Task<bool> QuestionaireCompletedAsync(string userEmail, CancellationToken cancellationToken = default)
+        {
+            var user = await unitOfWork.Users.GetByEmailAsync(userEmail, cancellationToken)
+                ?? throw new ArgumentException($"Nessun utente trovato con l'email '{userEmail}'.", nameof(userEmail));
+
+            var q = user.Questionaire;
+
+            if (q is null) return false;
+
+            return (q.Interest != null && q.Interest.Count > 0) ||
+                   (q.TravelStyle != null && q.TravelStyle.Count > 0) ||
+                   !string.IsNullOrWhiteSpace(q.AgeRange) ||
+                   !string.IsNullOrWhiteSpace(q.TravelRange) ||
+                   (q.TravelCompanions != null && q.TravelCompanions.Count > 0) ||
+                   !string.IsNullOrWhiteSpace(q.DiscoveryMode);
+        }
     }
 }

@@ -26,6 +26,11 @@
                 .Produces(StatusCodes.Status500InternalServerError)
                 .WithSummary("Recupera il questionario utente")
                 .WithDescription("Restituisce i dati del questionario per l'utente autenticato.");
+            groupBuilder.MapGet("/questionaire-completed", UserEndpoints.QuestionaireCompleted)
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status401Unauthorized)
+                .Produces(StatusCodes.Status500InternalServerError)
+                .WithSummary("Recupera il questionario utente e verifica se è completo");
 
             return builder;
         }

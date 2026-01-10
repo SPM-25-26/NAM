@@ -10,4 +10,5 @@ export type StepConfig<TState> = {
   label: string;
   description?: string;
   render: (state: TState) => React.ReactNode;
+  disableNext?: boolean;
 };

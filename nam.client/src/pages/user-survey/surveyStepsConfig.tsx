@@ -4,12 +4,12 @@ import { StepGrid } from "../../components/stepper/step/gridStep";
 import { StepList } from "../../components/stepper/step/listStep";
 import { StepChipSelection } from "../../components/stepper/step/chipStep";
 import { StepYesOrNoImage } from "../../components/stepper/step/yesOrnNo";
-import imageArtAndCulture from "../../assets/categories/artAndCulture.jpg";
+/*import imageArtAndCulture from "../../assets/categories/artAndCulture.jpg";
 import imageArticles from "../../assets/categories/articles.jpg";
 import imageEvents from "../../assets/categories/events.jpg";
 import imageLeisures from "../../assets/categories/leisure.jpg";
 import imageOrganizations from "../../assets/categories/organizations.jpg";
-import imageNature from "../../assets/categories/nature.jpg";
+import imageNature from "../../assets/categories/nature.jpg";*/
 
 type SurveyState = ReturnType<typeof useUserSurvey>;
 
@@ -19,7 +19,7 @@ export const surveyIntroConfig = {
     "Answer a few questions to help us personalize content, features, and recommendations based on your preferences.",
   buttonLabel: "Start Survey",
   headerTitle: "",
-  imageSrc: "ImageSurveyIntro",
+  //imageSrc: "ImageSurveyIntro",
   infoItems: [
     { iconName: "AccessTime", text: "Takes less than 1 minute" },
     {
@@ -39,6 +39,7 @@ export const surveySteps = (state: SurveyState): StepConfig<SurveyState>[] => [
   {
     label: "Interessi Principali",
     description: "Cosa ti appassiona di più?",
+    disableNext: !state.data.interest || state.data.interest.length < 2,
     render: () => (
       <StepGrid
         onBack={state.back}
@@ -54,37 +55,37 @@ export const surveySteps = (state: SurveyState): StepConfig<SurveyState>[] => [
             id: "article",
             label: "Articoli",
             description: "Letture e news",
-            image: imageArticles,
+            //image: imageArticles,
           },
           {
             id: "art_culture",
             label: "Arte e Cultura",
             description: "Musei e storia",
-            image: imageArtAndCulture,
+            //image: imageArtAndCulture,
           },
           {
             id: "events",
             label: "Eventi",
             description: "Spettacoli e incontri",
-            image: imageEvents,
+            //image: imageEvents,
           },
           {
             id: "organization",
             label: "Organizzazioni",
             description: "Enti e no-profit",
-            image: imageOrganizations,
+            //image: imageOrganizations,
           },
           {
             id: "nature",
             label: "Natura",
             description: "Outdoor e fauna",
-            image: imageNature,
+            //image: imageNature,
           },
           {
             id: "leisure",
             label: "Tempo Libero",
             description: "Divertimento",
-            image: imageLeisures,
+            //image: imageLeisures,
           },
         ]}
       />
@@ -183,9 +184,9 @@ export const surveySteps = (state: SurveyState): StepConfig<SurveyState>[] => [
     render: () => (
       <StepYesOrNoImage
         label_1="Km Zero"
-        description_1="Mostrami solo quello che posso raggiungere in pochi minuti (entro 10km)."
+        description_1="Mostrami solo quello che posso raggiungere in pochi minuti (entro 5km)."
         label_2="Esploratore"
-        description_2="Fammi scoprire tesori e borghi in tutta la regione (oltre 50km)."
+        description_2="Fammi scoprire tesori e destinazioni in tutto il territorio (fino a 30 km)."
         initialValue={state.data.travelRange}
         onSelect={(id) => {
           state.updateData("travelRange", id);

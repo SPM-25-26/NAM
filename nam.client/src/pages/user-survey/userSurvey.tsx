@@ -23,7 +23,7 @@ const UserSurvey: React.FC = () => {
     <Box
       sx={{
         backgroundColor: theme.palette.background.default,
-        height: "100dvh",
+        minHeight: "100dvh",
       }}
     >
       <MyAppBar title={"User survey"} back />
@@ -51,7 +51,7 @@ const UserSurvey: React.FC = () => {
                 description={surveyIntroConfig.description}
                 buttonLabel={surveyIntroConfig.buttonLabel}
                 onStart={state.start}
-                onSkip={state.skip}
+                //onSkip={state.skip}
                 headerTitle={""}
                 imageSrc={ImageSurveyIntro}
                 infoItems={[
@@ -81,7 +81,7 @@ const UserSurvey: React.FC = () => {
                 subtitle={surveyCompleteConfig.subtitle}
                 buttonLabel={surveyCompleteConfig.buttonLabel}
                 onFinish={() => {
-                  navigate(-1);
+                  navigate("/maincontents");
                 }}
               />
             )}

@@ -99,6 +99,16 @@ namespace nam.Server.Services.Implemented.RecSys
             var excludedPoiIds = new HashSet<Guid>();
             var targetCount = DefaultLimit;
 
+            double searchRadiusKm = 5.0; // Default per "Km Zero" o se nullo
+
+            // Controlliamo il campo TravelRange (assicurati che il DTO abbia mappato questo campo)
+            var rangePreference = questionnaire.TravelRange ?? string.Empty;
+
+            if (rangePreference.Contains("Esploratore", StringComparison.OrdinalIgnoreCase))
+            {
+                searchRadiusKm = 20.0; // L'utente vuole viaggiare lontano
+            }
+
             // Stage 1: vector + tight radius (10 km)
             if (hasLocation)
             {
@@ -106,11 +116,11 @@ namespace nam.Server.Services.Implemented.RecSys
                     vector: userVector,
                     lat: lat,
                     lon: lon,
-                    radiusKm: 10,
+                    radiusKm: searchRadiusKm,
                     excludedPoiIds: excludedPoiIds,
                     limit: targetCount * 3);
 
-                GroupScoreAndAdd(scoredPois, excludedPoiIds, stage1Chunks, lat, lon, preferredCategories);
+                GroupScoreAndAdd(scoredPois, excludedPoiIds, stage1Chunks, lat, lon, preferredCategories, searchRadiusKm);
             }
 
             if (scoredPois.Count >= targetCount)
@@ -125,24 +135,7 @@ namespace nam.Server.Services.Implemented.RecSys
                 excludedPoiIds: excludedPoiIds,
                 limit: targetCount * 4);
 
-            GroupScoreAndAdd(scoredPois, excludedPoiIds, stage2Chunks, lat, lon, preferredCategories);
-
-            if (scoredPois.Count >= targetCount)
-                return RankAndSelect(scoredPois, targetCount);
-
-            // Stage 3: vector + wider radius (50 km)
-            if (hasLocation)
-            {
-                var stage3Chunks = await SearchPoiChunksAsync(
-                    vector: userVector,
-                    lat: lat,
-                    lon: lon,
-                    radiusKm: 50,
-                    excludedPoiIds: excludedPoiIds,
-                    limit: targetCount * 4);
-
-                GroupScoreAndAdd(scoredPois, excludedPoiIds, stage3Chunks, lat, lon, preferredCategories);
-            }
+            GroupScoreAndAdd(scoredPois, excludedPoiIds, stage2Chunks, lat, lon, preferredCategories, 100.0);
 
             if (scoredPois.Count >= targetCount)
                 return RankAndSelect(scoredPois, targetCount);
@@ -221,7 +214,8 @@ namespace nam.Server.Services.Implemented.RecSys
             IReadOnlyList<ScoredPoint> chunkPoints,
             double? userLat,
             double? userLon,
-            List<string> preferredCategories)
+            List<string> preferredCategories,
+            double searchRadiusKm)
         {
             var groupedByPoi = chunkPoints
                 .Where(p => p.Id?.Uuid is not null && Guid.TryParse(p.Id.Uuid, out _))
@@ -256,7 +250,8 @@ namespace nam.Server.Services.Implemented.RecSys
                     vectorScore: bestChunk.Score,
                     distanceKm: distanceKm,
                     itemCategory: poiCategory,
-                    preferredCategories: preferredCategories
+                    preferredCategories: preferredCategories,
+                    searchRadiusKm: searchRadiusKm
                 );
 
                 targetList.Add(new ScoredPoi

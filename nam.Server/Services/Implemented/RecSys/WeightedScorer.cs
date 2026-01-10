@@ -27,7 +27,7 @@ namespace nam.Server.Services.Implemented.RecSys
         /// Maximum distance in kilometers over which distance has an influence.
         /// Beyond this, the distance contribution is effectively zero.
         /// </summary>
-        private const double MaxDistanceInfluenceKm = 30.0;
+        //private const double MaxDistanceInfluenceKm = 30.0;
 
         /// <summary>
         /// Calculates a final score given:
@@ -52,16 +52,20 @@ namespace nam.Server.Services.Implemented.RecSys
             double vectorScore,
             double? distanceKm,
             string? itemCategory,
-            List<string>? preferredCategories)
+            List<string>? preferredCategories, 
+            double searchRadiusKm)
         {
             // 1. Vector (embedding) score, clamped to [0,1] for safety.
             var vScore = Clamp01(vectorScore);
 
             // 2. Distance contribution: linear decay from 1 at 0km to 0 at MaxDistanceInfluenceKm+.
             double dScore = 0.0;
+
             if (distanceKm.HasValue)
             {
-                var raw = 1.0 - (distanceKm.Value / MaxDistanceInfluenceKm);
+                // Se maxDistanceKm è 10 (Km Zero) e distanceKm è 5, il punteggio è 0.5
+                // Se maxDistanceKm è 50 (Esploratore) e distanceKm è 5, il punteggio è 0.9 (molto meglio)
+                var raw = 1.0 - (distanceKm.Value / searchRadiusKm);
                 dScore = Clamp01(raw);
             }
 

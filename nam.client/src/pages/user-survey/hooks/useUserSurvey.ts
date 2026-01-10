@@ -40,19 +40,17 @@ export const useUserSurvey = () => {
     skip: () => navigate(-1),
     back,
     submit: async () => {
-      const payload = {
-        interests: data.interest || [],
-        travel_styles: data.travelStyle || [],
-        age_range: data.ageRange || null,
-        travel_range: data.travelRange || null,
-        companions: data.travelCompanions || [],
-        discovery_mode: data.discoveryMode || null,
-        submitted_at: new Date().toISOString(),
+        const payload = {
+            interest: data.interest || [],            
+            travelStyle: data.travelStyle || [],      
+            ageRange: data.ageRange || null,          
+            travelRange: data.travelRange || null,    
+            travelCompanions: data.travelCompanions || [],
+            discoveryMode: data.discoveryMode || null
       };
 
       try {
-        //TODO: change api
-        const response = await fetch(buildApiUrl("/api/user-survey"), {
+          const response = await fetch(buildApiUrl("user/update-questionaire"), {
           method: "POST",
           credentials: "include",
           headers: {
