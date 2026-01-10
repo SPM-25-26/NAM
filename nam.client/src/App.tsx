@@ -8,6 +8,7 @@ import MainContentsPage from "./pages/maincontents/MainContentsPage";
 import VerifyEmailPage from "./pages/verifymail/VerifyEmailPage";
 import { EventDetail } from "./pages/detail_element/detail_element";
 import UserSurvey from "./pages/user-survey/userSurvey";
+import ProfilePage from "./pages/profile/profile";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="*" element={<NotFoundPage />} />
         <Route path="/detail-element" element={<EventDetail />} />
         <Route path="/survey" element={<UserSurvey />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </BrowserRouter>
   );
