@@ -12,7 +12,7 @@ import { SurveyIntro } from "../../components/stepper/step/introStep";
 import { SurveyCompletion } from "../../components/stepper/step/completeStep";
 import { MyStepper } from "../../components/stepper/myStepper";
 import { useNavigate } from "react-router-dom";
-import ImageSurveyIntro from "../../assets/survey.png";
+import ImageSurveyIntro from "../../assets/survey/intro.webp";
 const UserSurvey: React.FC = () => {
   const state = useUserSurvey();
   const steps = surveySteps(state);

@@ -4,12 +4,13 @@ import { StepGrid } from "../../components/stepper/step/gridStep";
 import { StepList } from "../../components/stepper/step/listStep";
 import { StepChipSelection } from "../../components/stepper/step/chipStep";
 import { StepYesOrNoImage } from "../../components/stepper/step/yesOrnNo";
-/*import imageArtAndCulture from "../../assets/categories/artAndCulture.jpg";
-import imageArticles from "../../assets/categories/articles.jpg";
-import imageEvents from "../../assets/categories/events.jpg";
-import imageLeisures from "../../assets/categories/leisure.jpg";
-import imageOrganizations from "../../assets/categories/organizations.jpg";
-import imageNature from "../../assets/categories/nature.jpg";*/
+import imageArtAndCulture from "../../assets/survey/categories/artAndCulture.webp";
+import imageArticles from "../../assets/survey/categories/articles.webp";
+import imageEvents from "../../assets/survey/categories/events.webp";
+import imageLeisures from "../../assets/survey/categories/leisure.webp";
+import imageOrganizations from "../../assets/survey/categories/organizations.webp";
+import imageNature from "../../assets/survey/categories/nature.webp";
+import imageExploration from "../../assets/survey/exploration.webp";
 
 type SurveyState = ReturnType<typeof useUserSurvey>;
 
@@ -19,7 +20,6 @@ export const surveyIntroConfig = {
     "Answer a few questions to help us personalize content, features, and recommendations based on your preferences.",
   buttonLabel: "Start Survey",
   headerTitle: "",
-  //imageSrc: "ImageSurveyIntro",
   infoItems: [
     { iconName: "AccessTime", text: "Takes less than 1 minute" },
     {
@@ -55,37 +55,37 @@ export const surveySteps = (state: SurveyState): StepConfig<SurveyState>[] => [
             id: "article",
             label: "Articoli",
             description: "Letture e news",
-            //image: imageArticles,
+            image: imageArticles,
           },
           {
             id: "art_culture",
             label: "Arte e Cultura",
             description: "Musei e storia",
-            //image: imageArtAndCulture,
+            image: imageArtAndCulture,
           },
           {
             id: "events",
             label: "Eventi",
             description: "Spettacoli e incontri",
-            //image: imageEvents,
+            image: imageEvents,
           },
           {
             id: "organization",
             label: "Organizzazioni",
             description: "Enti e no-profit",
-            //image: imageOrganizations,
+            image: imageOrganizations,
           },
           {
             id: "nature",
             label: "Natura",
             description: "Outdoor e fauna",
-            //image: imageNature,
+            image: imageNature,
           },
           {
             id: "leisure",
             label: "Tempo Libero",
             description: "Divertimento",
-            //image: imageLeisures,
+            image: imageLeisures,
           },
         ]}
       />
@@ -170,7 +170,7 @@ export const surveySteps = (state: SurveyState): StepConfig<SurveyState>[] => [
         description_1="Mostrami luoghi nuovi e categorie che non ho ancora esplorato."
         description_2="Proponimi attività basate esclusivamente sui miei interessi scelti."
         label_2="Rassicurami"
-        urlImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb"
+        urlImage={imageExploration}
         selectedValue={state.data.discoveryMode}
         onSelect={(id) => {
           state.updateData("discoveryMode", id);
@@ -184,7 +184,7 @@ export const surveySteps = (state: SurveyState): StepConfig<SurveyState>[] => [
     label: "Raggio d'azione",
     description: "Quanto sei disposto a spostarti dalla tua posizione attuale?",
     render: () => (
-        <StepYesOrNoImage
+      <StepYesOrNoImage
         id_1="Km Zero"
         id_2="Esploratore"
         label_1="Km Zero"
