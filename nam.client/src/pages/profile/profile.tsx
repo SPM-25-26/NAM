@@ -126,7 +126,11 @@ const ProfilePage = () => {
                     color: theme.palette.text.primary,
                     borderColor: theme.palette.divider,
                   }}
-                  onClick={() => navigate("/survey")}
+                  onClick={() => navigate("/survey", { 
+                    state: { 
+                      previousData: userHooks.state.user 
+                    } 
+                  })}
                 >
                   <Box
                     component="span"

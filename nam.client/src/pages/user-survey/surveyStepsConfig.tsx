@@ -164,12 +164,14 @@ export const surveySteps = (state: SurveyState): StepConfig<SurveyState>[] => [
       "Preferisci restare sui tuoi interessi abituali o esplorare nuove possibilità?",
     render: () => (
       <StepYesOrNoImage
+        id_1="Sorprendimi"
+        id_2="Rassicurami"
         label_1="Sorprendimi"
         description_1="Mostrami luoghi nuovi e categorie che non ho ancora esplorato."
         description_2="Proponimi attività basate esclusivamente sui miei interessi scelti."
         label_2="Rassicurami"
         urlImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb"
-        initialValue={state.data.discoveryMode}
+        selectedValue={state.data.discoveryMode}
         onSelect={(id) => {
           state.updateData("discoveryMode", id);
           state.next();
@@ -182,12 +184,14 @@ export const surveySteps = (state: SurveyState): StepConfig<SurveyState>[] => [
     label: "Raggio d'azione",
     description: "Quanto sei disposto a spostarti dalla tua posizione attuale?",
     render: () => (
-      <StepYesOrNoImage
+        <StepYesOrNoImage
+        id_1="Km Zero"
+        id_2="Esploratore"
         label_1="Km Zero"
         description_1="Mostrami solo quello che posso raggiungere in pochi minuti (entro 5km)."
         label_2="Esploratore"
-        description_2="Fammi scoprire tesori e destinazioni in tutto il territorio (fino a 30 km)."
-        initialValue={state.data.travelRange}
+        description_2="Fammi scoprire tesori e destinazioni in tutto il territorio (fino a 20 km)."
+        selectedValue={state.data.travelRange}
         onSelect={(id) => {
           state.updateData("travelRange", id);
           state.next();

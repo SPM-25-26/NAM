@@ -93,7 +93,7 @@ const MainContentsPage: React.FC = () => {
     const [elementsError, setElementsError] = useState<string | null>(null);
 
     // New State: Stores the Set of IDs for the "Personalized" view
-    const [personalizedIds, setPersonalizedIds] = useState<Set<string>>(new Set());
+    const [personalizedIds, setPersonalizedIds] = useState<string[]>([]);
 
     // Filter state
     // Changed default state: initialized to "Personalized" instead of null
@@ -303,7 +303,7 @@ const MainContentsPage: React.FC = () => {
                 ]);
 
                 // Update the set of personalized IDs
-                setPersonalizedIds(new Set(idsResult));
+                setPersonalizedIds(idsResult);
 
                 // Flatten all results into a single array
                 const allElements = categoryResults.flat();
@@ -321,37 +321,48 @@ const MainContentsPage: React.FC = () => {
         // Cleanup: No need to revoke object URLs anymore as we use strings
     }, [authenticated]);
 
-    /**
-     * Handle user logout
+
+     /**
+     * Calculate the list of "Top 15" valid elements for the Personalized view.
+     * Logic:
+     * 1. Map IDs (e.g. 16 IDs) to real objects.
+     * 2. Remove those "undefined" (if an ID is not found in the downloaded categories).
+     * 3. Trim the list to the first 15.
+     * - If all 16 are present -> Show 1-15 (the 16th is excluded).
+     * - If the 3rd is missing -> The 16th shifts up one position, enters the top 15, and is shown.
      */
-    const handleLogout = async () => {
-        try {
-            const response = await fetch(buildApiUrl("auth/logout"), {
-                method: "POST",
-                credentials: "include",
-            });
+    const basePersonalizedList = useMemo(() => {
+        if (selectedCategory !== "Personalized") return [];
 
-            if (!response.ok) {
-                console.error("Logout failed");
-            }
-        } catch (err) {
-            console.error("Logout error:", err);
-        } finally {
-            window.location.href = "/login";
-        }
-    };
+        // Map for quick access
+        const elementMap = new Map(elements.map(el => [el.id, el]));
+
+        return personalizedIds
+            .map(id => elementMap.get(id))                 // Get object or undefined
+            .filter((el): el is ElementItem => el !== undefined) // Remove those not found
+            .slice(0, 15);                                 // TAKE ONLY THE FIRST 15 VALID ONES
+    }, [elements, personalizedIds, selectedCategory]);
+
 
     /**
-     * Extract unique badge options from fetched elements
-     * Filtered by selected category if applicable
+     * Extract unique badge options.
+     * Updated: When "Personalized", use basePersonalizedList to show only relevant badges.
      */
     const uniqueBadgeOptions: CategoryOption[] = useMemo(() => {
         const badges = new Set<string>();
 
-        // Only consider elements from the selected category
-        const relevantElements = selectedCategory && selectedCategory !== "Personalized"
-            ? elements.filter((el) => el.category === selectedCategory)
-            : elements; // For "Personalized", we might want badges from the filtered subset, but here we keep it broader or logic needs adjustment below
+        let relevantElements: ElementItem[] = [];
+
+        if (selectedCategory === "Personalized") {
+            // Use ONLY the 15 calculated elements
+            relevantElements = basePersonalizedList;
+        } else if (selectedCategory) {
+            // Logic standard for other categories
+            relevantElements = elements.filter((el) => el.category === selectedCategory);
+        } else {
+            // Case "All" (if needed)
+            relevantElements = elements;
+        }
 
         relevantElements.forEach((el) => {
             if (el.badge) badges.add(el.badge);
@@ -363,7 +374,7 @@ const MainContentsPage: React.FC = () => {
                 .sort()
                 .map((b) => ({ value: b, label: b })),
         ];
-    }, [elements, selectedCategory]);
+    }, [elements, selectedCategory, basePersonalizedList]);
 
     useEffect(() => {
         if (elements.length === 0 || loadingElements) return;
@@ -429,32 +440,35 @@ const MainContentsPage: React.FC = () => {
         return () => clearTimeout(timer);
     }, [elements, loadingElements]);
 
+
     /**
      * Filter elements based on selected category and badge.
      * Logic updated to handle "Personalized" view by filtering IDs.
      */
     const filteredElements = useMemo(() => {
-        // Determine base list to filter
+        // 1. Logic for "Personalized" (For You)
+        if (selectedCategory === "Personalized") {
+            // If a badge is selected, filter the list of 15
+            if (selectedBadge) {
+                return basePersonalizedList.filter(el => el.badge === selectedBadge);
+            }
+            // Otherwise return the 15 calculated before
+            return basePersonalizedList;
+        }
+
+        // 2. Logic Standard (for other categories)
         let baseList = elements;
 
-        // 1. Filter by Category or Personalized Mode
-        if (selectedCategory === "Personalized") {
-            // Filter elements where the ID exists in the personalizedIds set
-            baseList = elements.filter(el => personalizedIds.has(el.id));
-        } else if (selectedCategory !== null) {
-            // Standard category filtering
+        if (selectedCategory !== null) {
             baseList = elements.filter(el => el.category === selectedCategory);
         }
 
-        // 2. Filter by Badge
+        // Filter Badge
         const matches = baseList.filter((element) => {
-            const badgeMatch = selectedBadge === null || element.badge === selectedBadge;
-            return badgeMatch;
+            return selectedBadge === null || element.badge === selectedBadge;
         });
 
-        // 3. Deduplication logic (preserved from original)
-        // Se siamo in visualizzazione "All" (ora gestito come Personalized o Null),
-        // dobbiamo rimuovere i duplicati basandoci sull'ID.
+        // 3. Deduplication for standard lists
         const uniqueIds = new Set();
         const distinctElements: ElementItem[] = [];
 
@@ -466,7 +480,7 @@ const MainContentsPage: React.FC = () => {
         }
 
         return distinctElements;
-    }, [elements, selectedCategory, selectedBadge, personalizedIds]);
+    }, [elements, selectedCategory, selectedBadge, basePersonalizedList]);
 
     /**
      * Reset badge filter when category changes
@@ -527,7 +541,6 @@ const MainContentsPage: React.FC = () => {
 
                     <MyAppBar
                         title={"Eppoi"}
-                        logout={handleLogout}
                         icon={<FlightIcon sx={{ transform: "rotate(45deg)" }} />}
                     />
                     {/* Main content card */}

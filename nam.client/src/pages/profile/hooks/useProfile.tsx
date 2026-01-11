@@ -3,11 +3,12 @@ import { buildApiUrl } from "../../../config";
 import { useNavigate } from "react-router-dom";
 
 export interface UserProfile {
-  email: string;
-  fullName?: string;
-  avatarUrl?: string;
-  memberSince?: string;
-  preferencesSet: boolean;
+    interest?: string[];
+    travelStyle?: string[];
+    ageRange?: string;
+    travelRange?: string;
+    travelCompanions?: string[];
+    discoveryMode?: string;
 }
 
 export function useProfile() {
@@ -33,7 +34,7 @@ export function useProfile() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(buildApiUrl("/user/questionnaire"), {
+      const response = await fetch(buildApiUrl("user/questionaire"), {
         method: "GET",
         credentials: "include",
         headers: {

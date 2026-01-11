@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { buildApiUrl } from "../../../config";
 
 export type SurveyData = {
@@ -13,15 +13,25 @@ export type SurveyData = {
 
 export const useUserSurvey = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Recuperiamo i dati passati dalla pagina profilo (se esistono)
+  const previousData = location.state?.previousData;
 
   const [activeStep, setActiveStep] = useState(0);
-  const [initSurvey, setInitSurvey] = useState(true);
+  // Se abbiamo dati precedenti (stiamo modificando), NON mostriamo l'intro
+  const [initSurvey, setInitSurvey] = useState(!previousData);
 
-  const [data, setData] = useState<SurveyData>({
-    interest: [],
-    travelStyle: [],
-    travelCompanions: [],
-  });
+
+    // Inizializziamo lo stato con i dati precedenti (o valori di default vuoti)
+    const [data, setData] = useState<SurveyData>({
+        interest: previousData?.interest ?? [],
+        travelStyle: previousData?.travelStyle ?? [],
+        ageRange: previousData?.ageRange ?? undefined,
+        travelRange: previousData?.travelRange ?? undefined,
+        travelCompanions: previousData?.travelCompanions ?? [],
+        discoveryMode: previousData?.discoveryMode ?? undefined,
+    });
 
   const updateData = <K extends keyof SurveyData>(
     key: K,

@@ -43,7 +43,7 @@ namespace nam.Server.Services.Implemented.RecSys
         private readonly double _testLon = 13.0115;
 
         private const string CollectionName = "POI-vectors";
-        private const int DefaultLimit = 15;
+        private const int DefaultLimit = 16;
 
         public RecsysService(
             IUserService userService,
