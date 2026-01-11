@@ -11,6 +11,7 @@
 
             RouteGroupBuilder groupBuilder = builder.MapGroup("/api/user")
             .RequireCors("FrontendWithCredentials")
+            .RequireAuthorization()
             .WithTags("Authentication");
 
             groupBuilder.MapPost("/update-questionaire", UserEndpoints.UpdateQuestionaire)

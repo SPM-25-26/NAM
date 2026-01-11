@@ -10,6 +10,7 @@
 
             RouteGroupBuilder groupBuilder = builder.MapGroup("/api/user")
             .RequireCors("FrontendWithCredentials")
+            .RequireAuthorization()
             .WithTags("Authentication");
 
             groupBuilder.MapGet("/get-rec", RecEndpoints.GetRec)
