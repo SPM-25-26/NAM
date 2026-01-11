@@ -13,6 +13,8 @@ var vectordb = builder.AddQdrant("vectordb")
 var server = builder.AddProject<Projects.nam_Server>("server")
             .WithReference(db)
             .WaitFor(db)
+            .WithReference(vectordb)
+            .WaitFor(vectordb)
             .WithHttpHealthCheck("/health");
 
 var client = builder.AddViteApp("client", "../../nam.client")

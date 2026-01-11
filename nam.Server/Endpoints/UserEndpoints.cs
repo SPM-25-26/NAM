@@ -91,5 +91,35 @@ namespace nam.Server.Endpoints
             }
 
         }
+
+
+        public static async Task<IResult> QuestionaireCompleted(
+                [FromServices] IUserService questionaireService,
+                HttpContext httpContext,
+                CancellationToken cancellationToken = default)
+        {
+            if (_logger is null)
+            {
+                throw new InvalidOperationException("Logger non configurato. È necessario chiamare ConfigureLogger prima di utilizzare questo endpoint.");
+            }
+            var userEmail = httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                _logger.Warning("GetQuestionaire: Il claim email dell'utente è mancante.");
+                return TypedResults.Unauthorized();
+            }
+            try
+            {
+                var completed = await questionaireService.QuestionaireCompletedAsync(userEmail, cancellationToken);
+                return TypedResults.Ok(completed);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "GetQuestionaire: Errore durante il recupero del questionario per l'utente {UserEmail}.", userEmail);
+                return TypedResults.InternalServerError("Si è verificato un errore durante il recupero del questionario.");
+            }
+
+        }
+
     }
 }

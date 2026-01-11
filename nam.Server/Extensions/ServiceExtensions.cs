@@ -1,4 +1,5 @@
-﻿using Domain.Entities.MunicipalityEntities;
+﻿using DataInjection.Qdrant.Data;
+using Domain.Entities.MunicipalityEntities;
 using FluentValidation;
 using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,10 +10,13 @@ using nam.Server.Options;
 using nam.Server.Services.Implemented;
 using nam.Server.Services.Implemented.Auth;
 using nam.Server.Services.Implemented.MunicipalityEntities;
+using nam.Server.Services.Implemented.RecSys;
 using nam.Server.Services.Interfaces;
 using nam.Server.Services.Interfaces.Auth;
 using nam.Server.Services.Interfaces.MunicipalityEntities;
+using nam.Server.Services.Interfaces.RecSys;
 using nam.Server.swagger;
+using Qdrant.Client;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -95,7 +99,7 @@ namespace nam.Server.Extensions
                 });
 
             // Enable authorization services
-            services.AddAuthorization(options =>
+            /*services.AddAuthorization(options =>
             {
                 // All authorized in dev mode
                 if (environment.IsDevelopment())
@@ -106,7 +110,7 @@ namespace nam.Server.Extensions
                     options.FallbackPolicy = options.DefaultPolicy;
                 }
                 // Otherwise (in Prod), use the standard logic (requires authenticated user)
-            });
+            });*/
 
             // Add services to the container.
             services.AddRazorPages();
@@ -194,6 +198,9 @@ namespace nam.Server.Extensions
 
             services.AddScoped<IMunicipalityEntityService<EntertainmentLeisureCard, EntertainmentLeisureDetail>, EntertainmentLeisureService>();
 
+            services.AddScoped<IRanker, SimpleRanker>();
+            services.AddScoped<IScorer, WeightedScorer>();
+            services.AddScoped<IRecSysService, RecsysService>();
 
             // Ritorna services per permettere il "chaining" (concatenazione)
             return services;

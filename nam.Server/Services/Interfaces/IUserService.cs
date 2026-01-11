@@ -6,5 +6,6 @@ namespace nam.Server.Services.Interfaces
     {
         Task<Questionaire?> GetQuestionaireByUserMailAsync(string userEmail, CancellationToken cancellationToken = default);
         Task<bool> UpdateQuestionaireAsync(Questionaire questionaire, string userEmail, CancellationToken cancellationToken = default);
+        Task<bool> QuestionaireCompletedAsync(string userEmail, CancellationToken cancellationToken = default);
     }
 }

@@ -53,6 +53,21 @@ export default defineConfig({
                                 statuses: [0, 200]
                             }
                         }
+                    },
+                    {
+                        // C. CACHE of recommendations
+                        urlPattern: ({ url }) => url.pathname.includes('user/get-rec'),
+                        handler: 'NetworkFirst',
+                        options: {
+                            cacheName: 'recommendations-cache',
+                            expiration: {
+                                maxEntries: 15,
+                                maxAgeSeconds: 60 * 60 * 24 * 7 // Keep recommendations for 1 week
+                            },
+                            cacheableResponse: {
+                                statuses: [0, 200]
+                            }
+                        }
                     }
                 ]
             }

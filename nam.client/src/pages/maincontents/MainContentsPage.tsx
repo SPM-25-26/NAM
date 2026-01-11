@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import FlightIcon from "@mui/icons-material/Flight";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome"; // Imported for the "For You" icon
 import {
     Box,
     Card,
@@ -18,6 +19,7 @@ import type { CategoryOption } from "../../components/SelectComponent";
 import { useNavigate } from "react-router-dom";
 import { stringToCategoryAPI } from "../detail_element/hooks/IDetailElement";
 import MyAppBar from "../../components/appbar";
+import SimpleBottomNavigation from "../../components/bottom_bar";
 
 /**
  * API response shape for card list items
@@ -90,19 +92,33 @@ const MainContentsPage: React.FC = () => {
     const [loadingElements, setLoadingElements] = useState(false);
     const [elementsError, setElementsError] = useState<string | null>(null);
 
+    // New State: Stores the Set of IDs for the "Personalized" view
+    const [personalizedIds, setPersonalizedIds] = useState<string[]>([]);
+
     // Filter state
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    // Changed default state: initialized to "Personalized" instead of null
+    const [selectedCategory, setSelectedCategory] = useState<string | null>("Personalized");
     const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
 
     // Connectivity state
     const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
     /**
-     * Category options for the dropdown, including "All" option
+     * Category options for the dropdown.
+     * "All" has been replaced by "Personalized" (For You) with an icon.
      */
     const categoryOptions: CategoryOption[] = useMemo(() => {
         return [
-            { value: null, label: "All" },
+            {
+                value: "Personalized",
+                // Rendering the label with the AutoAwesome icon
+                label: (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        For You
+                        <AutoAwesomeIcon fontSize="small" sx={{ color: "#ffffff" }} />
+                    </Box>
+                ) as unknown as string // Type assertion if the component strictly expects string, otherwise remove casting
+            },
             ...CATEGORY_CONFIGS.map((config) => ({
                 value: config.value,
                 label: config.label,
@@ -146,6 +162,28 @@ const MainContentsPage: React.FC = () => {
                 });
 
                 if (response.ok) {
+                    // Survey check if completed
+                    try {
+                        // Assicurati che l'URL corrisponda alla route del tuo endpoint C#
+                        const surveyResponse = await fetch(buildApiUrl("user/questionaire-completed"), {
+                            method: "GET",
+                            credentials: "include",
+                            headers: { "Accept": "application/json" }
+                        });
+
+                        if (surveyResponse.ok) {
+                            const isComplete = await surveyResponse.json(); // Riceve true o false dal C#
+
+                            if (isComplete === false) {
+                                // Se il questionario è vuoto, reindirizza e FERMA tutto
+                                navigate("/survey"); // Assicurati che la rotta sia corretta
+                                return;
+                            }
+                        }
+                    } catch (surveyErr) {
+                        console.error("Error controlling survey, proceeding anyway:", surveyErr);
+                    }
+
                     setAuthenticated(true);
                 } else {
                     window.location.href = "/login";
@@ -159,7 +197,7 @@ const MainContentsPage: React.FC = () => {
         };
 
         checkAuth();
-    }, []);
+    }, [navigate]);
 
     /**
      * Fetches card list data from a specific category endpoint
@@ -203,10 +241,7 @@ const MainContentsPage: React.FC = () => {
             }
 
             return {
-                id:
-                    item.entityId?.toString() ??
-                    item.taxCode ??
-                    `${category}-${index}`,
+                id: item.entityId?.toString() ?? item.taxCode ?? `${category}-${index}`,
                 title: item.entityName || "Untitled",
                 badge: item.badgeText || "",
                 address: item.address || "",
@@ -218,7 +253,29 @@ const MainContentsPage: React.FC = () => {
     };
 
     /**
-     * Fetch data from all category endpoints in parallel
+     * Retrieves the list of IDs specifically tailored for the user.
+     * This is used to filter the global list when "For You" is selected.
+     */
+    const fetchPersonalizedIds = async (): Promise<string[]> => {
+        try {
+            const response = await fetch(buildApiUrl("user/get-rec"), {
+                method: "GET",
+                headers: { Accept: "application/json" },
+                credentials: "include",
+            });
+
+            if (response.ok) {
+                return await response.json() as string[];
+            }
+            return [];
+        } catch (error) {
+            console.error("Failed to fetch personalized IDs:", error);
+            return [];
+        }
+    };
+
+    /**
+     * Fetch data from all category endpoints AND the personalized IDs in parallel
      */
     useEffect(() => {
         if (!authenticated) return;
@@ -236,10 +293,20 @@ const MainContentsPage: React.FC = () => {
                     })
                 );
 
-                const results = await Promise.all(categoryPromises);
+                // Fetch personalized IDs in parallel with categories
+                const personalizedIdsPromise = fetchPersonalizedIds();
+
+                // Wait for all requests to complete
+                const [idsResult, ...categoryResults] = await Promise.all([
+                    personalizedIdsPromise,
+                    ...categoryPromises
+                ]);
+
+                // Update the set of personalized IDs
+                setPersonalizedIds(idsResult);
 
                 // Flatten all results into a single array
-                const allElements = results.flat();
+                const allElements = categoryResults.flat();
                 setElements(allElements);
             } catch (err) {
                 console.error("Error while fetching elements:", err);
@@ -254,37 +321,48 @@ const MainContentsPage: React.FC = () => {
         // Cleanup: No need to revoke object URLs anymore as we use strings
     }, [authenticated]);
 
-    /**
-     * Handle user logout
+
+     /**
+     * Calculate the list of "Top 15" valid elements for the Personalized view.
+     * Logic:
+     * 1. Map IDs (e.g. 16 IDs) to real objects.
+     * 2. Remove those "undefined" (if an ID is not found in the downloaded categories).
+     * 3. Trim the list to the first 15.
+     * - If all 16 are present -> Show 1-15 (the 16th is excluded).
+     * - If the 3rd is missing -> The 16th shifts up one position, enters the top 15, and is shown.
      */
-    const handleLogout = async () => {
-        try {
-            const response = await fetch(buildApiUrl("auth/logout"), {
-                method: "POST",
-                credentials: "include",
-            });
+    const basePersonalizedList = useMemo(() => {
+        if (selectedCategory !== "Personalized") return [];
 
-            if (!response.ok) {
-                console.error("Logout failed");
-            }
-        } catch (err) {
-            console.error("Logout error:", err);
-        } finally {
-            window.location.href = "/login";
-        }
-    };
+        // Map for quick access
+        const elementMap = new Map(elements.map(el => [el.id, el]));
+
+        return personalizedIds
+            .map(id => elementMap.get(id))                 // Get object or undefined
+            .filter((el): el is ElementItem => el !== undefined) // Remove those not found
+            .slice(0, 15);                                 // TAKE ONLY THE FIRST 15 VALID ONES
+    }, [elements, personalizedIds, selectedCategory]);
+
 
     /**
-     * Extract unique badge options from fetched elements
-     * Filtered by selected category if applicable
+     * Extract unique badge options.
+     * Updated: When "Personalized", use basePersonalizedList to show only relevant badges.
      */
     const uniqueBadgeOptions: CategoryOption[] = useMemo(() => {
         const badges = new Set<string>();
 
-        // Only consider elements from the selected category
-        const relevantElements = selectedCategory
-            ? elements.filter((el) => el.category === selectedCategory)
-            : elements;
+        let relevantElements: ElementItem[] = [];
+
+        if (selectedCategory === "Personalized") {
+            // Use ONLY the 15 calculated elements
+            relevantElements = basePersonalizedList;
+        } else if (selectedCategory) {
+            // Logic standard for other categories
+            relevantElements = elements.filter((el) => el.category === selectedCategory);
+        } else {
+            // Case "All" (if needed)
+            relevantElements = elements;
+        }
 
         relevantElements.forEach((el) => {
             if (el.badge) badges.add(el.badge);
@@ -296,7 +374,7 @@ const MainContentsPage: React.FC = () => {
                 .sort()
                 .map((b) => ({ value: b, label: b })),
         ];
-    }, [elements, selectedCategory]);
+    }, [elements, selectedCategory, basePersonalizedList]);
 
     useEffect(() => {
         if (elements.length === 0 || loadingElements) return;
@@ -316,18 +394,31 @@ const MainContentsPage: React.FC = () => {
                     let endpointCategory = "";
                     // Mappa Categoria UI -> Path API
                     switch (item.category) {
-                        case "Article": endpointCategory = "article"; break;
-                        case "ArtCulture": endpointCategory = "art-culture"; break;
-                        case "Events": endpointCategory = "public-event"; break;
-                        case "Organization": endpointCategory = "organizations"; break;
-                        case "Nature": endpointCategory = "nature"; break;
-                        case "EntertainmentLeisure": endpointCategory = "entertainment-leisure"; break;
-                        default: continue;
+                        case "Article":
+                            endpointCategory = "article";
+                            break;
+                        case "ArtCulture":
+                            endpointCategory = "art-culture";
+                            break;
+                        case "Events":
+                            endpointCategory = "public-event";
+                            break;
+                        case "Organization":
+                            endpointCategory = "organizations";
+                            break;
+                        case "Nature":
+                            endpointCategory = "nature";
+                            break;
+                        case "EntertainmentLeisure":
+                            endpointCategory = "entertainment-leisure";
+                            break;
+                        default:
+                            continue;
                     }
 
-                   
-                    const detailUrl = buildApiUrl(`${endpointCategory}/detail/${item.id}?language=it`);
-
+                    const detailUrl = buildApiUrl(
+                        `${endpointCategory}/detail/${item.id}?language=it`
+                    );
 
                     // Execute the fetch "empty". The Service Worker intercepts it and saves the JSON.
                     await fetch(detailUrl, {
@@ -349,27 +440,35 @@ const MainContentsPage: React.FC = () => {
         return () => clearTimeout(timer);
     }, [elements, loadingElements]);
 
+
     /**
-     * Filter elements based on selected category and badge
-     * AND deduplicate if no category is selected
+     * Filter elements based on selected category and badge.
+     * Logic updated to handle "Personalized" view by filtering IDs.
      */
     const filteredElements = useMemo(() => {
-        //Apply standard filters
-        const matches = elements.filter((element) => {
-            const categoryMatch =
-                selectedCategory === null || element.category === selectedCategory;
-            const badgeMatch =
-                selectedBadge === null || element.badge === selectedBadge;
-            return categoryMatch && badgeMatch;
-        });
-
-        //If a specific categories is selected, we return all
-        if (selectedCategory !== null) {
-            return matches;
+        // 1. Logic for "Personalized" (For You)
+        if (selectedCategory === "Personalized") {
+            // If a badge is selected, filter the list of 15
+            if (selectedBadge) {
+                return basePersonalizedList.filter(el => el.badge === selectedBadge);
+            }
+            // Otherwise return the 15 calculated before
+            return basePersonalizedList;
         }
 
-        // 3. Se siamo in visualizzazione "All" (selectedCategory === null),
-        // dobbiamo rimuovere i duplicati basandoci sull'ID.
+        // 2. Logic Standard (for other categories)
+        let baseList = elements;
+
+        if (selectedCategory !== null) {
+            baseList = elements.filter(el => el.category === selectedCategory);
+        }
+
+        // Filter Badge
+        const matches = baseList.filter((element) => {
+            return selectedBadge === null || element.badge === selectedBadge;
+        });
+
+        // 3. Deduplication for standard lists
         const uniqueIds = new Set();
         const distinctElements: ElementItem[] = [];
 
@@ -381,7 +480,7 @@ const MainContentsPage: React.FC = () => {
         }
 
         return distinctElements;
-    }, [elements, selectedCategory, selectedBadge]);
+    }, [elements, selectedCategory, selectedBadge, basePersonalizedList]);
 
     /**
      * Reset badge filter when category changes
@@ -442,7 +541,6 @@ const MainContentsPage: React.FC = () => {
 
                     <MyAppBar
                         title={"Eppoi"}
-                        logout={handleLogout}
                         icon={<FlightIcon sx={{ transform: "rotate(45deg)" }} />}
                     />
                     {/* Main content card */}
@@ -511,7 +609,9 @@ const MainContentsPage: React.FC = () => {
                                     mt: 2,
                                 }}
                             >
-                                No items available for the selected filters.
+                                {selectedCategory === "Personalized"
+                                    ? "No personalized suggestions available at the moment."
+                                    : "No items available for the selected filters."}
                             </Typography>
                         ) : (
                             <Box
@@ -559,6 +659,7 @@ const MainContentsPage: React.FC = () => {
                     </Card>
                 </Box>
             </Container>
+            <SimpleBottomNavigation />
         </Box>
     );
 };

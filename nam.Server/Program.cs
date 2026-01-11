@@ -1,3 +1,4 @@
+using DotNetEnv;
 using Infrastructure;
 using nam.Server.Endpoints;
 using nam.Server.Endpoints.Auth;
@@ -8,6 +9,7 @@ using Serilog;
 
 
 var builder = WebApplication.CreateBuilder(args);
+Env.Load();
 
 builder.AddServiceDefaults();
 
@@ -22,6 +24,12 @@ builder.Services.AddApplicationServices(builder.Configuration, builder.Environme
 // Configure Serilog logging
 builder.Host.UseSerilog((context, config) =>
     config.ReadFrom.Configuration(context.Configuration));
+
+builder.AddQdrantClient("vectordb");
+builder.Services.AddGoogleAIEmbeddingGenerator(
+                "gemini-embedding-001",
+                Environment.GetEnvironmentVariable("GEMINI_API_KEY")
+            );
 
 var app = builder.Build();
 
@@ -63,4 +71,5 @@ app.MapMunicipalityCard();
 app.MapOrganization();
 app.MapEntertainmentLeisure();
 app.MapQuestionaire();
+app.ReccomandationMap();
 app.Run();
