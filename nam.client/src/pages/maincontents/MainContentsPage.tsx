@@ -127,6 +127,33 @@ const MainContentsPage: React.FC = () => {
     }, []);
 
     /**
+     * Helper to get current position wrapped in a Promise.
+     * Returns null if denied, not supported, or timed out.
+     */
+    const getUserLocation = (): Promise<{ lat: number; lon: number } | null> => {
+        return new Promise((resolve) => {
+            if (!navigator.geolocation) {
+                resolve(null);
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude,
+                    });
+                },
+                (error) => {
+                    console.warn("Geolocation access denied or failed:", error.message);
+                    resolve(null); // Proceed without location
+                },
+                { timeout: 5000, enableHighAccuracy: false } // 5 seconds max wait
+            );
+        });
+    };
+
+    /**
      * Monitor online/offline status
      */
     useEffect(() => {
@@ -255,10 +282,17 @@ const MainContentsPage: React.FC = () => {
     /**
      * Retrieves the list of IDs specifically tailored for the user.
      * This is used to filter the global list when "For You" is selected.
+     * Accepts optional Latitude and Longitude.
      */
-    const fetchPersonalizedIds = async (): Promise<string[]> => {
+    const fetchPersonalizedIds = async (lat?: number, lon?: number): Promise<string[]> => {
         try {
-            const response = await fetch(buildApiUrl("user/get-rec"), {
+            // Build the URL with query parameters if coordinates exist
+            let endpoint = "user/get-rec";
+            if (lat !== undefined && lon !== undefined) {
+                endpoint += `?lat=${lat}&lon=${lon}`;
+            }
+
+            const response = await fetch(buildApiUrl(endpoint), {
                 method: "GET",
                 headers: { Accept: "application/json" },
                 credentials: "include",
@@ -293,8 +327,12 @@ const MainContentsPage: React.FC = () => {
                     })
                 );
 
+
+                // This might take a few seconds if the user gets a permission popup
+                const location = await getUserLocation();
+
                 // Fetch personalized IDs in parallel with categories
-                const personalizedIdsPromise = fetchPersonalizedIds();
+                const personalizedIdsPromise = fetchPersonalizedIds(location?.lat, location?.lon);
 
                 // Wait for all requests to complete
                 const [idsResult, ...categoryResults] = await Promise.all([
