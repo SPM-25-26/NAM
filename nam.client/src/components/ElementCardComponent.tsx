@@ -7,6 +7,7 @@ export type ElementCardProps = {
     address?: string;
     imageUrl?: string;
     date?: string;
+    distanceText?: string;
     onClick?: () => void;
 };
 
@@ -16,6 +17,7 @@ const ElementCard: React.FC<ElementCardProps> = ({
     address,
     imageUrl,
     date,
+    distanceText,
     onClick,
 }) => {
     const theme = useTheme();
@@ -61,6 +63,33 @@ const ElementCard: React.FC<ElementCardProps> = ({
                         flexShrink: 0,
                     }}
                 >
+                    {distanceText && (
+                        <Box
+                            sx={{
+                                position: "absolute",
+                                top: 8,
+                                left: 8,
+                                px: 1.6,
+                                py: 0.7,
+                                borderRadius: theme.shape.borderRadius,
+                                background:
+                                    "#9810fa",
+                                boxShadow: theme.shadows[2],
+                                zIndex: 2,
+                            }}
+                        >
+                            <Typography
+                                variant="caption"
+                                sx={{
+                                    color: theme.palette.common.white,
+                                    fontWeight: 700,
+                                }}
+                            >
+                                {distanceText}
+                            </Typography>
+                        </Box>
+                    )}
+
                     {/* Badge over the image (solid) */}
                     {badge && (
                         <Box
