@@ -292,7 +292,7 @@ const MainContentsPage: React.FC = () => {
                 }
             } catch (err) {
                 console.error("Auth check error:", err);
-                window.location.href="/login";
+                setAuthenticated(true);
             } finally {
                 setLoadingAuth(false);
             }
