@@ -66,7 +66,7 @@ namespace nam.Server.Services.Implemented.RecSys
         /// <param name="realLat">Current user latitude, if available.</param>
         /// <param name="realLon">Current user longitude, if available.</param>
         /// <returns>List of recommended POI identifiers, ordered by descending relevance.</returns>
-        public async Task<List<Guid>> GetRecommendationsAsync(string userEmail, double? realLat, double? realLon)
+        public async Task<List<string>> GetRecommendationsAsync(string userEmail, double? realLat, double? realLon)
         {
             // 1. Determine user location (optionally forced to test coordinates).
             var lat = _forceTestLocation ? _testLat : realLat;
@@ -141,11 +141,16 @@ namespace nam.Server.Services.Implemented.RecSys
                 return RankAndSelect(scoredPois, targetCount);
 
             // Stage 4: fallback using scroll (no embedding).
-            var needed = targetCount - scoredPois.Count;
-            var fallbackIds = await GetGenericFallbackAsync(needed, excludedPoiIds);
-
             var rankedIds = RankAndSelect(scoredPois, targetCount);
-            rankedIds.AddRange(fallbackIds);
+
+            // Fallback if more elements are needed
+            if (rankedIds.Count < targetCount)
+            {
+                var needed = targetCount - rankedIds.Count;
+                // The fallback now also returns strings
+                var fallbackIds = await GetGenericFallbackAsync(needed, excludedPoiIds);
+                rankedIds.AddRange(fallbackIds);
+            }
 
             return rankedIds
                 .Distinct()
@@ -254,10 +259,20 @@ namespace nam.Server.Services.Implemented.RecSys
                     searchRadiusKm: searchRadiusKm
                 );
 
+                string? rawPayloadId = null;
+                if (bestChunk.Payload != null)
+                {
+                    if (bestChunk.Payload.TryGetValue("EntityId", out var val))
+                    {
+                        rawPayloadId = val?.ToString()?.Trim('"');
+                    }
+                }
+
                 targetList.Add(new ScoredPoi
                 {
                     PoiId = poiId,
-                    FinalScore = finalScore
+                    FinalScore = finalScore,
+                    EntityIdPayload = rawPayloadId
                 });
 
                 excludedPoiIds.Add(poiId);
@@ -374,9 +389,9 @@ namespace nam.Server.Services.Implemented.RecSys
         /// Uses the configured ranker to order POIs by final score
         /// and return the top N identifiers.
         /// </summary>
-        private List<Guid> RankAndSelect(List<ScoredPoi> scoredPois, int take)
+        private List<string> RankAndSelect(List<ScoredPoi> scoredPois, int take)
         {
-            var tuples = scoredPois.Select(p => (p.PoiId, p.FinalScore));
+            var tuples = scoredPois.Select(p => (p.PoiId, p.FinalScore, p.EntityIdPayload));
             return _ranker.RankAndSelect(tuples, take);
         }
 
@@ -384,10 +399,10 @@ namespace nam.Server.Services.Implemented.RecSys
         /// Generic fallback that scrolls Qdrant for arbitrary POIs (chunk-level),
         /// groups them by POI id, and returns distinct ids not already excluded.
         /// </summary>
-        private async Task<List<Guid>> GetGenericFallbackAsync(int count, HashSet<Guid> excludedPoiIds)
+        private async Task<List<string>> GetGenericFallbackAsync(int count, HashSet<Guid> excludedPoiIds)
         {
             if (count <= 0)
-                return new List<Guid>();
+                return new List<string>();
 
             var filter = new Filter();
 
@@ -414,9 +429,24 @@ namespace nam.Server.Services.Implemented.RecSys
             );
 
             return scrollResult.Result
-                .Where(p => p.Id?.Uuid is not null && Guid.TryParse(p.Id.Uuid, out _))
-                .Select(p => Guid.Parse(p.Id.Uuid))
-                .Where(id => !excludedPoiIds.Contains(id))
+                .Select(p =>
+                {
+                    // Search in the payload
+                    string? payloadId = null;
+                    if (p.Payload != null &&
+                       p.Payload.TryGetValue("EntityId", out var val))
+                    {
+                        payloadId = val?.ToString()?.Trim('"');
+                    }
+
+                    // If there is in the payload use that, otherwise use the point ID converted to string
+                    if (!string.IsNullOrWhiteSpace(payloadId))
+                    {
+                        return payloadId;
+                    }
+
+                    return p.Id?.Uuid ?? Guid.Empty.ToString();
+                })
                 .Distinct()
                 .Take(count)
                 .ToList();
@@ -431,6 +461,7 @@ namespace nam.Server.Services.Implemented.RecSys
         {
             public Guid PoiId { get; set; }
             public double FinalScore { get; set; }
+            public string? EntityIdPayload { get; set; }
         }
     }
 }

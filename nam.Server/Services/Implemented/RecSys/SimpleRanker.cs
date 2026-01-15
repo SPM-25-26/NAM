@@ -8,12 +8,23 @@ namespace nam.Server.Services.Implemented.RecSys
     /// </summary>
     public class SimpleRanker : IRanker
     {
-        public List<Guid> RankAndSelect(IEnumerable<(Guid Id, double Score)> items, int take)
+        public List<string> RankAndSelect(IEnumerable<(Guid Id, double Score, string? EntityIdPayload)> items, int take)
         {
             return items
                 .OrderByDescending(x => x.Score)
                 .Take(take)
-                .Select(x => x.Id)
+                .Select(p =>
+                {
+
+                    // 1. If there is in the payload use that, otherwise use the point ID converted to string
+                    if (!string.IsNullOrWhiteSpace(p.EntityIdPayload))
+                    {
+                        return p.EntityIdPayload;
+                    }
+
+                    // 2. Otherwise, take the technical Guid and convert it to a string.
+                    return p.Id.ToString();
+                }).Distinct()
                 .ToList();
         }
     }

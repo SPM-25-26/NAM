@@ -283,11 +283,16 @@ const MainContentsPage: React.FC = () => {
 
                     setAuthenticated(true);
                 } else {
-                    window.location.href = "/login";
+                    if (response.status === 401 || response.status === 403) {
+                        window.location.href = "/login";
+                    } else {
+                        console.warn("Server error validating token, staying on page just in case");
+                        setAuthenticated(true);
+                    }
                 }
             } catch (err) {
                 console.error("Auth check error:", err);
-                window.location.href = "/login";
+                window.location.href="/login";
             } finally {
                 setLoadingAuth(false);
             }
@@ -372,7 +377,28 @@ const MainContentsPage: React.FC = () => {
             });
 
             if (response.ok) {
-                return await response.json() as string[];
+                const rawData = await response.json();
+
+                // DATA CLEANING:
+                const cleanIds = Array.isArray(rawData) ? rawData.map((item: unknown) => {
+
+                    if (typeof item === 'string') {
+                        if (item.includes("stringValue")) {
+                            try {
+                                const parsed = JSON.parse(item);
+                                if (parsed.stringValue) return parsed.stringValue;
+                            } catch (e) {
+                                console.warn("Failed to parse ID JSON:", item, e);
+                            }
+                        }
+                        // If it's a clean string, return it as is
+                        return item;
+                    }
+
+                    return String(item);
+                }) : [];
+
+                return cleanIds;
             }
             return [];
         } catch (error) {
@@ -456,6 +482,13 @@ const MainContentsPage: React.FC = () => {
 
         // Map for quick access
         const elementMap = new Map(elements.map(el => [el.id, el]));
+
+        const missingIds = personalizedIds.filter(id => !elementMap.has(id));
+
+        if (missingIds.length > 0) {
+            console.log("Missing IDs:", missingIds);
+            console.groupEnd();
+        }
 
         return personalizedIds
             .map(id => elementMap.get(id))                  // Get object or undefined

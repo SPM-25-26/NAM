@@ -23,6 +23,10 @@ export default defineConfig({
                 // 2. Dynamic cache (API e Images)
                 runtimeCaching: [
                     {
+                        urlPattern: ({ url }) => url.pathname.includes('auth/validate-token'),
+                        handler: 'NetworkOnly',
+                    },
+                    {
                         // A. CACHE OF API Calls (Events, Articoles, ArtCulture, Details)
                         // StaleWhileRevalidate: Show cached data, and control if it is changed
                         urlPattern: ({ url }) => url.pathname.includes('card-list') || url.pathname.includes('detail/'),
@@ -60,6 +64,7 @@ export default defineConfig({
                         handler: 'NetworkFirst',
                         options: {
                             cacheName: 'recommendations-cache',
+                            networkTimeoutSeconds: 4, // If no response in 4 seconds, use cache
                             expiration: {
                                 maxEntries: 15,
                                 maxAgeSeconds: 60 * 60 * 24 * 7 // Keep recommendations for 1 week

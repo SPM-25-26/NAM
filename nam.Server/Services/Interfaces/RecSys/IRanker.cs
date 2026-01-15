@@ -11,6 +11,6 @@
         /// <param name="items">Sequence of (Id, Score) pairs.</param>
         /// <param name="take">Number of items to return.</param>
         /// <returns>List of item identifiers ordered by descending score.</returns>
-        List<Guid> RankAndSelect(IEnumerable<(Guid Id, double Score)> items, int take);
+        List<string> RankAndSelect(IEnumerable<(Guid Id, double Score, string? EntityIdPayload)> items, int take);
     }
 }
