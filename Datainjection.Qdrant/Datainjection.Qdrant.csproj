@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-Datainjection.Qdrant-9a7d8dd3-dd03-4f0f-9c16-8d2d5b821e02</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Aspire.Qdrant.Client" Version="13.1.0" />
+	  <PackageReference Include="DotNetEnv" Version="3.1.1" />
+	  <PackageReference Include="Microsoft.ML.Tokenizers" Version="2.0.0" />
+	  <PackageReference Include="Microsoft.ML.Tokenizers.Data.O200kBase" Version="2.0.0" />
+	  <PackageReference Include="Microsoft.SemanticKernel.Connectors.Google" Version="1.68.0-alpha" />
+	  <PackageReference Include="Microsoft.SemanticKernel.Connectors.Qdrant" Version="1.68.0-preview" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <ProjectReference Include="..\DataInjection.Core\DataInjection.Core.csproj" />
+	  <ProjectReference Include="..\nam\nam.ServiceDefaults\nam.ServiceDefaults.csproj" />
+  </ItemGroup>
+</Project>

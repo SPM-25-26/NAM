@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using nam.Server.Models.Entities.MunicipalityEntities;
-using nam.Server.Models.Services.Application.Interfaces.MunicipalityEntities;
+﻿using Domain.Entities.MunicipalityEntities;
+using Microsoft.AspNetCore.Mvc;
+using nam.Server.Services.Interfaces.MunicipalityEntities;
 
 namespace nam.Server.Endpoints.MunicipalityEntities
 {
@@ -45,6 +45,42 @@ namespace nam.Server.Endpoints.MunicipalityEntities
             catch (Exception ex)
             {
                 _logger?.Error(ex, "Error in getCardDetail identifier={identifier}, language={Language}", identifier, language);
+                return TypedResults.Problem(detail: "Internal server error", statusCode: 500);
+            }
+        }
+
+        public static async Task<IResult> GetFullCard(
+            [FromServices] IMunicipalityEntityService<ArtCultureNatureCard, ArtCultureNatureDetail> artCultureService,
+            [FromQuery] string identifier,
+            [FromQuery] string language = "it"
+            )
+        {
+            try
+            {
+                var result = await artCultureService.GetFullCardAsync(identifier, language);
+                return TypedResults.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error(ex, "Error in GetFullCard identifier={Identifier}, language={Language}", identifier, language);
+                return TypedResults.Problem(detail: "Internal server error", statusCode: 500);
+            }
+        }
+
+        public static async Task<IResult> GetFullCardList(
+            [FromServices] IMunicipalityEntityService<ArtCultureNatureCard, ArtCultureNatureDetail> artCultureService,
+            [FromQuery] string municipality,
+            [FromQuery] string language = "it"
+            )
+        {
+            try
+            {
+                var result = await artCultureService.GetFullCardListAsync(municipality, language);
+                return TypedResults.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error(ex, "Error in GetFullCardList municipality={Municipality}, language={Language}", municipality, language);
                 return TypedResults.Problem(detail: "Internal server error", statusCode: 500);
             }
         }

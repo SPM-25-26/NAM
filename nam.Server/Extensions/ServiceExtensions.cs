@@ -1,25 +1,22 @@
-﻿using FluentValidation;
+﻿using DataInjection.Qdrant.Data;
+using Domain.Entities.MunicipalityEntities;
+using FluentValidation;
+using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using nam.Server.Data;
-using nam.Server.Models.Entities.MunicipalityEntities;
-using nam.Server.Models.Options;
-using nam.Server.Models.Services.Application.Implemented.DataInjection.Fetchers;
-using nam.Server.Models.Services.Application.Implemented.DataInjection.Sync;
-using nam.Server.Models.Services.Application.Implemented.MunicipalityEntities;
-using nam.Server.Models.Services.Application.Interfaces.DataInjection;
-using nam.Server.Models.Services.Application.Interfaces.MunicipalityEntities;
-using nam.Server.Models.Services.Infrastructure.Implemented;
-using nam.Server.Models.Services.Infrastructure.Implemented.Auth;
-using nam.Server.Models.Services.Infrastructure.Interfaces;
-using nam.Server.Models.Services.Infrastructure.Interfaces.Auth;
-using nam.Server.Models.Services.Infrastructure.Services.Implemented.MunicipalityEntities;
-using nam.Server.Models.swagger;
-using nam.Server.Models.Swagger;
-using nam.Server.Workers;
+using nam.Server.Options;
+using nam.Server.Services.Implemented;
+using nam.Server.Services.Implemented.Auth;
+using nam.Server.Services.Implemented.MunicipalityEntities;
+using nam.Server.Services.Implemented.RecSys;
+using nam.Server.Services.Interfaces;
+using nam.Server.Services.Interfaces.Auth;
+using nam.Server.Services.Interfaces.MunicipalityEntities;
+using nam.Server.Services.Interfaces.RecSys;
+using nam.Server.swagger;
+using Qdrant.Client;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -28,19 +25,19 @@ namespace nam.Server.Extensions
 {
     public static class ServiceExtensions
     {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
-    {
+        public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
+        {
 
-            // Retrieve and configure the database connection string
-            string connectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            //// Retrieve and configure the database connection string
+            //string connectionString = configuration.GetConnectionString("DefaultConnection")
+            //    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-            // Register the DbContext with SQL Server provider
-            services.AddDbContext<ApplicationDbContext>(options =>
-             options.UseSqlServer(
-                 connectionString,
-                 o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
-             ));
+            //// Register the DbContext with SQL Server provider
+            //services.AddDbContext<ApplicationDbContext>(options =>
+            // options.UseSqlServer(
+            //     connectionString,
+            //     o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            // ));
 
 
             // Retrieve the JWT secret key from configuration
@@ -102,7 +99,7 @@ namespace nam.Server.Extensions
                 });
 
             // Enable authorization services
-            services.AddAuthorization(options =>
+            /*services.AddAuthorization(options =>
             {
                 // All authorized in dev mode
                 if (environment.IsDevelopment())
@@ -113,7 +110,7 @@ namespace nam.Server.Extensions
                     options.FallbackPolicy = options.DefaultPolicy;
                 }
                 // Otherwise (in Prod), use the standard logic (requires authenticated user)
-            });
+            });*/
 
             // Add services to the container.
             services.AddRazorPages();
@@ -133,6 +130,9 @@ namespace nam.Server.Extensions
 
             // Bind JWT configuration section to strongly-typed options
             services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
+
+
+            services.AddScoped<IUserService, UserService>();
 
             services.AddCors(options =>
             {
@@ -183,13 +183,6 @@ namespace nam.Server.Extensions
             // Register HttpClient for data injection services
             services.AddHttpClient();
 
-            // Register data injection services
-            services.AddTransient<ISyncService, NewSyncService>();
-            services.AddTransient<IFetcher, HttpFetcherService>();
-
-            // Register background workers
-            services.AddHostedService<DailyDataSyncWorker>();
-
             // Municipality entities services
             services.AddScoped<IMunicipalityEntityService<ArtCultureNatureCard, ArtCultureNatureDetail>, ArtCultureService>();
 
@@ -205,9 +198,12 @@ namespace nam.Server.Extensions
 
             services.AddScoped<IMunicipalityEntityService<EntertainmentLeisureCard, EntertainmentLeisureDetail>, EntertainmentLeisureService>();
 
+            services.AddScoped<IRanker, SimpleRanker>();
+            services.AddScoped<IScorer, WeightedScorer>();
+            services.AddScoped<IRecSysService, RecsysService>();
 
             // Ritorna services per permettere il "chaining" (concatenazione)
             return services;
+        }
     }
-}
 }
