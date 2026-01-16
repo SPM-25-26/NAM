@@ -1,7 +1,10 @@
 using DotNetEnv;
 using Infrastructure;
+using Microsoft.SemanticKernel;
+using nam.Server.Chatbot;
 using nam.Server.Endpoints;
 using nam.Server.Endpoints.Auth;
+using nam.Server.Endpoints.Chatbot;
 using nam.Server.Endpoints.MunicipalityEntities;
 using nam.Server.Extensions;
 using nam.ServiceDefaults;
@@ -27,9 +30,17 @@ builder.Host.UseSerilog((context, config) =>
 
 builder.AddQdrantClient("vectordb");
 builder.Services.AddGoogleAIEmbeddingGenerator(
-                "gemini-embedding-001",
-                Environment.GetEnvironmentVariable("GEMINI_API_KEY")
-            );
+    modelId: "gemini-embedding-001",
+    apiKey: Environment.GetEnvironmentVariable("GEMINI_API_KEY") ?? "no-key"
+);
+
+// Chatbot config
+builder.Services.AddOpenAIChatCompletion(
+    modelId: "gemini-2.5-flash-lite",
+    apiKey: Environment.GetEnvironmentVariable("GEMINI_API_KEY"),
+    endpoint: new Uri("https://generativelanguage.googleapis.com/v1beta/openai/")
+);
+builder.Services.AddSingleton<IChatbotService, ChatbotService>();
 
 var app = builder.Build();
 
@@ -72,4 +83,5 @@ app.MapOrganization();
 app.MapEntertainmentLeisure();
 app.MapQuestionaire();
 app.ReccomandationMap();
+app.MapChatbot();
 app.Run();

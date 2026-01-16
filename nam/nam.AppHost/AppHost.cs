@@ -23,15 +23,15 @@ var client = builder.AddViteApp("client", "../../nam.client")
             .WithExternalHttpEndpoints()
             .WithNpmPackageInstallation();
 
-var qdrantDataInjection = builder.AddProject<Projects.Datainjection_Qdrant>("datainjection-qdrant")
-            .WithReference(vectordb)
-            .WaitFor(vectordb)
-            .WithReference(server)
-            .WaitFor(server);
+//var qdrantDataInjection = builder.AddProject<Projects.Datainjection_Qdrant>("datainjection-qdrant")
+//            .WithReference(vectordb)
+//            .WaitFor(vectordb)
+//            .WithReference(server)
+//            .WaitFor(server);
 
-var sqlDataInjection = builder.AddProject<Projects.DataInjection_SQL>("datainjection-sql")
-            .WithReference(db)
-            .WaitFor(db);
+//var sqlDataInjection = builder.AddProject<Projects.DataInjection_SQL>("datainjection-sql")
+//            .WithReference(db)
+//            .WaitFor(db);
 
 
 builder.Build().Run();
