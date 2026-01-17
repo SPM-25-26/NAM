@@ -51,8 +51,6 @@ namespace nam.Server.Services.Implemented.Chatbot
 
             ### DATI RECUPERATI (Punti di Interesse ed Eventi)
             Ecco i risultati pertinenti trovati nel nostro database per la zona richiesta:
-
-            [POI #1]
             {{POIList}}
 
             ---
@@ -73,7 +71,7 @@ namespace nam.Server.Services.Implemented.Chatbot
             var questionaire = await GetByEmailAsync(userEmail);
 
             var prompt = PromptTemplate.Replace("{{UserQuestionaire}}", questionaire.ToEmbeddingString() ?? "N/A")
-                                        .Replace("{{UserPrompt}}", questionaire.ToEmbeddingString() ?? "N/A")
+                                        .Replace("{{UserPrompt}}", request.History.Last().Content ?? "N/A")
                                         .Replace("{{POIList}}", poisString ?? "N/A");
 
             history.RemoveAt(history.Count - 1); // Remove previous user prompt
@@ -97,24 +95,25 @@ namespace nam.Server.Services.Implemented.Chatbot
         {
             var embeddingResult = await embedder.GenerateAsync(history.Last().Content);
             var vector = embeddingResult.Vector;
-            var searchResult = await store.SearchAsync(vector, top: 3)
+            var searchResults = await store.SearchAsync(vector, top: 3).ToListAsync();
+
+            var poiTasks = searchResults
                 .Select(p => p.Record)
                 .Select(async poi =>
                 {
-                    var queryParams = new Dictionary<string, string?>
-                    {
-                        { "identifier", poi.EntityId }
-                    };
+                    var queryParams = new Dictionary<string, string?> { { "identifier", poi.EntityId } };
                     var uri = QueryHelpers.AddQueryString(poi.apiEndpoint, queryParams);
+
                     var response = await client.GetAsync(uri);
                     response.EnsureSuccessStatusCode();
-                    var str = await response.Content.ReadAsStringAsync();
-                    return str;
-                })
-                .Select((entity, i) => $"POI nr.{i + 1}\n{entity}")
-                .ToListAsync();
 
-            var poisString = string.Join("\n", searchResult);
+                    return await response.Content.ReadAsStringAsync();
+                });
+
+            var poiContents = await Task.WhenAll(poiTasks);
+            var poiStrings = poiContents.Select((str, i) => $"[POI #{i + 1}]\n{str}\n");
+
+            var poisString = string.Join("\n", poiStrings);
             return poisString;
         }
 
