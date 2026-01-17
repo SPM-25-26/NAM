@@ -1,6 +1,6 @@
 ﻿using DataInjection.Core.Interfaces;
 using DataInjection.Qdrant.Data;
-using DataInjection.Qdrant.Serializers;
+using Infrastructure.Extensions;
 using Microsoft.Extensions.AI;
 using Microsoft.ML.Tokenizers;
 using Microsoft.SemanticKernel.Text;

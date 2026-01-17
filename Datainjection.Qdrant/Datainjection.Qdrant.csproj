@@ -20,4 +20,8 @@
 	  <ProjectReference Include="..\DataInjection.Core\DataInjection.Core.csproj" />
 	  <ProjectReference Include="..\nam\nam.ServiceDefaults\nam.ServiceDefaults.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Serializers\" />
+  </ItemGroup>
 </Project>

@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using nam.Server.Chatbot;
+﻿using Chatbot.Services;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
-namespace nam.Server.Endpoints.Chatbot
+namespace Chatbot.Controllers
 {
     internal static class ChatbotEndpoints
     {
@@ -14,6 +15,7 @@ namespace nam.Server.Endpoints.Chatbot
 
         public static async Task<IResult> GetResponse(
             [FromBody] ChatRequest request,
+            HttpContext httpContext,
             IChatbotService chatbotService)
         {
             ArgumentNullException.ThrowIfNull(chatbotService);
@@ -24,7 +26,14 @@ namespace nam.Server.Endpoints.Chatbot
                     _logger?.Warning("RegisterUser called chatbot with null request");
                     return TypedResults.Problem(detail: "Request body cannot be null.", statusCode: 400);
                 }
-                var response = await chatbotService.GetResponseAsync(request);
+                var userEmail = httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+                if (string.IsNullOrEmpty(userEmail))
+                {
+                    _logger.Warning("User email claim is missing.");
+                    return TypedResults.Unauthorized();
+                }
+
+                var response = await chatbotService.GetResponseAsync(request, userEmail);
                 return TypedResults.Ok(response);
             }
             catch (Exception ex)

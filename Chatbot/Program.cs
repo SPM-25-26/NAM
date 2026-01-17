@@ -1,11 +1,8 @@
+using Chatbot.Controllers;
+using Chatbot.Services;
 using DataInjection.Qdrant.Data;
 using DotNetEnv;
-using Infrastructure;
 using Microsoft.SemanticKernel;
-using nam.Server.Endpoints;
-using nam.Server.Endpoints.Auth;
-using nam.Server.Endpoints.MunicipalityEntities;
-using nam.Server.Extensions;
 using nam.ServiceDefaults;
 using Serilog;
 
@@ -15,10 +12,13 @@ Env.Load();
 
 builder.AddServiceDefaults();
 
-builder.AddSqlServerDbContext<ApplicationDbContext>("db");
-builder.AddSqlServerClient("db");
+builder.Services.AddHttpClient("entities-api", client =>
+{
+    // Use the name defined in the AppHost ("server")
+    client.BaseAddress = new Uri("https+http://server");
+}).AddServiceDiscovery();
 
-builder.Services.AddApplicationServices(builder.Configuration, builder.Environment);
+//builder.Services.AddApplicationServices(builder.Configuration, builder.Environment);
 
 // Configure Serilog logging
 builder.Host.UseSerilog((context, config) =>
@@ -39,6 +39,11 @@ builder.Services.AddOpenAIChatCompletion(
     endpoint: new Uri("https://generativelanguage.googleapis.com/v1beta/openai/")
 );
 
+//builder.Services.AddSingleton<VectorStore, QdrantVectorStore>();
+//builder.Services.AddSingleton<VectorStoreCollection<Guid, POIEntity>, QdrantVectorStore>();
+
+builder.Services.AddScoped<IChatbotService, ChatbotService>();
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
@@ -49,9 +54,9 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
-        {
-            c.DocumentTitle = "NAM API Docs";
-        });
+    {
+        c.DocumentTitle = "NAM API Docs";
+    });
 }
 
 
@@ -69,15 +74,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
-app.MapAuth();
-app.MapArtCulture();
-app.MapImages();
-app.MapPublicEvent();
-app.MapArticle();
-app.MapNature();
-app.MapMunicipalityCard();
-app.MapOrganization();
-app.MapEntertainmentLeisure();
-app.MapQuestionaire();
-app.ReccomandationMap();
+app.MapChatbot();
 app.Run();

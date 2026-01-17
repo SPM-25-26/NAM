@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Chatbot\Chatbot.csproj" />
     <ProjectReference Include="..\..\Datainjection.Qdrant\Datainjection.Qdrant.csproj" />
     <ProjectReference Include="..\..\DataInjection.SQL\DataInjection.SQL.csproj" />
     <ProjectReference Include="..\..\nam.client\nam.client.esproj" />

@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-using DataInjection.Qdrant.Serializers;
-using Domain.Entities;
+﻿using Infrastructure.Extensions;
 using Microsoft.Extensions.AI;
 using nam.Server.Services.Interfaces;
 using nam.Server.Services.Interfaces.RecSys;
