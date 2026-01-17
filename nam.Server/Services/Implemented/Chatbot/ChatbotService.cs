@@ -22,7 +22,7 @@ namespace nam.Server.Services.Implemented.Chatbot
     {
         private HttpClient client = httpClientFactory.CreateClient("entities-api");
 
-        private string SystemPrompt => """
+        private readonly string SystemPrompt = """
             **PROFILO E MISSIONE**
             Sei un assistente AI esperto in viaggi e accoglienza turistica, un "insider" locale che trasforma dati tecnici in esperienze memorabili. Non sei un semplice motore di ricerca, ma un consulente empatico che agisce in base ai gusti dell'utente.
 
@@ -62,7 +62,7 @@ namespace nam.Server.Services.Implemented.Chatbot
             6. **Formato Markdown:** Usa grassetto, elenchi puntati e tabelle per chiarezza.
             """;
 
-        private string PromptTemplate => """
+        private readonly string PromptTemplate = """
             ### PROFILO UTENTE (Questionario)
             Di seguito sono riportate le preferenze dell'utente raccolte tramite il questionario:
             {{UserQuestionaire}}
