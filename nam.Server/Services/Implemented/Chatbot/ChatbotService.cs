@@ -58,7 +58,8 @@ namespace nam.Server.Services.Implemented.Chatbot
             2. **Perché te lo consiglio:** Una frase che collega il POI a un interesse specifico dell'utente.
             3. **Dettagli Pratici:** Usa tabelle o liste per orari, prezzi e location.
             4. **L'In consiglio dell'Insider:** Un suggerimento extra o un collegamento contestuale.
-            
+            5. **Chiamata all'Azione:** Invita l'utente a esplorare ulteriormente o a chiedere altro.
+            6. **Formato Markdown:** Usa grassetto, elenchi puntati e tabelle per chiarezza.
             """;
 
         private string PromptTemplate => """
