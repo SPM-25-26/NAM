@@ -4,8 +4,11 @@ using Infrastructure;
 using Microsoft.SemanticKernel;
 using nam.Server.Endpoints;
 using nam.Server.Endpoints.Auth;
+using nam.Server.Endpoints.Chatbot;
 using nam.Server.Endpoints.MunicipalityEntities;
 using nam.Server.Extensions;
+using nam.Server.Services.Implemented.Chatbot;
+using nam.Server.Services.Interfaces.Chatbot;
 using nam.ServiceDefaults;
 using Serilog;
 
@@ -14,6 +17,17 @@ var builder = WebApplication.CreateBuilder(args);
 Env.Load();
 
 builder.AddServiceDefaults();
+builder.Services.AddHeaderPropagation(options =>
+{
+    options.Headers.Add("Authorization");
+});
+builder.Services.AddHttpClient("entities-api", client =>
+{
+    // Use the name defined in the AppHost ("server")
+    client.BaseAddress = new Uri("https+http://server");
+}
+).AddServiceDiscovery()
+.AddHeaderPropagation();
 
 builder.AddSqlServerDbContext<ApplicationDbContext>("db");
 builder.AddSqlServerClient("db");
@@ -38,6 +52,7 @@ builder.Services.AddOpenAIChatCompletion(
     apiKey: Environment.GetEnvironmentVariable("GEMINI_API_KEY"),
     endpoint: new Uri("https://generativelanguage.googleapis.com/v1beta/openai/")
 );
+builder.Services.AddScoped<IChatbotService, ChatbotService>();
 
 var app = builder.Build();
 
@@ -57,6 +72,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 //app.UseStaticFiles();
+app.UseHeaderPropagation();
 
 app.UseRouting();
 
@@ -80,4 +96,5 @@ app.MapOrganization();
 app.MapEntertainmentLeisure();
 app.MapQuestionaire();
 app.ReccomandationMap();
+app.MapChatbot();
 app.Run();

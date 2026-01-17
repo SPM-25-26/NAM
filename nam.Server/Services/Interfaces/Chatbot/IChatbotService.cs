@@ -1,4 +1,6 @@
-﻿namespace Chatbot.Services
+﻿using nam.Server.Services.Implemented.Chatbot;
+
+namespace nam.Server.Services.Interfaces.Chatbot
 {
     public interface IChatbotService
     {

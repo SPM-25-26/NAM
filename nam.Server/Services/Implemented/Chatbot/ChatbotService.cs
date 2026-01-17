@@ -6,8 +6,9 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using nam.Server.Services.Interfaces.Chatbot;
 
-namespace Chatbot.Services
+namespace nam.Server.Services.Implemented.Chatbot
 {
     public class ChatbotService(
         Serilog.ILogger logger,
@@ -69,10 +70,10 @@ namespace Chatbot.Services
         {
             ChatHistory history = CreateHistory(request);
             string poisString = await GetPoisString(history);
-            var user = await GetByEmailAsync(userEmail);
+            var questionaire = await GetByEmailAsync(userEmail);
 
-            var prompt = PromptTemplate.Replace("{{UserQuestionaire}}", user?.Questionaire.ToEmbeddingString() ?? "N/A")
-                                        .Replace("{{UserPrompt}}", user?.Questionaire.ToEmbeddingString() ?? "N/A")
+            var prompt = PromptTemplate.Replace("{{UserQuestionaire}}", questionaire.ToEmbeddingString() ?? "N/A")
+                                        .Replace("{{UserPrompt}}", questionaire.ToEmbeddingString() ?? "N/A")
                                         .Replace("{{POIList}}", poisString ?? "N/A");
 
             history.RemoveAt(history.Count - 1); // Remove previous user prompt
@@ -83,11 +84,13 @@ namespace Chatbot.Services
             return result.Content;
         }
 
-        private async Task<User?> GetByEmailAsync(string userEmail)
+        private async Task<Questionaire?> GetByEmailAsync(string userEmail)
         {
             var response = await client.GetAsync("/api/user/questionaire");
-            User? user = await response.Content.ReadFromJsonAsync<User>();
-            return user;
+            response.EnsureSuccessStatusCode();
+            var questionaire = await response.Content.ReadFromJsonAsync<Questionaire>();
+
+            return questionaire;
         }
 
         private async Task<string> GetPoisString(ChatHistory history)
@@ -103,10 +106,12 @@ namespace Chatbot.Services
                         { "identifier", poi.EntityId }
                     };
                     var uri = QueryHelpers.AddQueryString(poi.apiEndpoint, queryParams);
-                    var result = await client.GetAsync(uri);
-                    return result;
+                    var response = await client.GetAsync(uri);
+                    response.EnsureSuccessStatusCode();
+                    var str = await response.Content.ReadAsStringAsync();
+                    return str;
                 })
-                .Select((entity, i) => $"POI nr.{i + 1}\n{entity.ToEmbeddingString()}")
+                .Select((entity, i) => $"POI nr.{i + 1}\n{entity}")
                 .ToListAsync();
 
             var poisString = string.Join("\n", searchResult);

@@ -1,4 +1,4 @@
-﻿namespace Chatbot.Controllers
+﻿namespace nam.Server.Endpoints.Chatbot
 {
     internal static class ChatbotMap
     {

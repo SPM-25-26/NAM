@@ -1,8 +1,9 @@
-﻿using Chatbot.Services;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using nam.Server.Services.Implemented.Chatbot;
+using nam.Server.Services.Interfaces.Chatbot;
 using System.Security.Claims;
 
-namespace Chatbot.Controllers
+namespace nam.Server.Endpoints.Chatbot
 {
     internal static class ChatbotEndpoints
     {
