@@ -49,7 +49,7 @@ builder.Services.AddGoogleAIEmbeddingGenerator(
 // Chatbot config
 builder.Services.AddOpenAIChatCompletion(
     modelId: "gemini-2.5-flash-lite",
-    apiKey: Environment.GetEnvironmentVariable("GEMINI_API_KEY"),
+    apiKey: Environment.GetEnvironmentVariable("GEMINI_API_KEY") ?? "no-key",
     endpoint: new Uri("https://generativelanguage.googleapis.com/v1beta/openai/")
 );
 builder.Services.AddScoped<IChatbotService, ChatbotService>();

@@ -7,6 +7,7 @@ using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using nam.Server.Services.Interfaces.Chatbot;
+using System.Text.RegularExpressions;
 
 namespace nam.Server.Services.Implemented.Chatbot
 {
@@ -60,8 +61,16 @@ namespace nam.Server.Services.Implemented.Chatbot
 
             ---
 
-            ### ISTRUZIONE FINALE
-            In base al profilo sopra descritto e ai dati forniti, elabora una risposta personalizzata. Seleziona solo i POI/Eventi che meglio si adattano all'utente e spiega il perché della tua scelta.
+            ### ISTRUZIONI DI ELABORAZIONE
+                1. **VALUTAZIONE DELLA PERTINENZA (FALLBACK):** Prima di rispondere, valuta se la "Richiesta dell'Utente" è pertinente al contesto turistico (viaggi, consigli su luoghi, eventi, cultura, cibo o logistica locale).
+                
+                    - **Se NON è pertinente:** Rispondi in modo cortese spiegando che il tuo ruolo è quello di assistente turistico specializzato e che non puoi fornire assistenza su temi diversi. Invita l'utente a farti una domanda sulla destinazione o sui suoi interessi di viaggio.
+                    
+                    - **Se è pertinente:** Procedi con il punto 2.
+                    
+                2. **PERSONALIZZAZIONE:** Seleziona esclusivamente i POI/Eventi dalla lista fornita che meglio si adattano al profilo dell'utente. Spiega chiaramente perché ogni scelta è rilevante rispetto alle risposte del questionario.
+                
+                3. **TONO DI VOCE:** Mantieni un tono empatico, utile e da "insider" locale.
             """;
 
         public async Task<string> GetResponseAsync(ChatRequest request, string userEmail)
@@ -77,9 +86,8 @@ namespace nam.Server.Services.Implemented.Chatbot
             history.RemoveAt(history.Count - 1); // Remove previous user prompt
             history.AddUserMessage(prompt);
 
-
             var result = await chatService.GetChatMessageContentAsync(history);
-            return result.Content;
+            return Regex.Unescape(result.Content);
         }
 
         private async Task<Questionaire?> GetByEmailAsync(string userEmail)
@@ -96,26 +104,27 @@ namespace nam.Server.Services.Implemented.Chatbot
             var embeddingResult = await embedder.GenerateAsync(history.Last().Content);
             var vector = embeddingResult.Vector;
             var searchResults = await store.SearchAsync(vector, top: 3)
-                                            .Where(r => r.Score >= 0.75f)
+                .Where(r => r.Score > 0.6f)
                                             .ToListAsync();
 
             var poiTasks = searchResults
-                .Select(p => p.Record)
-                .Select(async poi =>
+                .Select(async (result, i) =>
                 {
+                    var poi = result.Record;
+                    var score = result.Score;
+                    Console.WriteLine($"POI #{i + 1} Score: {score}");
                     var queryParams = new Dictionary<string, string?> { { "identifier", poi.EntityId } };
                     var uri = QueryHelpers.AddQueryString(poi.apiEndpoint, queryParams);
 
                     var response = await client.GetAsync(uri);
                     response.EnsureSuccessStatusCode();
 
-                    return await response.Content.ReadAsStringAsync();
+                    var poiContent = await response.Content.ReadAsStringAsync();
+                    return $"[POI #{i + 1} | Score: {score:F4}]\n{poiContent}\n";
                 });
 
             var poiContents = await Task.WhenAll(poiTasks);
-            var poiStrings = poiContents.Select((str, i) => $"[POI #{i + 1}]\n{str}\n");
-
-            var poisString = string.Join("\n", poiStrings);
+            var poisString = string.Join("\n", poiContents);
             return poisString;
         }
 
