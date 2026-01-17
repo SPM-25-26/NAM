@@ -95,7 +95,9 @@ namespace nam.Server.Services.Implemented.Chatbot
         {
             var embeddingResult = await embedder.GenerateAsync(history.Last().Content);
             var vector = embeddingResult.Vector;
-            var searchResults = await store.SearchAsync(vector, top: 3).ToListAsync();
+            var searchResults = await store.SearchAsync(vector, top: 3)
+                                            .Where(r => r.Score >= 0.75f)
+                                            .ToListAsync();
 
             var poiTasks = searchResults
                 .Select(p => p.Record)
