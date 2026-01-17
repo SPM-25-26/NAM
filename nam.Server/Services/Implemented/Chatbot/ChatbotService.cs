@@ -12,9 +12,7 @@ using System.Text.RegularExpressions;
 namespace nam.Server.Services.Implemented.Chatbot
 {
     public class ChatbotService(
-        Serilog.ILogger logger,
         IHttpClientFactory httpClientFactory,
-        IConfiguration configuration,
         IChatCompletionService chatService,
         IEmbeddingGenerator<string, Embedding<float>> embedder,
         VectorStoreCollection<Guid, POIEntity> store
