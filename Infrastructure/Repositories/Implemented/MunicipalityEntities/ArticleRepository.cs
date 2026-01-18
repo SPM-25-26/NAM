@@ -1,11 +1,16 @@
 ﻿using Domain.Entities.MunicipalityEntities;
+using Infrastructure.Extensions;
+using Infrastructure.Repositories.Interfaces;
 using Infrastructure.Repositories.Interfaces.MunicipalityEntities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
 {
-    public class ArticleRepository(ApplicationDbContext context) : Repository<ArticleCard, Guid>(context), IArticleRepository
+    public class ArticleRepository(ApplicationDbContext context) : Repository<ArticleCard, Guid>(context), IArticleRepository, IEntitySource
     {
+        public string EntityName => "/api/article/card";
+        //public string EntityName => "article";
+
         public async Task<ArticleCard?> GetByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default)
         {
             return await context.ArticleCards
@@ -47,6 +52,12 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
             var entity = await GetByEntityIdAsync(entityId, cancellationToken);
             entity.Detail = await GetDetailByEntityIdAsync(entityId, cancellationToken);
             return entity;
+        }
+
+        public async Task<string> GetContentAsync(string id, CancellationToken ct = default)
+        {
+            var result = await GetFullEntityByIdAsync(Guid.Parse(id), ct);
+            return result.ToEmbeddingString();
         }
     }
 }

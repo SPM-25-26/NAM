@@ -1,9 +1,10 @@
-﻿using DataInjection.Qdrant.Data;
-using Domain.Entities.MunicipalityEntities;
+﻿using Domain.Entities.MunicipalityEntities;
 using FluentValidation;
+using Infrastructure.Repositories;
+using Infrastructure.Repositories.Implemented.MunicipalityEntities;
+using Infrastructure.Repositories.Interfaces;
 using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using nam.Server.Options;
@@ -16,7 +17,6 @@ using nam.Server.Services.Interfaces.Auth;
 using nam.Server.Services.Interfaces.MunicipalityEntities;
 using nam.Server.Services.Interfaces.RecSys;
 using nam.Server.swagger;
-using Qdrant.Client;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -119,6 +119,17 @@ namespace nam.Server.Extensions
 
             // Register Unit of Work pattern
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddScoped<IEntitySource, ArtCultureRepository>();
+            services.AddScoped<IEntitySource, ArticleRepository>();
+            services.AddScoped<IEntitySource, EntertainmentLeisureRepository>();
+            services.AddScoped<IEntitySource, MunicipalityCardRepository>();
+            services.AddScoped<IEntitySource, NatureRepository>();
+            services.AddScoped<IEntitySource, OrganizationRepository>();
+            services.AddScoped<IEntitySource, PublicEventRepository>();
+
+            services.AddScoped<EntityHydrator>();
+
 
             // Register application services
             services.AddScoped<IAuthService, AuthService>();

@@ -1,7 +1,7 @@
 ﻿using DataInjection.Qdrant.Data;
 using Domain.Entities;
 using Infrastructure.Extensions;
-using Microsoft.AspNetCore.WebUtilities;
+using Infrastructure.Repositories;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel;
@@ -15,7 +15,8 @@ namespace nam.Server.Services.Implemented.Chatbot
         IHttpClientFactory httpClientFactory,
         IChatCompletionService chatService,
         IEmbeddingGenerator<string, Embedding<float>> embedder,
-        VectorStoreCollection<Guid, POIEntity> store
+        VectorStoreCollection<Guid, POIEntity> store,
+        EntityHydrator entityHydrator
         ) : IChatbotService
     {
         private HttpClient client = httpClientFactory.CreateClient("entities-api");
@@ -107,24 +108,16 @@ namespace nam.Server.Services.Implemented.Chatbot
             var embeddingResult = await embedder.GenerateAsync(history.Last().Content);
             var vector = embeddingResult.Vector;
             var searchResults = await store.SearchAsync(vector, top: 3)
-                .Where(r => r.Score > 0.6f)
+                                            .Where(r => r.Score > 0.6f)
                                             .ToListAsync();
 
             var poiTasks = searchResults
-                .Select(async (result, i) =>
+                .Select(async (r, i) =>
                 {
-                    var poi = result.Record;
-                    var score = result.Score;
-                    Console.WriteLine($"POI #{i + 1} Score: {score}");
-                    var queryParams = new Dictionary<string, string?> { { "identifier", poi.EntityId } };
-                    var uri = QueryHelpers.AddQueryString(poi.apiEndpoint, queryParams);
-
-                    var response = await client.GetAsync(uri);
-                    response.EnsureSuccessStatusCode();
-
-                    var poiContent = await response.Content.ReadAsStringAsync();
-                    return $"[POI #{i + 1} | Score: {score:F4}]\n{poiContent}\n";
-                });
+                    var str = await entityHydrator.HydrateAsync(r.Record.apiEndpoint, r.Record.EntityId);
+                    return $"[POI #{i + 1}]\n{str}\n";
+                }
+                );
 
             var poiContents = await Task.WhenAll(poiTasks);
             var poisString = string.Join("\n", poiContents);
