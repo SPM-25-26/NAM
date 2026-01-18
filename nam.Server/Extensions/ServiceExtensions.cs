@@ -5,7 +5,6 @@ using Infrastructure.Repositories.Implemented.MunicipalityEntities;
 using Infrastructure.Repositories.Interfaces;
 using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using nam.Server.Options;
@@ -100,18 +99,18 @@ namespace nam.Server.Extensions
                 });
 
             // Enable authorization services
-            services.AddAuthorization(options =>
-            {
-                // All authorized in dev mode
-                if (environment.IsDevelopment())
-                {
-                    options.DefaultPolicy = new AuthorizationPolicyBuilder()
-                        .RequireAssertion(_ => true) // Allow all requests
-                        .Build();
-                    options.FallbackPolicy = options.DefaultPolicy;
-                }
-                // Otherwise (in Prod), use the standard logic (requires authenticated user)
-            });
+            //services.AddAuthorization(options =>
+            //{
+            //    // All authorized in dev mode
+            //    if (environment.IsDevelopment())
+            //    {
+            //        options.DefaultPolicy = new AuthorizationPolicyBuilder()
+            //            .RequireAssertion(_ => true) // Allow all requests
+            //            .Build();
+            //        options.FallbackPolicy = options.DefaultPolicy;
+            //    }
+            //    // Otherwise (in Prod), use the standard logic (requires authenticated user)
+            //});
 
             // Add services to the container.
             services.AddRazorPages();
