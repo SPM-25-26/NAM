@@ -28,8 +28,8 @@ var client = builder.AddViteApp("client", "../../nam.client")
 var qdrantDataInjection = builder.AddProject<Projects.Datainjection_Qdrant>("datainjection-qdrant")
             .WithReference(vectordb)
             .WaitFor(vectordb)
-            .WithReference(server)
-            .WaitFor(server);
+            .WithReference(db)
+            .WaitFor(db);
 
 //var sqlDataInjection = builder.AddProject<Projects.DataInjection_SQL>("datainjection-sql")
 //            .WithReference(db)
