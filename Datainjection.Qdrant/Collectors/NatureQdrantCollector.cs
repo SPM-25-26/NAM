@@ -2,25 +2,22 @@
 using DataInjection.Qdrant.Data;
 using DataInjection.Qdrant.Mappers;
 using Domain.Entities.MunicipalityEntities;
+using Infrastructure.Repositories.Interfaces.MunicipalityEntities;
+using Infrastructure.UnitOfWork;
 using Microsoft.Extensions.AI;
 
 namespace DataInjection.Qdrant.Collectors
 {
-    public class NatureQdrantCollector(Serilog.ILogger logger, IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : POIVectorEntityCollector<Nature>(logger, embedder, configuration, fetcher)
+    public class NatureQdrantCollector(Serilog.ILogger logger, IEmbeddingGenerator<string, Embedding<float>> embedder, IUnitOfWork unitOfWork) : POIVectorEntityCollector<Nature, ArtCultureNatureDetail, Guid>(logger, embedder, unitOfWork)
     {
-        public override string getEndpoint()
-        {
-            return "/api/nature/full-card-list";
-        }
-
         public override IDtoMapper<Nature, POIEntity> getMapper()
         {
             return new NatureQdrantMapper();
         }
 
-        public override Dictionary<string, string> getQuery()
+        public override IMunicipalityEntityRepository<Nature, ArtCultureNatureDetail, Guid> GetRepository()
         {
-            return [];
+            return unitOfWork.Nature;
         }
     }
 }
