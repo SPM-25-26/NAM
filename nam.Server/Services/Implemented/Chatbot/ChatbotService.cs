@@ -104,22 +104,30 @@ namespace nam.Server.Services.Implemented.Chatbot
         private async Task<string> GetPoisString(ChatHistory history)
         {
             var embeddingResult = await embedder.GenerateAsync(history.Last().Content);
-            var vector = embeddingResult.Vector;
-            var searchResults = await store.SearchAsync(vector, top: 3)
-                                            .Where(r => r.Score > 0.6f)
-                                            .ToListAsync();
 
-            var poiTasks = searchResults
-                .Select(async (r, i) =>
+            var searchResults = await store.SearchAsync(embeddingResult.Vector, top: 3)
+                .Where(r => r.Score > 0.6f)
+                .ToListAsync();
+
+            if (searchResults.Count == 0)
+                logger.Warning("Nessun POI trovato per query: {Query}", history.Last().Content);
+
+            var poiTasks = searchResults.Select(async (r, i) =>
+            {
+                try
                 {
                     var str = await entityHydrator.HydrateAsync(r.Record.apiEndpoint, r.Record.EntityId);
-                    return $"[POI #{i + 1}]\n{str}\n";
+                    return $"[POI #{i + 1}] (Rilevanza: {r.Score:P0})\n{str}\n";
                 }
-                );
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "Errore nell'idratazione del POI {EntityId}", r.Record.EntityId);
+                    return $"[POI #{i + 1}] - Informazioni temporaneamente non disponibili\n";
+                }
+            });
 
             var poiContents = await Task.WhenAll(poiTasks);
-            var poisString = string.Join("\n", poiContents);
-            return poisString;
+            return string.Join("\n", poiContents.Where(p => !string.IsNullOrEmpty(p)));
         }
 
         private ChatHistory CreateHistory(ChatRequest request)
