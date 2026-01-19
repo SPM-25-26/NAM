@@ -83,11 +83,11 @@ namespace nam.ServerTests.mock
             // Setup default embedding response
             var defaultEmbedding = new Embedding<float>(new float[] { 0.1f, 0.2f, 0.3f });
             var embeddingsResult = new GeneratedEmbeddings<Embedding<float>>([defaultEmbedding]);
-            
+
             _mockEmbedder
                 .Setup(e => e.GenerateAsync(
-                    It.IsAny<IEnumerable<string>>(), 
-                    It.IsAny<EmbeddingGenerationOptions>(), 
+                    It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<EmbeddingGenerationOptions>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(embeddingsResult);
 
@@ -98,9 +98,9 @@ namespace nam.ServerTests.mock
                     It.IsAny<PromptExecutionSettings>(),
                     It.IsAny<Kernel>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() => new List<ChatMessageContent> 
-                { 
-                    new ChatMessageContent(new AuthorRole("assistant"), _chatCompletionResponse) 
+                .ReturnsAsync(() => new List<ChatMessageContent>
+                {
+                    new ChatMessageContent(new AuthorRole("assistant"), _chatCompletionResponse)
                 }.AsReadOnly());
         }
 

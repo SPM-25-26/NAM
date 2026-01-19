@@ -2,6 +2,7 @@
 using Domain.Entities;
 using Infrastructure.Extensions;
 using Infrastructure.Repositories;
+using Infrastructure.UnitOfWork;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel;
@@ -12,14 +13,14 @@ using System.Text.RegularExpressions;
 namespace nam.Server.Services.Implemented.Chatbot
 {
     public class ChatbotService(
-        IHttpClientFactory httpClientFactory,
+        Serilog.ILogger logger,
         IChatCompletionService chatService,
         IEmbeddingGenerator<string, Embedding<float>> embedder,
+        IUnitOfWork unitOfWork,
         VectorStoreCollection<Guid, POIEntity> store,
         EntityHydrator entityHydrator
         ) : IChatbotService
     {
-        private HttpClient client = httpClientFactory.CreateClient("entities-api");
 
         private readonly string SystemPrompt = """
             **PROFILO E MISSIONE**
@@ -96,11 +97,8 @@ namespace nam.Server.Services.Implemented.Chatbot
 
         private async Task<Questionaire?> GetQuestionnaireByEmailAsync(string userEmail)
         {
-            var response = await client.GetAsync("/api/user/questionaire");
-            response.EnsureSuccessStatusCode();
-            var questionaire = await response.Content.ReadFromJsonAsync<Questionaire>();
-
-            return questionaire;
+            var user = await unitOfWork.Users.GetByEmailAsync(userEmail);
+            return user.Questionaire;
         }
 
         private async Task<string> GetPoisString(ChatHistory history)

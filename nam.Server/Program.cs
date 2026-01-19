@@ -17,17 +17,6 @@ var builder = WebApplication.CreateBuilder(args);
 Env.Load();
 
 builder.AddServiceDefaults();
-builder.Services.AddHeaderPropagation(options =>
-{
-    options.Headers.Add("Authorization");
-});
-builder.Services.AddHttpClient("entities-api", client =>
-{
-    // Use the name defined in the AppHost ("server")
-    client.BaseAddress = new Uri("https+http://server");
-}
-).AddServiceDiscovery()
-.AddHeaderPropagation();
 
 builder.AddSqlServerDbContext<ApplicationDbContext>("db");
 builder.AddSqlServerClient("db");
@@ -72,7 +61,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 //app.UseStaticFiles();
-app.UseHeaderPropagation();
 
 app.UseRouting();
 
