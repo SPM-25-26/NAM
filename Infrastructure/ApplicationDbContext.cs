@@ -69,5 +69,15 @@ namespace Infrastructure
         public DbSet<OwnedPoi> OwnedPois { get; set; } = null!;
         public DbSet<FeatureCardRelationship<ArtCultureNatureDetail>> FeatureCardArtCultureRelationships { get; set; } = null!;
 
+        // Route entities
+        public DbSet<RouteCard> RouteCards { get; set; } = null!;
+        public DbSet<RouteDetail> RouteDetails { get; set; } = null!;
+        public DbSet<Point> RoutePoints { get; set; } = null!;
+        public DbSet<FeatureCardRelationship<RouteDetail>> RouteFeatureCardRelationships { get; set; } = null!;
+        public DbSet<StageMobileRelationship<RouteDetail>> RouteStageMobileRelationships { get; set; } = null!;
+        public DbSet<StageMobile> StageMobiles { get; set; } = null!;
+
+
+
     }
 }

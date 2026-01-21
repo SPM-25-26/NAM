@@ -98,6 +98,14 @@ public class Worker(
                     var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
                     await syncService.ExecuteSyncAsync(new MunicipalityCardCollector(fetcher, configuration));
                 }),
+                (nameof(RouteCollector), async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    await syncService.ExecuteSyncAsync(new RouteCollector(fetcher, configuration));
+                }),
             };
 
         foreach (var collector in collectors)

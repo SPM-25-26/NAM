@@ -39,6 +39,9 @@ namespace Domain.Entities.MunicipalityEntities
 
         [JsonIgnore]
         public List<FeatureCardRelationship<PublicEventMobileDetail>> PublicEventMobileDetailRelations { get; set; } = [];
+
+        [JsonIgnore]
+        public List<FeatureCardRelationship<RouteDetail>> RouteRelations { get; set; } = [];
     }
 
     public class FeatureCardRelationship<TEntity>

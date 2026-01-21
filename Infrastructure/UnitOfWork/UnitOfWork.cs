@@ -21,6 +21,7 @@ namespace Infrastructure.UnitOfWork
             Organization = new OrganizationRepository(_context);
             PublicEvent = new PublicEventRepository(_context);
             EntertainmentLeisure = new EntertainmentLeisureRepository(_context);
+            Route = new RouteRepository(_context);
         }
 
         public Task CompleteAsync()
@@ -42,5 +43,6 @@ namespace Infrastructure.UnitOfWork
         public IOrganizationRepository Organization { get; }
         public IPublicEventRepository PublicEvent { get; }
         public IEntertainmentLeisureRepository EntertainmentLeisure { get; }
+        public IRouteRepository Route { get; }
     }
 }

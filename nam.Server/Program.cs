@@ -70,6 +70,7 @@ app.MapNature();
 app.MapMunicipalityCard();
 app.MapOrganization();
 app.MapEntertainmentLeisure();
+app.MapRoute();
 app.MapQuestionaire();
 app.ReccomandationMap();
 app.Run();
