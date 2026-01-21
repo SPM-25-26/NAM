@@ -1,0 +1,12 @@
+﻿
+
+namespace DataInjection.SQL.DTOs
+{
+    public class ServiceLocationDto
+    {
+        public string? Identifier { get; set; }
+        public string? OfficialName { get; set; }
+        public string? ImagePath { get; set; }
+        public string? Category { get; set; }
+    }
+}

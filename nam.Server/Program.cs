@@ -71,6 +71,7 @@ app.MapMunicipalityCard();
 app.MapOrganization();
 app.MapEntertainmentLeisure();
 app.MapRoute();
+app.MapService();
 app.MapQuestionaire();
 app.ReccomandationMap();
 app.Run();

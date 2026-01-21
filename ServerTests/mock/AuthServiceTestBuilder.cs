@@ -107,6 +107,8 @@ namespace nam.ServerTests.mock
 
         public IRouteRepository Route => throw new NotImplementedException();
 
+        public IServiceRepository Service => throw new NotImplementedException();
+
         public Task CompleteAsync()
         {
             return _context.SaveChangesAsync();

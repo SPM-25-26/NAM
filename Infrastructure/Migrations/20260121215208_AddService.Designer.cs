@@ -4,6 +4,7 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace nam.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260121215208_AddService")]
+    partial class AddService
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2013,7 +2016,7 @@ namespace nam.Server.Migrations
             modelBuilder.Entity("Domain.Entities.MunicipalityEntities.FeatureCardRelationship<Domain.Entities.MunicipalityEntities.ServiceDetail>", b =>
                 {
                     b.HasOne("Domain.Entities.MunicipalityEntities.FeatureCard", "FeatureCard")
-                        .WithMany("ServiceRelations")
+                        .WithMany()
                         .HasForeignKey("FeatureCardEntityId");
 
                     b.HasOne("Domain.Entities.MunicipalityEntities.ServiceDetail", "RelatedEntity")
@@ -2195,7 +2198,7 @@ namespace nam.Server.Migrations
                                 .HasMaxLength(1000)
                                 .HasColumnType("nvarchar(1000)");
 
-                            b1.Property<int>("Name")
+                            b1.Property<int?>("Name")
                                 .HasColumnType("int");
 
                             b1.HasKey("ServiceDetailIdentifier");
@@ -2210,13 +2213,13 @@ namespace nam.Server.Migrations
                                     b2.Property<Guid>("BookingServiceDetailIdentifier")
                                         .HasColumnType("uniqueidentifier");
 
-                                    b2.Property<DateTime>("Date")
+                                    b2.Property<DateTime?>("Date")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime>("EndDate")
+                                    b2.Property<DateTime?>("EndDate")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime>("StartDate")
+                                    b2.Property<DateTime?>("StartDate")
                                         .HasColumnType("datetime2");
 
                                     b2.HasKey("BookingServiceDetailIdentifier");
@@ -2235,7 +2238,7 @@ namespace nam.Server.Migrations
                             b1.Property<Guid>("ServiceDetailIdentifier")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<DateTime>("Closes")
+                            b1.Property<DateTime?>("Closes")
                                 .HasColumnType("datetime2");
 
                             b1.Property<int?>("Day")
@@ -2245,7 +2248,7 @@ namespace nam.Server.Migrations
                                 .HasMaxLength(1000)
                                 .HasColumnType("nvarchar(1000)");
 
-                            b1.Property<DateTime>("Opens")
+                            b1.Property<DateTime?>("Opens")
                                 .HasColumnType("datetime2");
 
                             b1.HasKey("ServiceDetailIdentifier");
@@ -2280,13 +2283,13 @@ namespace nam.Server.Migrations
                                     b2.Property<Guid>("OpeningHoursSpecificationServiceDetailIdentifier")
                                         .HasColumnType("uniqueidentifier");
 
-                                    b2.Property<DateTime>("Date")
+                                    b2.Property<DateTime?>("Date")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime>("EndDate")
+                                    b2.Property<DateTime?>("EndDate")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime>("StartDate")
+                                    b2.Property<DateTime?>("StartDate")
                                         .HasColumnType("datetime2");
 
                                     b2.HasKey("OpeningHoursSpecificationServiceDetailIdentifier");
@@ -2321,7 +2324,6 @@ namespace nam.Server.Migrations
                                 .HasColumnType("datetime2");
 
                             b1.Property<string>("ReasonForClosure")
-                                .IsRequired()
                                 .HasMaxLength(1000)
                                 .HasColumnType("nvarchar(1000)");
 
@@ -2337,13 +2339,13 @@ namespace nam.Server.Migrations
                                     b2.Property<Guid>("TemporaryClosureServiceDetailIdentifier")
                                         .HasColumnType("uniqueidentifier");
 
-                                    b2.Property<DateTime>("Date")
+                                    b2.Property<DateTime?>("Date")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime>("EndDate")
+                                    b2.Property<DateTime?>("EndDate")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime>("StartDate")
+                                    b2.Property<DateTime?>("StartDate")
                                         .HasColumnType("datetime2");
 
                                     b2.HasKey("TemporaryClosureServiceDetailIdentifier");
@@ -2357,15 +2359,18 @@ namespace nam.Server.Migrations
                             b1.Navigation("TimeInterval");
                         });
 
-                    b.Navigation("Booking");
+                    b.Navigation("Booking")
+                        .IsRequired();
 
                     b.Navigation("MunicipalityData");
 
                     b.Navigation("NearestCarPark");
 
-                    b.Navigation("OpeningHours");
+                    b.Navigation("OpeningHours")
+                        .IsRequired();
 
-                    b.Navigation("TemporaryClosure");
+                    b.Navigation("TemporaryClosure")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Entities.MunicipalityEntities.ServiceLocationRelationship<Domain.Entities.MunicipalityEntities.ServiceDetail>", b =>
@@ -2447,8 +2452,6 @@ namespace nam.Server.Migrations
                     b.Navigation("PublicEventMobileDetailRelations");
 
                     b.Navigation("RouteRelations");
-
-                    b.Navigation("ServiceRelations");
                 });
 
             modelBuilder.Entity("Domain.Entities.MunicipalityEntities.MunicipalityHomeInfo", b =>

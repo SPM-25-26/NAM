@@ -6,6 +6,7 @@ namespace Domain.Entities.MunicipalityEntities
     public class Point
     {
         [Key]
+        [Embeddable]
         public string Address { get; set; }
 
         [Embeddable]

@@ -14,6 +14,7 @@ namespace Infrastructure.UnitOfWork
         IPublicEventRepository PublicEvent { get; }
         IEntertainmentLeisureRepository EntertainmentLeisure { get; }
         IRouteRepository Route { get; }
+        IServiceRepository Service { get; }
 
         Task CompleteAsync();
     }

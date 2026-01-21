@@ -21,6 +21,24 @@ namespace Infrastructure
                 .WithOne()
                 .HasForeignKey("MunicipalityHomeInfoLegalName1")
                 .OnDelete(DeleteBehavior.NoAction);
+            builder.Entity<ServiceDetail>(b =>
+            {
+                b.OwnsOne(x => x.OpeningHours, oh =>
+                {
+                    oh.OwnsOne(x => x.AdmissionType);
+                    oh.OwnsOne(x => x.TimeInterval);
+                });
+
+                b.OwnsOne(x => x.TemporaryClosure, tc =>
+                {
+                    tc.OwnsOne(x => x.TimeInterval);
+                });
+
+                b.OwnsOne(x => x.Booking, bk =>
+                {
+                    bk.OwnsOne(x => x.TimeIntervalDto);
+                });
+            });
         }
 
         public DbSet<User> Users { get; set; }
@@ -76,6 +94,11 @@ namespace Infrastructure
         public DbSet<FeatureCardRelationship<RouteDetail>> RouteFeatureCardRelationships { get; set; } = null!;
         public DbSet<StageMobileRelationship<RouteDetail>> RouteStageMobileRelationships { get; set; } = null!;
         public DbSet<StageMobile> StageMobiles { get; set; } = null!;
+
+        // Service entities
+        public DbSet<ServiceCard> ServiceCards { get; set; } = null!;
+        public DbSet<ServiceDetail> ServiceDetails { get; set; } = null!;
+        public DbSet<ServiceLocationRelationship<ServiceDetail>> ServiceLocations { get; set; } = null!;
 
 
 
