@@ -74,6 +74,7 @@ app.MapRoute();
 app.MapService();
 app.MapShopping();
 app.MapSleep();
+app.MapEatAndDrink();
 app.MapQuestionaire();
 app.ReccomandationMap();
 app.Run();

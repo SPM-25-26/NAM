@@ -203,7 +203,10 @@ namespace nam.Server.Extensions
             services.AddScoped<IMunicipalityEntityService<ServiceCard, ServiceDetail>, ServiceService>();
 
             services.AddScoped<IMunicipalityEntityService<ShoppingCard, ShoppingCardDetail>, ShoppingService>();
+
             services.AddScoped<IMunicipalityEntityService<SleepCard, SleepCardDetail>, SleepService>();
+
+            services.AddScoped<IMunicipalityEntityService<EatAndDrinkCard, EatAndDrinkDetail>, EatAndDrinkService>();
 
             services.AddScoped<IRanker, SimpleRanker>();
             services.AddScoped<IScorer, WeightedScorer>();

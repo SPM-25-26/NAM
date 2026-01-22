@@ -87,6 +87,40 @@ namespace Infrastructure
                     bk.OwnsOne(x => x.TimeIntervalDto);
                 });
             });
+
+            builder.Entity<EatAndDrinkDetail>(b =>
+            {
+                b.OwnsMany(x => x.Services, sb =>
+                {
+                    // EF crea una PK shadow
+                    sb.Property<Guid>("Id");
+                    sb.HasKey("Id");
+                });
+                b.OwnsMany(x => x.TypicalProducts, tpb =>
+                {
+                    // EF crea una PK shadow
+                    tpb.Property<Guid>("Id");
+                    tpb.HasKey("Id");
+                });
+
+
+                b.OwnsOne(x => x.OpeningHours, oh =>
+                {
+                    oh.OwnsOne(x => x.AdmissionType);
+
+                    oh.OwnsOne(x => x.TimeInterval);
+                });
+
+                b.OwnsOne(x => x.TemporaryClosure, tc =>
+                {
+                    tc.OwnsOne(x => x.TimeInterval);
+                });
+
+                b.OwnsOne(x => x.Booking, bk =>
+                {
+                    bk.OwnsOne(x => x.TimeIntervalDto);
+                });
+            });
         }
 
         public DbSet<User> Users { get; set; }
@@ -157,6 +191,11 @@ namespace Infrastructure
         //Sleep entities
         public DbSet<SleepCard> SleepCards { get; set; } = null!;
         public DbSet<SleepCardDetail> SleepDetails { get; set; } = null!;
+
+        //EatAndDrink entities
+        public DbSet<EatAndDrinkCard> EatAndDrinkCards { get; set; } = null!;
+        public DbSet<EatAndDrinkDetail> EatAndDrinkDetails { get; set; } = null!;
+
 
     }
 }

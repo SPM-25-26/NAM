@@ -112,6 +112,7 @@ namespace nam.ServerTests.mock
         public IShoppingRepository Shopping => throw new NotImplementedException();
 
         public ISleepRepository Sleep => throw new NotImplementedException();
+        public IEatAndDrinkRepository EatAndDrink => throw new NotImplementedException();
         public Task CompleteAsync()
         {
             return _context.SaveChangesAsync();

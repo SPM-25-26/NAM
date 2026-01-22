@@ -17,6 +17,7 @@ namespace Infrastructure.UnitOfWork
         IServiceRepository Service { get; }
         IShoppingRepository Shopping { get; }
         ISleepRepository Sleep { get; }
+        IEatAndDrinkRepository EatAndDrink { get; }
 
         Task CompleteAsync();
     }
