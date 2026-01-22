@@ -4,13 +4,13 @@ using Domain.Entities.MunicipalityEntities;
 
 namespace DataInjection.SQL.Mappers
 {
-    public class ShoppingCardDetailMapper : IDtoMapper<ShoppingCardDetailDto, ShoppingCardDetail>
+    public class SleepCardDetailMapper : IDtoMapper<SleepCardDetailDto, SleepCardDetail>
     {
-        public ShoppingCardDetail MapToEntity(ShoppingCardDetailDto dto)
+        public SleepCardDetail MapToEntity(SleepCardDetailDto dto)
         {
             if (dto is null)
             {
-                return new ShoppingCardDetail
+                return new SleepCardDetail
                 {
                     Identifier = Guid.NewGuid()
                 };
@@ -29,9 +29,9 @@ namespace DataInjection.SQL.Mappers
                 };
             }
 
-            // Map Owner (owned) - crea solo se ha almeno un campo utile
+            // Map Owner (owned) - stessa logica usata nello Shopping
             Owner? owner = null;
-            if (dto.Owner != null && !string.IsNullOrWhiteSpace(dto.Owner.TaxCode) )
+            if (dto.Owner != null && !string.IsNullOrWhiteSpace(dto.Owner.TaxCode))
             {
                 owner = new Owner
                 {
@@ -71,7 +71,7 @@ namespace DataInjection.SQL.Mappers
                         : new AdmissionType
                         {
                             Name = null,
-                            Description = string.Empty
+                            Description = null
                         },
                     TimeInterval = dto.OpeningHours.TimeInterval != null
                         ? new TimeInterval
@@ -85,7 +85,7 @@ namespace DataInjection.SQL.Mappers
                             Date = null,
                             StartDate = null,
                             EndDate = null
-                        }
+                        },
                 };
             }
 
@@ -111,7 +111,7 @@ namespace DataInjection.SQL.Mappers
                             Date = null,
                             StartDate = null,
                             EndDate = null
-                        }
+                        },
                 };
             }
 
@@ -138,27 +138,54 @@ namespace DataInjection.SQL.Mappers
                 };
             }
 
+            // Map Offers
+            List<Offer>? offers = null;
+            if (dto.Offers != null && dto.Offers.Any())
+            {
+                offers = dto.Offers
+                    .Where(o => o is not null)
+                    .Select(o => new Offer
+                    {
+                        Description = o!.Description,
+                        PriceSpecificationCurrencyValue = o.PriceSpecificationCurrencyValue,
+                        Currency = o.Currency,
+                        ValidityDescription = o.ValidityDescription,
+                        ValidityStartDate = o.ValidityStartDate,
+                        ValidityEndDate = o.ValidityEndDate,
+                        UserTypeName = o.UserTypeName,
+                        UserTypeDescription = o.UserTypeDescription,
+                        TicketDescription = o.TicketDescription
+                    })
+                    .ToList();
+            }
+
             // Entity base
-            var entity = new ShoppingCardDetail
+            var entity = new SleepCardDetail
             {
                 Identifier = Guid.TryParse(dto.Identifier, out var identifier) && identifier != Guid.Empty ? identifier : Guid.NewGuid(),
+
                 OfficialName = dto.OfficialName?.Trim(),
-                Address = dto.Address?.Trim(),
                 Description = dto.Description?.Trim(),
-                ImagePath = dto.ImagePath?.Trim(),
-                PoiCategory = dto.PoiCategory?.Trim(),
-                Latitude = dto.Latitude,
-                Longitude = dto.Longitude,
+                Classification = dto.Classification?.Trim(),
+                Typology = dto.Typology?.Trim(),
+                PrimaryImage = dto.PrimaryImage?.Trim(),
+
                 Email = dto.Email?.Trim(),
                 Telephone = dto.Telephone?.Trim(),
                 Website = dto.Website?.Trim(),
                 Facebook = dto.Facebook?.Trim(),
                 Instagram = dto.Instagram?.Trim(),
+
+                Latitude = dto.Latitude,
+                Longitude = dto.Longitude,
+
                 NearestCarPark = nearestCarPark,
                 Owner = owner,
                 OpeningHours = openingHours,
                 TemporaryClosure = temporaryClosure,
                 Booking = booking,
+                ShortAddress = dto.ShortAddress?.Trim(),
+                Offers = offers,
                 MunicipalityData = municipality
             };
 
@@ -178,6 +205,24 @@ namespace DataInjection.SQL.Mappers
                 {
                     if (!string.IsNullOrWhiteSpace(vt))
                         entity.VirtualTours.Add(vt.Trim());
+                }
+            }
+
+            if (dto.Services != null)
+            {
+                foreach (var s in dto.Services)
+                {
+                    if (!string.IsNullOrWhiteSpace(s))
+                        entity.Services.Add(s.Trim());
+                }
+            }
+
+            if (dto.RoomTypologies != null)
+            {
+                foreach (var rt in dto.RoomTypologies)
+                {
+                    if (!string.IsNullOrWhiteSpace(rt))
+                        entity.RoomTypologies.Add(rt.Trim());
                 }
             }
 
@@ -201,43 +246,6 @@ namespace DataInjection.SQL.Mappers
                 }
             }
 
-            // Services (owned list in ShoppingCardDetail)
-            if (dto.Services != null && dto.Services.Any())
-            {
-                foreach (var s in dto.Services)
-                {
-                    if (s is null) continue;
-
-                    entity.Services.Add(new PointOfSaleService
-                    {
-                        Name = s.Name?.Trim(),
-                        Description = s.Description?.Trim()
-                    });
-                }
-            }
-
-            // SellingTypicalProducts
-            if (dto.SellingTypicalProducts != null && dto.SellingTypicalProducts.Any())
-            {
-                foreach (var tp in dto.SellingTypicalProducts)
-                {
-                    if (tp is null) continue;
-
-                    entity.SellingTypicalProducts.Add(new TypicalProduct
-                    {
-                        Identifier = tp.Identifier,
-                        Name = tp.Name?.Trim(),
-                        Description = tp.Description?.Trim(),
-                        Address = tp.Address?.Trim(),
-                        CityName = tp.CityName?.Trim(),
-                        CreatedAt = tp.CreatedAt,
-                        Status = tp.Status,
-                        Type = tp.Type,
-                        Certification = tp.Certification
-                    });
-                }
-            }
-
             // Neighbors -> FeatureCard relationship
             var neigh = dto.Neighbors?
                 .Where(n => n is not null)
@@ -255,9 +263,9 @@ namespace DataInjection.SQL.Mappers
             {
                 foreach (var n in neigh)
                 {
-                    var fcr = new FeatureCardRelationship<ShoppingCardDetail> { FeatureCard = n, RelatedEntity = entity };
+                    var fcr = new FeatureCardRelationship<SleepCardDetail> { FeatureCard = n, RelatedEntity = entity };
                     entity.Neighbors.Add(fcr);
-                    n.ShoppingRelations.Add(fcr);
+                    n.SleepRelations.Add(fcr);
                 }
             }
 

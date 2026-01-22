@@ -46,6 +46,8 @@ namespace Domain.Entities.MunicipalityEntities
         public List<FeatureCardRelationship<ServiceDetail>> ServiceRelations { get; set; } = [];
         [JsonIgnore]
         public List<FeatureCardRelationship<ShoppingCardDetail>> ShoppingRelations { get; set; } = [];
+        [JsonIgnore]
+        public List<FeatureCardRelationship<SleepCardDetail>> SleepRelations { get; set; } = [];
     }
 
     public class FeatureCardRelationship<TEntity>

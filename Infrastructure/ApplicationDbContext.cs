@@ -67,6 +67,26 @@ namespace Infrastructure
                     bk.OwnsOne(x => x.TimeIntervalDto);
                 });
             });
+
+            builder.Entity<SleepCardDetail>(b =>
+            {
+                b.OwnsOne(x => x.OpeningHours, oh =>
+                {
+                    oh.OwnsOne(x => x.AdmissionType);
+
+                    oh.OwnsOne(x => x.TimeInterval);
+                });
+
+                b.OwnsOne(x => x.TemporaryClosure, tc =>
+                {
+                    tc.OwnsOne(x => x.TimeInterval);
+                });
+
+                b.OwnsOne(x => x.Booking, bk =>
+                {
+                    bk.OwnsOne(x => x.TimeIntervalDto);
+                });
+            });
         }
 
         public DbSet<User> Users { get; set; }
@@ -134,7 +154,9 @@ namespace Infrastructure
         public DbSet<TypicalProduct> TypicalProducts { get; set; } = null!;
         public DbSet<Owner> Owners { get; set; } = null!;
 
-
+        //Sleep entities
+        public DbSet<SleepCard> SleepCards { get; set; } = null!;
+        public DbSet<SleepCardDetail> SleepDetails { get; set; } = null!;
 
     }
 }

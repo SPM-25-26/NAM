@@ -73,6 +73,7 @@ app.MapEntertainmentLeisure();
 app.MapRoute();
 app.MapService();
 app.MapShopping();
+app.MapSleep();
 app.MapQuestionaire();
 app.ReccomandationMap();
 app.Run();
