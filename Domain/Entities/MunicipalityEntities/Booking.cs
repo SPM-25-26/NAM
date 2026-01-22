@@ -8,7 +8,7 @@ namespace Domain.Entities.MunicipalityEntities
     public class Booking
     {
         [Embeddable]
-        public TimeInterval? TimeIntervalDto { get; set; }
+        public TimeInterval TimeIntervalDto { get; set; }
         [Embeddable]
         public BookingType Name { get; set; }
         [MaxLength(1000)]

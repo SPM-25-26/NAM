@@ -4,6 +4,7 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace nam.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260121233358_AddShopping")]
+    partial class AddShopping
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1676,8 +1679,8 @@ namespace nam.Server.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("BadgeText")
                         .IsRequired()
@@ -2432,13 +2435,13 @@ namespace nam.Server.Migrations
                                     b2.Property<Guid>("BookingServiceDetailIdentifier")
                                         .HasColumnType("uniqueidentifier");
 
-                                    b2.Property<DateTime?>("Date")
+                                    b2.Property<DateTime>("Date")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime?>("EndDate")
+                                    b2.Property<DateTime>("EndDate")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime?>("StartDate")
+                                    b2.Property<DateTime>("StartDate")
                                         .HasColumnType("datetime2");
 
                                     b2.HasKey("BookingServiceDetailIdentifier");
@@ -2449,8 +2452,7 @@ namespace nam.Server.Migrations
                                         .HasForeignKey("BookingServiceDetailIdentifier");
                                 });
 
-                            b1.Navigation("TimeIntervalDto")
-                                .IsRequired();
+                            b1.Navigation("TimeIntervalDto");
                         });
 
                     b.OwnsOne("Domain.Entities.MunicipalityEntities.OpeningHoursSpecification", "OpeningHours", b1 =>
@@ -2458,8 +2460,8 @@ namespace nam.Server.Migrations
                             b1.Property<Guid>("ServiceDetailIdentifier")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<TimeOnly>("Closes")
-                                .HasColumnType("time");
+                            b1.Property<DateTime>("Closes")
+                                .HasColumnType("datetime2");
 
                             b1.Property<int?>("Day")
                                 .HasColumnType("int");
@@ -2468,8 +2470,8 @@ namespace nam.Server.Migrations
                                 .HasMaxLength(1000)
                                 .HasColumnType("nvarchar(1000)");
 
-                            b1.Property<TimeOnly>("Opens")
-                                .HasColumnType("time");
+                            b1.Property<DateTime>("Opens")
+                                .HasColumnType("datetime2");
 
                             b1.HasKey("ServiceDetailIdentifier");
 
@@ -2487,7 +2489,7 @@ namespace nam.Server.Migrations
                                         .HasMaxLength(1000)
                                         .HasColumnType("nvarchar(1000)");
 
-                                    b2.Property<int?>("Name")
+                                    b2.Property<int>("Name")
                                         .HasColumnType("int");
 
                                     b2.HasKey("OpeningHoursSpecificationServiceDetailIdentifier");
@@ -2503,13 +2505,13 @@ namespace nam.Server.Migrations
                                     b2.Property<Guid>("OpeningHoursSpecificationServiceDetailIdentifier")
                                         .HasColumnType("uniqueidentifier");
 
-                                    b2.Property<DateTime?>("Date")
+                                    b2.Property<DateTime>("Date")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime?>("EndDate")
+                                    b2.Property<DateTime>("EndDate")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime?>("StartDate")
+                                    b2.Property<DateTime>("StartDate")
                                         .HasColumnType("datetime2");
 
                                     b2.HasKey("OpeningHoursSpecificationServiceDetailIdentifier");
@@ -2520,11 +2522,9 @@ namespace nam.Server.Migrations
                                         .HasForeignKey("OpeningHoursSpecificationServiceDetailIdentifier");
                                 });
 
-                            b1.Navigation("AdmissionType")
-                                .IsRequired();
+                            b1.Navigation("AdmissionType");
 
-                            b1.Navigation("TimeInterval")
-                                .IsRequired();
+                            b1.Navigation("TimeInterval");
                         });
 
                     b.OwnsOne("Domain.Entities.MunicipalityEntities.TemporaryClosure", "TemporaryClosure", b1 =>
@@ -2532,8 +2532,8 @@ namespace nam.Server.Migrations
                             b1.Property<Guid>("ServiceDetailIdentifier")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<TimeOnly?>("Closes")
-                                .HasColumnType("time");
+                            b1.Property<DateTime?>("Closes")
+                                .HasColumnType("datetime2");
 
                             b1.Property<int?>("Day")
                                 .HasColumnType("int");
@@ -2542,8 +2542,8 @@ namespace nam.Server.Migrations
                                 .HasMaxLength(1000)
                                 .HasColumnType("nvarchar(1000)");
 
-                            b1.Property<TimeOnly?>("Opens")
-                                .HasColumnType("time");
+                            b1.Property<DateTime?>("Opens")
+                                .HasColumnType("datetime2");
 
                             b1.Property<string>("ReasonForClosure")
                                 .IsRequired()
@@ -2562,13 +2562,13 @@ namespace nam.Server.Migrations
                                     b2.Property<Guid>("TemporaryClosureServiceDetailIdentifier")
                                         .HasColumnType("uniqueidentifier");
 
-                                    b2.Property<DateTime?>("Date")
+                                    b2.Property<DateTime>("Date")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime?>("EndDate")
+                                    b2.Property<DateTime>("EndDate")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime?>("StartDate")
+                                    b2.Property<DateTime>("StartDate")
                                         .HasColumnType("datetime2");
 
                                     b2.HasKey("TemporaryClosureServiceDetailIdentifier");
@@ -2579,8 +2579,7 @@ namespace nam.Server.Migrations
                                         .HasForeignKey("TemporaryClosureServiceDetailIdentifier");
                                 });
 
-                            b1.Navigation("TimeInterval")
-                                .IsRequired();
+                            b1.Navigation("TimeInterval");
                         });
 
                     b.Navigation("Booking");
@@ -2683,13 +2682,13 @@ namespace nam.Server.Migrations
                                     b2.Property<Guid>("BookingShoppingCardDetailIdentifier")
                                         .HasColumnType("uniqueidentifier");
 
-                                    b2.Property<DateTime?>("Date")
+                                    b2.Property<DateTime>("Date")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime?>("EndDate")
+                                    b2.Property<DateTime>("EndDate")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime?>("StartDate")
+                                    b2.Property<DateTime>("StartDate")
                                         .HasColumnType("datetime2");
 
                                     b2.HasKey("BookingShoppingCardDetailIdentifier");
@@ -2700,8 +2699,7 @@ namespace nam.Server.Migrations
                                         .HasForeignKey("BookingShoppingCardDetailIdentifier");
                                 });
 
-                            b1.Navigation("TimeIntervalDto")
-                                .IsRequired();
+                            b1.Navigation("TimeIntervalDto");
                         });
 
                     b.OwnsOne("Domain.Entities.MunicipalityEntities.OpeningHoursSpecification", "OpeningHours", b1 =>
@@ -2709,8 +2707,8 @@ namespace nam.Server.Migrations
                             b1.Property<Guid>("ShoppingCardDetailIdentifier")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<TimeOnly>("Closes")
-                                .HasColumnType("time");
+                            b1.Property<DateTime>("Closes")
+                                .HasColumnType("datetime2");
 
                             b1.Property<int?>("Day")
                                 .HasColumnType("int");
@@ -2719,8 +2717,8 @@ namespace nam.Server.Migrations
                                 .HasMaxLength(1000)
                                 .HasColumnType("nvarchar(1000)");
 
-                            b1.Property<TimeOnly>("Opens")
-                                .HasColumnType("time");
+                            b1.Property<DateTime>("Opens")
+                                .HasColumnType("datetime2");
 
                             b1.HasKey("ShoppingCardDetailIdentifier");
 
@@ -2738,7 +2736,7 @@ namespace nam.Server.Migrations
                                         .HasMaxLength(1000)
                                         .HasColumnType("nvarchar(1000)");
 
-                                    b2.Property<int?>("Name")
+                                    b2.Property<int>("Name")
                                         .HasColumnType("int");
 
                                     b2.HasKey("OpeningHoursSpecificationShoppingCardDetailIdentifier");
@@ -2754,13 +2752,13 @@ namespace nam.Server.Migrations
                                     b2.Property<Guid>("OpeningHoursSpecificationShoppingCardDetailIdentifier")
                                         .HasColumnType("uniqueidentifier");
 
-                                    b2.Property<DateTime?>("Date")
+                                    b2.Property<DateTime>("Date")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime?>("EndDate")
+                                    b2.Property<DateTime>("EndDate")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime?>("StartDate")
+                                    b2.Property<DateTime>("StartDate")
                                         .HasColumnType("datetime2");
 
                                     b2.HasKey("OpeningHoursSpecificationShoppingCardDetailIdentifier");
@@ -2771,11 +2769,9 @@ namespace nam.Server.Migrations
                                         .HasForeignKey("OpeningHoursSpecificationShoppingCardDetailIdentifier");
                                 });
 
-                            b1.Navigation("AdmissionType")
-                                .IsRequired();
+                            b1.Navigation("AdmissionType");
 
-                            b1.Navigation("TimeInterval")
-                                .IsRequired();
+                            b1.Navigation("TimeInterval");
                         });
 
                     b.OwnsOne("Domain.Entities.MunicipalityEntities.TemporaryClosure", "TemporaryClosure", b1 =>
@@ -2783,8 +2779,8 @@ namespace nam.Server.Migrations
                             b1.Property<Guid>("ShoppingCardDetailIdentifier")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<TimeOnly?>("Closes")
-                                .HasColumnType("time");
+                            b1.Property<DateTime?>("Closes")
+                                .HasColumnType("datetime2");
 
                             b1.Property<int?>("Day")
                                 .HasColumnType("int");
@@ -2793,8 +2789,8 @@ namespace nam.Server.Migrations
                                 .HasMaxLength(1000)
                                 .HasColumnType("nvarchar(1000)");
 
-                            b1.Property<TimeOnly?>("Opens")
-                                .HasColumnType("time");
+                            b1.Property<DateTime?>("Opens")
+                                .HasColumnType("datetime2");
 
                             b1.Property<string>("ReasonForClosure")
                                 .IsRequired()
@@ -2813,13 +2809,13 @@ namespace nam.Server.Migrations
                                     b2.Property<Guid>("TemporaryClosureShoppingCardDetailIdentifier")
                                         .HasColumnType("uniqueidentifier");
 
-                                    b2.Property<DateTime?>("Date")
+                                    b2.Property<DateTime>("Date")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime?>("EndDate")
+                                    b2.Property<DateTime>("EndDate")
                                         .HasColumnType("datetime2");
 
-                                    b2.Property<DateTime?>("StartDate")
+                                    b2.Property<DateTime>("StartDate")
                                         .HasColumnType("datetime2");
 
                                     b2.HasKey("TemporaryClosureShoppingCardDetailIdentifier");
@@ -2830,8 +2826,7 @@ namespace nam.Server.Migrations
                                         .HasForeignKey("TemporaryClosureShoppingCardDetailIdentifier");
                                 });
 
-                            b1.Navigation("TimeInterval")
-                                .IsRequired();
+                            b1.Navigation("TimeInterval");
                         });
 
                     b.Navigation("Booking");

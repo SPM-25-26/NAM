@@ -39,6 +39,34 @@ namespace Infrastructure
                     bk.OwnsOne(x => x.TimeIntervalDto);
                 });
             });
+
+            builder.Entity<ShoppingCardDetail>(b =>
+            {
+                b.OwnsMany(x => x.Services, sb =>
+                {
+                    // EF crea una PK shadow
+                    sb.Property<Guid>("Id");
+                    sb.HasKey("Id");
+                });
+
+
+                b.OwnsOne(x => x.OpeningHours, oh =>
+                {
+                    oh.OwnsOne(x => x.AdmissionType); 
+
+                    oh.OwnsOne(x => x.TimeInterval);
+                });
+
+                b.OwnsOne(x => x.TemporaryClosure, tc =>
+                {
+                    tc.OwnsOne(x => x.TimeInterval); 
+                });
+
+                b.OwnsOne(x => x.Booking, bk =>
+                {
+                    bk.OwnsOne(x => x.TimeIntervalDto);
+                });
+            });
         }
 
         public DbSet<User> Users { get; set; }
@@ -99,6 +127,12 @@ namespace Infrastructure
         public DbSet<ServiceCard> ServiceCards { get; set; } = null!;
         public DbSet<ServiceDetail> ServiceDetails { get; set; } = null!;
         public DbSet<ServiceLocationRelationship<ServiceDetail>> ServiceLocations { get; set; } = null!;
+
+        //Shopping entities
+        public DbSet<ShoppingCard> ShoppingCards { get; set; } = null!;
+        public DbSet<ShoppingCardDetail> ShoppingDetails { get; set; } = null!;
+        public DbSet<TypicalProduct> TypicalProducts { get; set; } = null!;
+        public DbSet<Owner> Owners { get; set; } = null!;
 
 
 

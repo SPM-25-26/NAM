@@ -4,22 +4,55 @@ using Domain.Entities.MunicipalityEntities;
 
 namespace DataInjection.SQL.Mappers
 {
-    public class ServiceCardDetailMapper : IDtoMapper<ServiceCardDetailDto, ServiceDetail>
+    public class ShoppingCardDetailMapper : IDtoMapper<ShoppingCardDetailDto, ShoppingCardDetail>
     {
-        public ServiceDetail MapToEntity(ServiceCardDetailDto dto)
+        public ShoppingCardDetail MapToEntity(ShoppingCardDetailDto dto)
         {
             if (dto is null)
             {
-                return new ServiceDetail
+                return new ShoppingCardDetail
                 {
                     Identifier = Guid.NewGuid()
                 };
             }
 
-            // Identifier
-            var identifier = Guid.TryParse(dto.Identifier, out var id) && id != Guid.Empty ? id : Guid.NewGuid();
+            // Map NearestCarPark (entity)
+            NearestCarPark? nearestCarPark = null;
+            if (dto.NearestCarPark != null)
+            {
+                nearestCarPark = new NearestCarPark
+                {
+                    Latitude = dto.NearestCarPark.Latitude,
+                    Longitude = dto.NearestCarPark.Longitude,
+                    Address = dto.NearestCarPark.Address?.Trim(),
+                    Distance = dto.NearestCarPark.Distance
+                };
+            }
 
-            // Owned/embedded objects
+            // Map Owner (owned) - crea solo se ha almeno un campo utile
+            Owner? owner = null;
+            if (dto.Owner != null && !string.IsNullOrWhiteSpace(dto.Owner.TaxCode) )
+            {
+                owner = new Owner
+                {
+                    TaxCode = dto.Owner.TaxCode?.Trim(),
+                    LegalName = dto.Owner.LegalName?.Trim(),
+                    WebSite = dto.Owner.WebSite?.Trim()
+                };
+            }
+
+            // Map MunicipalityData (entity)
+            MunicipalityForLocalStorageSetting? municipality = null;
+            if (dto.MunicipalityData != null)
+            {
+                municipality = new MunicipalityForLocalStorageSetting
+                {
+                    Name = dto.MunicipalityData.Name ?? string.Empty,
+                    LogoPath = dto.MunicipalityData.LogoPath ?? string.Empty
+                };
+            }
+
+            // Map OpeningHours / TemporaryClosure / Booking (owned)
             OpeningHoursSpecification? openingHours = null;
             if (dto.OpeningHours != null)
             {
@@ -52,7 +85,7 @@ namespace DataInjection.SQL.Mappers
                             Date = null,
                             StartDate = null,
                             EndDate = null
-                        },
+                        }
                 };
             }
 
@@ -78,7 +111,7 @@ namespace DataInjection.SQL.Mappers
                             Date = null,
                             StartDate = null,
                             EndDate = null
-                        },
+                        }
                 };
             }
 
@@ -101,73 +134,108 @@ namespace DataInjection.SQL.Mappers
                             Date = null,
                             StartDate = null,
                             EndDate = null
-                        },
+                        }
                 };
             }
 
-            var detail = new ServiceDetail
+            // Entity base
+            var entity = new ShoppingCardDetail
             {
-                Identifier = identifier,
-                Name = dto.Name?.Trim(),
+                Identifier = Guid.TryParse(dto.Identifier, out var identifier) && identifier != Guid.Empty ? identifier : Guid.NewGuid(),
+                OfficialName = dto.OfficialName?.Trim(),
                 Address = dto.Address?.Trim(),
                 Description = dto.Description?.Trim(),
-
-                SpacesForDisabled = dto.SpacesForDisabled,
-                PayingParkingSpaces = dto.PayingParkingSpaces,
-                AvailableParkingSpaces = dto.AvailableParkingSpaces,
-                PostiAutoVenduti = dto.PostiAutoVenduti,
-                TotalNumberOfCarParkSpaces = dto.TotalNumberOfCarParkSpaces,
-
+                ImagePath = dto.ImagePath?.Trim(),
+                PoiCategory = dto.PoiCategory?.Trim(),
                 Latitude = dto.Latitude,
                 Longitude = dto.Longitude,
-
-                Typology = dto.Typology?.Trim(),
-                PrimaryImage = dto.PrimaryImage?.Trim(),
-
                 Email = dto.Email?.Trim(),
                 Telephone = dto.Telephone?.Trim(),
                 Website = dto.Website?.Trim(),
-                Instagram = dto.Instagram?.Trim(),
                 Facebook = dto.Facebook?.Trim(),
-
-                Price = dto.Price?.Trim(),
-                ReservationUrl = dto.ReservationUrl?.Trim(),
-
+                Instagram = dto.Instagram?.Trim(),
+                NearestCarPark = nearestCarPark,
+                Owner = owner,
                 OpeningHours = openingHours,
                 TemporaryClosure = temporaryClosure,
-                Booking = booking
+                Booking = booking,
+                MunicipalityData = municipality
             };
 
-            // Gallery (primitive collection)
-            if (dto.Gallery != null && dto.Gallery.Any())
+            // Primitive collections
+            if (dto.Gallery != null)
             {
-                foreach (var img in dto.Gallery)
+                foreach (var g in dto.Gallery)
                 {
-                    if (!string.IsNullOrWhiteSpace(img))
-                        detail.Gallery.Add(img.Trim());
+                    if (!string.IsNullOrWhiteSpace(g))
+                        entity.Gallery.Add(g.Trim());
                 }
             }
 
-            // NearestCarPark (entity)
-            if (dto.NearestCarPark != null)
+            if (dto.VirtualTours != null)
             {
-                detail.NearestCarPark = new NearestCarPark
+                foreach (var vt in dto.VirtualTours)
                 {
-                    Latitude = dto.NearestCarPark.Latitude,
-                    Longitude = dto.NearestCarPark.Longitude,
-                    Address = dto.NearestCarPark.Address ?? string.Empty,
-                    Distance = dto.NearestCarPark.Distance
-                };
+                    if (!string.IsNullOrWhiteSpace(vt))
+                        entity.VirtualTours.Add(vt.Trim());
+                }
             }
 
-            // MunicipalityData (entity)
-            if (dto.MunicipalityData != null)
+            // AssociatedServices
+            if (dto.AssociatedServices != null && dto.AssociatedServices.Any())
             {
-                detail.MunicipalityData = new MunicipalityForLocalStorageSetting
+                foreach (var a in dto.AssociatedServices)
                 {
-                    Name = dto.MunicipalityData.Name ?? string.Empty,
-                    LogoPath = dto.MunicipalityData.LogoPath ?? string.Empty
-                };
+                    if (a is null) continue;
+
+                    Guid.TryParse(a.Identifier, out var serviceId);
+                    if (serviceId == Guid.Empty)
+                        serviceId = Guid.NewGuid();
+
+                    entity.AssociatedServices.Add(new AssociatedService
+                    {
+                        Identifier = serviceId,
+                        Name = a.Name ?? string.Empty,
+                        ImagePath = a.ImagePath ?? string.Empty
+                    });
+                }
+            }
+
+            // Services (owned list in ShoppingCardDetail)
+            if (dto.Services != null && dto.Services.Any())
+            {
+                foreach (var s in dto.Services)
+                {
+                    if (s is null) continue;
+
+                    entity.Services.Add(new PointOfSaleService
+                    {
+                        Name = s.Name?.Trim(),
+                        Description = s.Description?.Trim()
+                    });
+                }
+            }
+
+            // SellingTypicalProducts
+            if (dto.SellingTypicalProducts != null && dto.SellingTypicalProducts.Any())
+            {
+                foreach (var tp in dto.SellingTypicalProducts)
+                {
+                    if (tp is null) continue;
+
+                    entity.SellingTypicalProducts.Add(new TypicalProduct
+                    {
+                        Identifier = tp.Identifier,
+                        Name = tp.Name?.Trim(),
+                        Description = tp.Description?.Trim(),
+                        Address = tp.Address?.Trim(),
+                        CityName = tp.CityName?.Trim(),
+                        CreatedAt = tp.CreatedAt,
+                        Status = tp.Status,
+                        Type = tp.Type,
+                        Certification = tp.Certification
+                    });
+                }
             }
 
             // Neighbors -> FeatureCard relationship
@@ -187,58 +255,13 @@ namespace DataInjection.SQL.Mappers
             {
                 foreach (var n in neigh)
                 {
-                    var fcr = new FeatureCardRelationship<ServiceDetail> { FeatureCard = n, RelatedEntity = detail };
-                    detail.Neighbors.Add(fcr);
-                    n.ServiceRelations.Add(fcr); // NB: se vuoi, aggiungi una lista dedicata in FeatureCard (es. ServiceRelations) per evitare di riusare RouteRelations.
+                    var fcr = new FeatureCardRelationship<ShoppingCardDetail> { FeatureCard = n, RelatedEntity = entity };
+                    entity.Neighbors.Add(fcr);
+                    n.ShoppingRelations.Add(fcr);
                 }
             }
 
-            // AssociatedServices (entity collection)
-            if (dto.AssociatedServices != null && dto.AssociatedServices.Any())
-            {
-                foreach (var a in dto.AssociatedServices)
-                {
-                    if (a is null) continue;
-
-                    Guid.TryParse(a.Identifier, out var serviceId);
-                    if (serviceId == Guid.Empty)
-                        serviceId = Guid.NewGuid();
-
-                    detail.AssociatedServices.Add(new AssociatedService
-                    {
-                        Identifier = serviceId,
-                        Name = a.Name ?? string.Empty,
-                        ImagePath = a.ImagePath ?? string.Empty
-                    });
-                }
-            }
-
-            // Locations -> ServiceLocation relationship
-            if (dto.Locations != null && dto.Locations.Any())
-            {
-                foreach (var l in dto.Locations)
-                {
-                    if (l is null) continue;
-
-                    var location = new ServiceLocation
-                    {
-                        Identifier = l.Identifier,
-                        OfficialName = l.OfficialName,
-                        ImagePath = l.ImagePath,
-                        Category = l.Category
-                    };
-
-                    var rel = new ServiceLocationRelationship<ServiceDetail>
-                    {
-                        ServiceLocation = location,
-                        RelatedEntity = detail
-                    };
-
-                    detail.Locations!.Add(rel);
-                }
-            }
-
-            return detail;
+            return entity;
         }
     }
 }

@@ -4,6 +4,7 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace nam.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260122134235_OwnedTypeMod")]
+    partial class OwnedTypeMod
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2449,8 +2452,7 @@ namespace nam.Server.Migrations
                                         .HasForeignKey("BookingServiceDetailIdentifier");
                                 });
 
-                            b1.Navigation("TimeIntervalDto")
-                                .IsRequired();
+                            b1.Navigation("TimeIntervalDto");
                         });
 
                     b.OwnsOne("Domain.Entities.MunicipalityEntities.OpeningHoursSpecification", "OpeningHours", b1 =>
@@ -2520,11 +2522,9 @@ namespace nam.Server.Migrations
                                         .HasForeignKey("OpeningHoursSpecificationServiceDetailIdentifier");
                                 });
 
-                            b1.Navigation("AdmissionType")
-                                .IsRequired();
+                            b1.Navigation("AdmissionType");
 
-                            b1.Navigation("TimeInterval")
-                                .IsRequired();
+                            b1.Navigation("TimeInterval");
                         });
 
                     b.OwnsOne("Domain.Entities.MunicipalityEntities.TemporaryClosure", "TemporaryClosure", b1 =>
@@ -2579,8 +2579,7 @@ namespace nam.Server.Migrations
                                         .HasForeignKey("TemporaryClosureServiceDetailIdentifier");
                                 });
 
-                            b1.Navigation("TimeInterval")
-                                .IsRequired();
+                            b1.Navigation("TimeInterval");
                         });
 
                     b.Navigation("Booking");
@@ -2700,8 +2699,7 @@ namespace nam.Server.Migrations
                                         .HasForeignKey("BookingShoppingCardDetailIdentifier");
                                 });
 
-                            b1.Navigation("TimeIntervalDto")
-                                .IsRequired();
+                            b1.Navigation("TimeIntervalDto");
                         });
 
                     b.OwnsOne("Domain.Entities.MunicipalityEntities.OpeningHoursSpecification", "OpeningHours", b1 =>
@@ -2771,11 +2769,9 @@ namespace nam.Server.Migrations
                                         .HasForeignKey("OpeningHoursSpecificationShoppingCardDetailIdentifier");
                                 });
 
-                            b1.Navigation("AdmissionType")
-                                .IsRequired();
+                            b1.Navigation("AdmissionType");
 
-                            b1.Navigation("TimeInterval")
-                                .IsRequired();
+                            b1.Navigation("TimeInterval");
                         });
 
                     b.OwnsOne("Domain.Entities.MunicipalityEntities.TemporaryClosure", "TemporaryClosure", b1 =>
@@ -2830,8 +2826,7 @@ namespace nam.Server.Migrations
                                         .HasForeignKey("TemporaryClosureShoppingCardDetailIdentifier");
                                 });
 
-                            b1.Navigation("TimeInterval")
-                                .IsRequired();
+                            b1.Navigation("TimeInterval");
                         });
 
                     b.Navigation("Booking");

@@ -23,6 +23,7 @@ namespace Infrastructure.UnitOfWork
             EntertainmentLeisure = new EntertainmentLeisureRepository(_context);
             Route = new RouteRepository(_context);
             Service = new ServiceRepository(_context);
+            Shopping = new ShoppingRepository(_context);
         }
 
         public Task CompleteAsync()
@@ -46,5 +47,7 @@ namespace Infrastructure.UnitOfWork
         public IEntertainmentLeisureRepository EntertainmentLeisure { get; }
         public IRouteRepository Route { get; }
         public IServiceRepository Service { get; }
-        }
+
+        public IShoppingRepository Shopping { get; }
+    }
 }

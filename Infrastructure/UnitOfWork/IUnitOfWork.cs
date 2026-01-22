@@ -15,6 +15,7 @@ namespace Infrastructure.UnitOfWork
         IEntertainmentLeisureRepository EntertainmentLeisure { get; }
         IRouteRepository Route { get; }
         IServiceRepository Service { get; }
+        IShoppingRepository Shopping { get; }
 
         Task CompleteAsync();
     }

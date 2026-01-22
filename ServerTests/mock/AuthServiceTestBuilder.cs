@@ -109,6 +109,8 @@ namespace nam.ServerTests.mock
 
         public IServiceRepository Service => throw new NotImplementedException();
 
+        public IShoppingRepository Shopping => throw new NotImplementedException();
+
         public Task CompleteAsync()
         {
             return _context.SaveChangesAsync();
