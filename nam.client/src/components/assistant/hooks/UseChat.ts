@@ -79,7 +79,7 @@ export const useChat = () => {
           assistantMessage = {
             id: crypto.randomUUID(),
               role: "assistant",
-              content: await response.text(),
+              content: await response.json(),
             timestamp: Date.now(),
             status: "sent",
           };
