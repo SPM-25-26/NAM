@@ -36,6 +36,17 @@ export interface Neighbor {
         extraInfo: string;
     };
 }
+
+export interface Stage {
+    id: string;
+    stageMobile: {
+        category: string;
+        poiIdentifier: string;
+        poiOfficialName: string;
+        poiImagePath: string;
+        poiAddress: string;
+    };
+}
 export interface Element {
   identifier?: string;
   script?: string;
@@ -52,12 +63,22 @@ export interface Element {
   website?: string;
   facebook?: string;
   instagram?: string;
+  organizationWebsite?: string;
+  organizationEmail?: string;
+  organizationFacebook?: string;
+  organizationInstagram?: string;
+  organizationTelephone?: string;
+  pathTheme?: string,
+  travellingMethod?: string;
+  securityLevel?: string;
+  duration?: string;
   latitude?: number;
   longitude?: number;
   date?: string;
   officialName?: string;
   creativeWorks?: CreativeWork[];
   neighbors: Neighbor[];
+  stages: Stage[];
   startDate?: string;
   endDate?: string;
   services?: Service[];
@@ -126,9 +147,9 @@ const CategoryApi = {
   ENTERTAINMENT_LEISURE: "entertainment-leisure",
   EVENTS: "public-event",
   NATURE: "nature",
-  ROUTES: "routes",
+  ROUTE: "routes",
   ORGANIZATION: "organizations",
-  SERVICES: "services",
+  SERVICE: "services",
   SHOPPING: "shopping",
   SLEEP: "sleep",
   TYPICAL_PRODUCTS: "typical-products",
@@ -145,9 +166,9 @@ const InputKeyToEnumName: { [key: string]: keyof typeof CategoryApi } = {
   EntertainmentLeisure: "ENTERTAINMENT_LEISURE",
   Events: "EVENTS",
   Nature: "NATURE",
-  Routes: "ROUTES",
+  Route: "ROUTE",
   Organization: "ORGANIZATION",
-  Services: "SERVICES",
+  Service: "SERVICE",
   Shopping: "SHOPPING",
   Sleep: "SLEEP",
   TypicalProducts: "TYPICAL_PRODUCTS",

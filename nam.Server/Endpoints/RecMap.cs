@@ -11,7 +11,7 @@
             RouteGroupBuilder groupBuilder = builder.MapGroup("/api/user")
             .RequireCors("FrontendWithCredentials")
             .RequireAuthorization()
-            .WithTags("Authentication");
+            .WithTags("Recommendation");
 
             groupBuilder.MapGet("/get-rec", RecEndpoints.GetRec)
                 .Produces(StatusCodes.Status200OK)

@@ -105,6 +105,15 @@ namespace nam.ServerTests.mock
 
         public IUserRepository Questionaires => throw new NotImplementedException();
 
+        public IRouteRepository Route => throw new NotImplementedException();
+
+        public IServiceRepository Service => throw new NotImplementedException();
+
+        public IShoppingRepository Shopping => throw new NotImplementedException();
+
+        public ISleepRepository Sleep => throw new NotImplementedException();
+        public IEatAndDrinkRepository EatAndDrink => throw new NotImplementedException();
+        public IMapDataRepository MapData => throw new NotImplementedException();
         public Task CompleteAsync()
         {
             return _context.SaveChangesAsync();

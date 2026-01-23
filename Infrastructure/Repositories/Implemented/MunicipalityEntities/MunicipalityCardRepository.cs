@@ -31,6 +31,7 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
                 .Include(c => c.Contacts)
                 .Include(c => c.Events).ThenInclude(e => e.FeatureCard)
                 .Include(c => c.ArticlesAndPaths).ThenInclude(e => e.FeatureCard)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(c => c.LegalName == legalName, cancellationToken);
         }
 

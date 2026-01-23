@@ -13,12 +13,9 @@ interface SelectComponentProps {
     value: string | null;
     options: CategoryOption[];
     onChange: (value: string | null) => void;
-    accentColor?: string;// optional custom color for border and selected chips
+    accentColor?: string; // Ora accetta anche gradienti es: "linear-gradient(...)"
 }
 
-/**
- * Horizontal scrollable chip selector component with navigation arrows
- */
 const SelectComponent: React.FC<SelectComponentProps> = ({
     value,
     options,
@@ -26,19 +23,15 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
     accentColor,
 }) => {
     const theme = useTheme();
+    // Default fallback se non c'è accentColor
     const accent = accentColor ?? theme.palette.primary.main;
 
-    // Reference to the scrollable container
     const scrollRef = useRef<HTMLDivElement | null>(null);
 
-    /**
-     * Scrolls the chip container left or right
-     */
     const handleScroll = (direction: "left" | "right") => {
         const node = scrollRef.current;
         if (!node) return;
-
-        const scrollAmount = 150; // Pixels to scroll per click
+        const scrollAmount = 150;
         const newScrollLeft =
             direction === "right"
                 ? node.scrollLeft + scrollAmount
@@ -56,26 +49,22 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
                 backgroundColor: theme.palette.background.paper,
                 borderRadius: theme.shape.borderRadius,
                 padding: 1.5,
-                border: 3,
-                borderColor: accent,
-                borderStyle: "solid",
+
+                // --- MODIFICA PER BORDO GRADIENTE ---
+                // 1. Rendiamo il bordo reale trasparente
+                border: "3px solid transparent",
+                // 2. Usiamo due background: 
+                //    - Il primo è il colore di sfondo (paper) confinato al padding-box (contenuto)
+                //    - Il secondo è l'accento (gradiente o colore) confinato al border-box
+                background: `
+                    linear-gradient(${theme.palette.background.paper}, ${theme.palette.background.paper}) padding-box,
+                    ${accent} border-box
+                `,
+                // ------------------------------------
             }}
         >
-            {/* Container for scroll arrows and chips */}
-            <Box
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                }}
-            >
-                {/* Left scroll arrow */}
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                    }}
-                >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
                     <ChevronLeftIcon
                         fontSize="small"
                         sx={{ cursor: "pointer" }}
@@ -83,28 +72,21 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
                     />
                 </Box>
 
-                {/* Horizontally scrollable chip container */}
                 <Box
                     ref={scrollRef}
                     sx={{
                         flex: 1,
                         overflowX: "auto",
                         overflowY: "hidden",
-                        // Hide scrollbar across browsers
-                        "&::-webkit-scrollbar": {
-                            display: "none",
-                        },
-                        msOverflowStyle: "none", // IE/Edge
-                        scrollbarWidth: "none", // Firefox
+                        "&::-webkit-scrollbar": { display: "none" },
+                        msOverflowStyle: "none",
+                        scrollbarWidth: "none",
                     }}
                 >
                     <Stack
                         direction="row"
                         spacing={1}
-                        sx={{
-                            py: 0.5,
-                            width: "max-content", // Prevents chips from shrinking
-                        }}
+                        sx={{ py: 0.5, width: "max-content" }}
                     >
                         {options.map((opt) => {
                             const isSelected =
@@ -120,14 +102,23 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
                                     sx={{
                                         fontSize: "0.8rem",
                                         height: 28,
-                                        backgroundColor: isSelected
+
+                                        // --- MODIFICA PER CHIP GRADIENTE ---
+                                        // Usiamo 'background' invece di 'backgroundColor' 
+                                        // perché 'background' supporta i gradienti
+                                        background: isSelected
                                             ? accent
                                             : theme.palette.grey[200],
+
                                         color: isSelected
                                             ? theme.palette.common.white
                                             : theme.palette.text.primary,
+
+                                        // Rimuoviamo il bordo se è selezionato per pulizia visiva col gradiente
+                                        border: "none",
+
                                         "&:hover": {
-                                            backgroundColor: isSelected
+                                            background: isSelected
                                                 ? accent
                                                 : theme.palette.grey[300],
                                         },
@@ -138,13 +129,7 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
                     </Stack>
                 </Box>
 
-                {/* Right scroll arrow */}
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                    }}
-                >
+                <Box sx={{ display: "flex", alignItems: "center" }}>
                     <ChevronRightIcon
                         fontSize="small"
                         sx={{ cursor: "pointer" }}
