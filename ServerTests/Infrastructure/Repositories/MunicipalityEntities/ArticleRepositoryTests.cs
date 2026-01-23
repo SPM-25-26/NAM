@@ -122,7 +122,7 @@ namespace nam.ServerTests.Infrastructure.Repositories.MunicipalityEntities
         public async Task GetByMunicipalityNameAsync_ReturnsEmpty_WhenNoMatches()
         {
             var options = CreateOptions();
-            var entityId = Guid.Parse("abcdaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+            var entityId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab");
             const string milano = "Milano";
             const string roma = "Roma";
             var cancellationToken = CancellationToken.None;
