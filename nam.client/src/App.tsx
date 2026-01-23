@@ -9,6 +9,7 @@ import VerifyEmailPage from "./pages/verifymail/VerifyEmailPage";
 import { EventDetail } from "./pages/detail_element/detail_element";
 import UserSurvey from "./pages/user-survey/userSurvey";
 import ProfilePage from "./pages/profile/profile";
+import AssistantPage from "./pages/assistant_page/AssistantPage";
 
 function App() {
   return (
@@ -20,10 +21,11 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/maincontents" element={<MainContentsPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route path="*" element={<NotFoundPage />} />
+        <Route path="/assistant" element={<AssistantPage />} />
         <Route path="/detail-element" element={<EventDetail />} />
         <Route path="/survey" element={<UserSurvey />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );

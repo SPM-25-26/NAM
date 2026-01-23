@@ -12,6 +12,7 @@ import {
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ChatPanel from "../../components/assistant/ChatPanel";
 import InfoModal from "../../components/InfoModal";
+import SimpleBottomNavigation from "../../components/bottom_bar";
 import {
   HelpOutlineRounded,
   NearMeRounded,
@@ -213,6 +214,11 @@ const AssistantPage: React.FC = () => {
             />
           </Box>
         </Container>
+      </Box>
+
+      {/* 3. BOTTOM NAV */}
+      <Box sx={{ flexShrink: 0, bgcolor: theme.palette.background.paper }}>
+        <SimpleBottomNavigation />
       </Box>
 
       <InfoModal

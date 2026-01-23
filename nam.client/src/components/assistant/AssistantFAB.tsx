@@ -139,7 +139,7 @@ export const AssistantFAB: React.FC = () => {
           <Stack direction="row" spacing={0.5}>
             {!isMobile && (
               <Tooltip title="Espandi" arrow>
-                <IconButton size="small" onClick={() => navigate("/bot")}>
+                <IconButton size="small" onClick={() => navigate("/assistant")}>
                   <OpenInFullRoundedIcon sx={{ fontSize: 18 }} />
                 </IconButton>
               </Tooltip>
