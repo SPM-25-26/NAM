@@ -65,6 +65,19 @@ Naming conventions:
 
 ---
 
+## Mocking Standards
+
+- **Primary Library:** Use **NSubstitute** for all interface and class mocking.
+- **Forbidden:** Do not use Moq or RhinoMocks (to maintain consistency).
+- **Style Guidelines:**
+  - Use `.Returns(...)` for setting up return values.
+  - Use `.Received(...)` or `.DidNotReceive(...)` for verifying behavior.
+  - Do not verify calls for query methods (stubs), only for command methods (side effects).
+  - Create mocks using `Substitute.For<IMyInterface>()`.
+
+---
+
+
 ## Coverage Priorities (What to Test First)
 
 ### 1) DataInjection Modules (High Priority)
