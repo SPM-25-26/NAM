@@ -1,5 +1,5 @@
 import { Avatar } from "@mui/material";
-import ImgIA from "../../../assets/ia_avatar.png";
+import ImgIA from "../../../assets/ia_avatar.webp";
 
 export function AssistantAvatar({ size = 32, animated = false, full = false }) {
   return (
