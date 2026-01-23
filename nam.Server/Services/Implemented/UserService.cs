@@ -1,10 +1,12 @@
 ﻿using Domain.Entities;
+using Infrastructure.Extensions;
 using Infrastructure.UnitOfWork;
+using Microsoft.Extensions.AI;
 using nam.Server.Services.Interfaces;
 
 namespace nam.Server.Services.Implemented
 {
-    public class UserService(IUnitOfWork unitOfWork) : IUserService
+    public class UserService(IUnitOfWork unitOfWork, IEmbeddingGenerator<string, Embedding<float>> embedder) : IUserService
     {
         public async Task<Questionaire?> GetQuestionaireByUserMailAsync(string userEmail, CancellationToken cancellationToken = default)
         {
@@ -15,6 +17,8 @@ namespace nam.Server.Services.Implemented
 
         public async Task<bool> UpdateQuestionaireAsync(Questionaire questionaire, string userEmail, CancellationToken cancellationToken = default)
         {
+            var vector = await embedder.GenerateVectorAsync(questionaire.ToEmbeddingString(), cancellationToken: cancellationToken);
+            questionaire.Vector = vector.ToArray();
             var result = await unitOfWork.Users.UpdateQuestionaireByEmailAsync(questionaire, userEmail, cancellationToken);
             return result;
         }

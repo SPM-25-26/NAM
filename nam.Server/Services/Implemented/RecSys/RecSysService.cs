@@ -1,6 +1,4 @@
-﻿using Infrastructure.Extensions;
-using Microsoft.Extensions.AI;
-using nam.Server.Services.Interfaces;
+﻿using nam.Server.Services.Interfaces;
 using nam.Server.Services.Interfaces.RecSys;
 using Qdrant.Client;
 using Qdrant.Client.Grpc;
@@ -20,7 +18,6 @@ namespace nam.Server.Services.Implemented.RecSys
     {
         private readonly IUserService _userService;
         private readonly QdrantClient _qdrantClient;
-        private readonly IEmbeddingGenerator<string, Embedding<float>> _generator;
         private readonly IScorer _scorer;
         private readonly IRanker _ranker;
 
@@ -46,13 +43,11 @@ namespace nam.Server.Services.Implemented.RecSys
         public RecsysService(
             IUserService userService,
             QdrantClient qdrantClient,
-            IEmbeddingGenerator<string, Embedding<float>> generator,
             IScorer scorer,
             IRanker ranker)
         {
             _userService = userService;
             _qdrantClient = qdrantClient;
-            _generator = generator;
             _scorer = scorer;
             _ranker = ranker;
         }
@@ -78,16 +73,7 @@ namespace nam.Server.Services.Implemented.RecSys
                 return await GetGenericFallbackAsync(DefaultLimit, new HashSet<Guid>());
             }
 
-            // 3. Generate an embedding from all [Embeddable] questionnaire fields.
-            var textToEmbed = questionnaire.ToEmbeddingString();
-            var embeddingResult = await _generator.GenerateAsync(textToEmbed);
-
-            if (embeddingResult == null)
-            {
-                return await GetGenericFallbackAsync(DefaultLimit, new HashSet<Guid>());
-            }
-
-            var userVector = embeddingResult.Vector;
+            var userVector = questionnaire.Vector;
 
             // Categories selected in the questionnaire, used for category matching.
             var preferredCategories = questionnaire.Interest ?? new List<string>();
