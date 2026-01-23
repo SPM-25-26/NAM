@@ -122,19 +122,21 @@ namespace nam.ServerTests.Infrastructure.Repositories.MunicipalityEntities
         public async Task GetByMunicipalityNameAsync_ReturnsEmpty_WhenNoMatches()
         {
             var options = CreateOptions();
-            var entityId = Guid.Parse("abababab-abab-abab-abab-abababababab");
+            var entityId = Guid.Parse("abcdaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+            const string milano = "Milano";
+            const string roma = "Roma";
             var cancellationToken = CancellationToken.None;
 
             await using (var setupContext = new ApplicationDbContext(options))
             {
-                setupContext.ArticleCards.Add(CreateCard(entityId, "Milano"));
+                setupContext.ArticleCards.Add(CreateCard(entityId, milano));
                 await setupContext.SaveChangesAsync(cancellationToken);
             }
 
             await using var context = new ApplicationDbContext(options);
             var repository = new ArticleRepository(context);
 
-            var result = await repository.GetByMunicipalityNameAsync("Roma", cancellationToken);
+            var result = await repository.GetByMunicipalityNameAsync(roma, cancellationToken);
 
             NUnitAssert.That(result, Is.Empty);
         }
