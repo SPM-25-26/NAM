@@ -113,6 +113,7 @@ namespace nam.ServerTests.mock
 
         public ISleepRepository Sleep => throw new NotImplementedException();
         public IEatAndDrinkRepository EatAndDrink => throw new NotImplementedException();
+        public IMapDataRepository MapData => throw new NotImplementedException();
         public Task CompleteAsync()
         {
             return _context.SaveChangesAsync();

@@ -208,6 +208,8 @@ namespace nam.Server.Extensions
 
             services.AddScoped<IMunicipalityEntityService<EatAndDrinkCard, EatAndDrinkDetail>, EatAndDrinkService>();
 
+            services.AddScoped<IMapDataService, MapDataService>();
+
             services.AddScoped<IRanker, SimpleRanker>();
             services.AddScoped<IScorer, WeightedScorer>();
             services.AddScoped<IRecSysService, RecsysService>();

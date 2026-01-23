@@ -32,6 +32,7 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
                 .Include(c => c.Organizer)
                 .Include(c => c.TicketsAndCosts)
                 .Include(c => c.MunicipalityData)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(c => c.Identifier == entityId, cancellationToken);
         }
 

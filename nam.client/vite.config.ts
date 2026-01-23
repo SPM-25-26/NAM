@@ -29,7 +29,7 @@ export default defineConfig({
                     {
                         // A. CACHE OF API Calls (Events, Articoles, ArtCulture, Details)
                         // StaleWhileRevalidate: Show cached data, and control if it is changed
-                        urlPattern: ({ url }) => url.pathname.includes('card-list') || url.pathname.includes('detail/'),
+                        urlPattern: ({ url }) => url.pathname.includes('card-list') || url.pathname.includes('detail/') || url.pathname.includes('map'),
                         handler: 'StaleWhileRevalidate',
                         options: {
                             cacheName: 'api-data-cache',

@@ -1,5 +1,8 @@
 using DotNetEnv;
 using Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Options;
 using nam.Server.Endpoints;
 using nam.Server.Endpoints.Auth;
 using nam.Server.Endpoints.MunicipalityEntities;
@@ -75,6 +78,7 @@ app.MapService();
 app.MapShopping();
 app.MapSleep();
 app.MapEatAndDrink();
+app.MapMapData();
 app.MapQuestionaire();
 app.ReccomandationMap();
 app.Run();

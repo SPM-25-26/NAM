@@ -2,6 +2,7 @@
 using Domain.Entities.Auth;
 using Domain.Entities.MunicipalityEntities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Infrastructure
 {
@@ -195,6 +196,10 @@ namespace Infrastructure
         //EatAndDrink entities
         public DbSet<EatAndDrinkCard> EatAndDrinkCards { get; set; } = null!;
         public DbSet<EatAndDrinkDetail> EatAndDrinkDetails { get; set; } = null!;
+
+        //Map entities
+        public DbSet<MapData> MapData { get; set; } = null!;
+        public DbSet<MapMarker> MapMarkers { get; set; } = null!;
 
 
     }

@@ -37,7 +37,7 @@ const DISTANCE_OPTIONS: CategoryOption[] = [
  * Helper to parse coordinates that might use commas or be strings.
  * Ensures we get a valid number or undefined.
  */
-const safeParseFloat = (val: string | number | undefined): number | undefined => {
+/*const safeParseFloat = (val: string | number | undefined): number | undefined => {
     if (val === undefined || val === null || val === "") return undefined;
     if (typeof val === "number") return val;
 
@@ -46,24 +46,8 @@ const safeParseFloat = (val: string | number | undefined): number | undefined =>
     const parsed = parseFloat(strVal);
 
     return isNaN(parsed) ? undefined : parsed;
-};
+};*/
 
-/**
- * Helper to map UI Categories to API endpoints for Details.
- * Matches the user's provided list of categories.
- */
-const getApiCategory = (uiCategory: string): string | null => {
-    switch (uiCategory) {
-        case "ArtCulture": return "art-culture";
-        case "Events": return "public-event";
-        case "Organization": return "organizations";
-        case "Nature": return "nature";
-        case "EntertainmentLeisure": return "entertainment-leisure";
-        // Articles do not have coordinates, return null to skip fetch
-        case "Article": return null;
-        default: return null;
-    }
-};
 
 /**
  * API response shape for card list items
@@ -94,8 +78,19 @@ type ElementItem = {
     longitude?: number;
     distanceText?: string;
     distanceValue?: number;
-    // Flag to avoid re-fetching details
-    hydrated?: boolean;
+};
+
+// New Interfaces for the Map API
+type MapMarker = {
+    id: string;
+    latitude: number;
+    longitude: number;
+    // We only need coordinates, but you can add name/typology if needed later
+};
+
+type MapResponse = {
+    name: string;
+    marker: MapMarker[];
 };
 
 /**
@@ -129,6 +124,11 @@ const CATEGORY_CONFIGS: CategoryConfig[] = [
         label: "Entertainment&Leisure",
         endpoint: "entertainment-leisure/card-list",
     },
+    { value: "EatAndDrink", label: "Eat&Drink", endpoint: "eat-and-drink/card-list" },
+    { value: "Shopping", label: "Shopping", endpoint: "shopping/card-list" },
+    { value: "Service", label: "Service", endpoint: "services/card-list" },
+    { value: "Sleep", label: "Sleep", endpoint: "sleep/card-list" },
+    { value: "Route", label: "Route", endpoint: "routes/card-list" },
 ];
 
 // Utility: Haversine formula to calculate distance between two coordinates in km
@@ -142,6 +142,40 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
         Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
+};
+
+/**
+ * Fetches all coordinates from the map endpoint.
+ * Returns a Map object for O(1) access by ID.
+ */
+const fetchMapCoordinates = async (): Promise<Map<string, { lat: number; lon: number }>> => {
+    try {
+        const response = await fetch(buildApiUrl("map?municipality=Matelica&language=it"), {
+            method: "GET",
+            headers: { Accept: "application/json" },
+            credentials: "include",
+        });
+
+        if (!response.ok) return new Map();
+
+        const data = (await response.json()) as MapResponse;
+
+        const coordsMap = new Map<string, { lat: number; lon: number }>();
+
+        if (data.marker && Array.isArray(data.marker)) {
+            data.marker.forEach((m) => {
+                // Ensure lat/lon are valid numbers
+                if (m.latitude && m.longitude) {
+                    coordsMap.set(m.id, { lat: m.latitude, lon: m.longitude });
+                }
+            });
+        }
+
+        return coordsMap;
+    } catch (error) {
+        console.error("Failed to fetch map coordinates:", error);
+        return new Map();
+    }
 };
 
 const MainContentsPage: React.FC = () => {
@@ -351,8 +385,7 @@ const MainContentsPage: React.FC = () => {
                 date: item.date,
                 category: category,
                 latitude: undefined, // Will be fetched via Hydration
-                longitude: undefined,
-                hydrated: false
+                longitude: undefined
             };
         });
     };
@@ -418,8 +451,7 @@ const MainContentsPage: React.FC = () => {
                 setLoadingElements(true);
                 setElementsError(null);
 
-                // Fetch User Location first. 
-                // We await this to decide whether to use GPS or fallback to Matelica for recommendations.
+                // Fetch User Location first
                 const location = await getUserLocation();
 
                 if (location) {
@@ -428,31 +460,42 @@ const MainContentsPage: React.FC = () => {
                     setUserLocation(DEFAULT_LOCATION);
                 }
 
-                // Determine which location to send to the personalization API
                 const locationToUse = location || DEFAULT_LOCATION;
 
-                // Fetch all categories in parallel
+                // 1. Fetch all categories
                 const categoryPromises = CATEGORY_CONFIGS.map((config) =>
                     fetchCategoryData(config.endpoint, config.value).catch((err) => {
                         console.error(`Error fetching ${config.value}:`, err);
-                        return []; // Return empty array on error to continue with other categories
+                        return [];
                     })
                 );
 
-                // Fetch personalized IDs in parallel with categories
+                // 2. Fetch personalized IDs
                 const personalizedIdsPromise = fetchPersonalizedIds(locationToUse.lat, locationToUse.lon);
 
+                // 3. Fetch Map Coordinates (New)
+                const mapCoordinatesPromise = fetchMapCoordinates();
+
                 // Wait for all requests to complete
-                const [idsResult, ...categoryResults] = await Promise.all([
+                const [idsResult, mapData, ...categoryResults] = await Promise.all([
                     personalizedIdsPromise,
+                    mapCoordinatesPromise,
                     ...categoryPromises
                 ]);
 
                 // Update the set of personalized IDs
                 setPersonalizedIds(idsResult);
 
-                // Flatten all results into a single array
-                const allElements = categoryResults.flat();
+                // Flatten results and merge with coordinates immediately
+                const allElements = categoryResults.flat().map((item) => {
+                    const coords = mapData.get(item.id);
+                    return {
+                        ...item,
+                        latitude: coords?.lat, // Undefined if not found, which is fine
+                        longitude: coords?.lon
+                    };
+                });
+
                 setElements(allElements);
             } catch (err) {
                 console.error("Error while fetching elements:", err);
@@ -463,8 +506,6 @@ const MainContentsPage: React.FC = () => {
         };
 
         fetchAllElements();
-
-        // Cleanup: No need to revoke object URLs anymore as we use strings
     }, [authenticated]);
 
 
@@ -530,82 +571,7 @@ const MainContentsPage: React.FC = () => {
     }, [elements, selectedCategory, basePersonalizedList]);
 
 
-    /**
-     * Hydrate Elements with Coordinates.
-     * Fetches details for loaded items to extract latitude and longitude.
-     */
-    useEffect(() => {
-        if (elements.length === 0 || loadingElements) return;
-
-        // Determine which items need hydration (missing coords & not Article & not hydrated yet)
-        const itemsToHydrate = elements.filter(el =>
-            !el.hydrated &&
-            el.category !== "Article"
-        ).slice(0, 50); // Process in batches
-
-        if (itemsToHydrate.length === 0) return;
-
-        const hydrateCoordinates = async () => {
-
-            console.log(`Hydration: Fetching coordinates for ${itemsToHydrate.length} items...`);
-
-            // Map to store found coordinates
-            const coordsMap = new Map<string, { lat: number; lon: number }>();
-
-            await Promise.allSettled(itemsToHydrate.map(async (item) => {
-                try {
-                    const endpointCategory = getApiCategory(item.category);
-                    if (!endpointCategory) return;
-
-                    const detailUrl = buildApiUrl(
-                        `${endpointCategory}/detail/${item.id}?language=it`
-                    );
-
-                    const response = await fetch(detailUrl, {
-                        method: "GET",
-                        credentials: "include",
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        const lat = safeParseFloat(data.latitude);
-                        const lon = safeParseFloat(data.longitude);
-
-                        if (lat !== undefined && lon !== undefined) {
-                            coordsMap.set(item.id, { lat, lon });
-                        }
-                    } else {
-                        // If we are offline and NOT in cache, we will end up here or in the catch
-                        console.warn(`Hydration failed for ${item.id}: HTTP ${response.status}`);
-                    }
-                } catch (e) {
-                    // If we are offline and NOT in cache, the fetch will throw a network error.
-                    // We silently ignore it.
-                    // console.error(`Hydration error for ${item.id}`, e);
-                }
-            }));
-
-            // Update state: Add coords and mark processed items as hydrated
-            setElements(prevElements => {
-                return prevElements.map(el => {
-                    if (coordsMap.has(el.id)) {
-                        const coords = coordsMap.get(el.id)!;
-                        return { ...el, latitude: coords.lat, longitude: coords.lon, hydrated: true };
-                    }
-
-                    if (itemsToHydrate.some(i => i.id === el.id)) {
-                        return { ...el, hydrated: true };
-                    }
-
-                    return el;
-                });
-            });
-            console.log("Hydration: Batch completed.");
-        };
-
-        hydrateCoordinates();
-
-    }, [elements, loadingElements]);
+   
 
 
     /**
