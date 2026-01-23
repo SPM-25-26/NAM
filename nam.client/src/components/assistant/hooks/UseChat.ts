@@ -63,7 +63,7 @@ export const useChat = () => {
             content: message.content,
           })),
         });
-        const response = await fetch(buildApiUrl("/api/assistant/chat"), {
+        const response = await fetch(buildApiUrl("/assistant/chat"), {
           method: "POST",
           headers: { Accept: "application/json" },
           credentials: "include",
