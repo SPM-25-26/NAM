@@ -65,7 +65,10 @@ export const useChat = () => {
         });
         const response = await fetch(buildApiUrl("/assistant/chat"), {
           method: "POST",
-          headers: { Accept: "application/json" },
+          headers: { 
+            Accept: "application/json",
+            "Content-Type": "application/json"
+          },
           credentials: "include",
           body: payload,
         });
@@ -75,8 +78,8 @@ export const useChat = () => {
         if (response.ok) {
           assistantMessage = {
             id: crypto.randomUUID(),
-            role: "assistant",
-            content: await response.json(),
+              role: "assistant",
+              content: await response.text(),
             timestamp: Date.now(),
             status: "sent",
           };
