@@ -198,6 +198,18 @@ namespace nam.Server.Extensions
 
             services.AddScoped<IMunicipalityEntityService<EntertainmentLeisureCard, EntertainmentLeisureDetail>, EntertainmentLeisureService>();
 
+            services.AddScoped<IMunicipalityEntityService<RouteCard, RouteDetail>, RouteService>();
+
+            services.AddScoped<IMunicipalityEntityService<ServiceCard, ServiceDetail>, ServiceService>();
+
+            services.AddScoped<IMunicipalityEntityService<ShoppingCard, ShoppingCardDetail>, ShoppingService>();
+
+            services.AddScoped<IMunicipalityEntityService<SleepCard, SleepCardDetail>, SleepService>();
+
+            services.AddScoped<IMunicipalityEntityService<EatAndDrinkCard, EatAndDrinkDetail>, EatAndDrinkService>();
+
+            services.AddScoped<IMapDataService, MapDataService>();
+
             services.AddScoped<IRanker, SimpleRanker>();
             services.AddScoped<IScorer, WeightedScorer>();
             services.AddScoped<IRecSysService, RecsysService>();

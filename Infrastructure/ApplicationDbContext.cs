@@ -2,6 +2,7 @@
 using Domain.Entities.Auth;
 using Domain.Entities.MunicipalityEntities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Infrastructure
 {
@@ -21,6 +22,106 @@ namespace Infrastructure
                 .WithOne()
                 .HasForeignKey("MunicipalityHomeInfoLegalName1")
                 .OnDelete(DeleteBehavior.NoAction);
+            builder.Entity<ServiceDetail>(b =>
+            {
+                b.OwnsOne(x => x.OpeningHours, oh =>
+                {
+                    oh.OwnsOne(x => x.AdmissionType);
+                    oh.OwnsOne(x => x.TimeInterval);
+                });
+
+                b.OwnsOne(x => x.TemporaryClosure, tc =>
+                {
+                    tc.OwnsOne(x => x.TimeInterval);
+                });
+
+                b.OwnsOne(x => x.Booking, bk =>
+                {
+                    bk.OwnsOne(x => x.TimeIntervalDto);
+                });
+            });
+
+            builder.Entity<ShoppingCardDetail>(b =>
+            {
+                b.OwnsMany(x => x.Services, sb =>
+                {
+                    // EF crea una PK shadow
+                    sb.Property<Guid>("Id");
+                    sb.HasKey("Id");
+                });
+
+
+                b.OwnsOne(x => x.OpeningHours, oh =>
+                {
+                    oh.OwnsOne(x => x.AdmissionType); 
+
+                    oh.OwnsOne(x => x.TimeInterval);
+                });
+
+                b.OwnsOne(x => x.TemporaryClosure, tc =>
+                {
+                    tc.OwnsOne(x => x.TimeInterval); 
+                });
+
+                b.OwnsOne(x => x.Booking, bk =>
+                {
+                    bk.OwnsOne(x => x.TimeIntervalDto);
+                });
+            });
+
+            builder.Entity<SleepCardDetail>(b =>
+            {
+                b.OwnsOne(x => x.OpeningHours, oh =>
+                {
+                    oh.OwnsOne(x => x.AdmissionType);
+
+                    oh.OwnsOne(x => x.TimeInterval);
+                });
+
+                b.OwnsOne(x => x.TemporaryClosure, tc =>
+                {
+                    tc.OwnsOne(x => x.TimeInterval);
+                });
+
+                b.OwnsOne(x => x.Booking, bk =>
+                {
+                    bk.OwnsOne(x => x.TimeIntervalDto);
+                });
+            });
+
+            builder.Entity<EatAndDrinkDetail>(b =>
+            {
+                b.OwnsMany(x => x.Services, sb =>
+                {
+                    // EF crea una PK shadow
+                    sb.Property<Guid>("Id");
+                    sb.HasKey("Id");
+                });
+                b.OwnsMany(x => x.TypicalProducts, tpb =>
+                {
+                    // EF crea una PK shadow
+                    tpb.Property<Guid>("Id");
+                    tpb.HasKey("Id");
+                });
+
+
+                b.OwnsOne(x => x.OpeningHours, oh =>
+                {
+                    oh.OwnsOne(x => x.AdmissionType);
+
+                    oh.OwnsOne(x => x.TimeInterval);
+                });
+
+                b.OwnsOne(x => x.TemporaryClosure, tc =>
+                {
+                    tc.OwnsOne(x => x.TimeInterval);
+                });
+
+                b.OwnsOne(x => x.Booking, bk =>
+                {
+                    bk.OwnsOne(x => x.TimeIntervalDto);
+                });
+            });
         }
 
         public DbSet<User> Users { get; set; }
@@ -68,6 +169,38 @@ namespace Infrastructure
         public DbSet<OrganizationMobileDetail> OrganizationMobileDetails { get; set; } = null!;
         public DbSet<OwnedPoi> OwnedPois { get; set; } = null!;
         public DbSet<FeatureCardRelationship<ArtCultureNatureDetail>> FeatureCardArtCultureRelationships { get; set; } = null!;
+
+        // Route entities
+        public DbSet<RouteCard> RouteCards { get; set; } = null!;
+        public DbSet<RouteDetail> RouteDetails { get; set; } = null!;
+        public DbSet<Point> RoutePoints { get; set; } = null!;
+        public DbSet<FeatureCardRelationship<RouteDetail>> RouteFeatureCardRelationships { get; set; } = null!;
+        public DbSet<StageMobileRelationship<RouteDetail>> RouteStageMobileRelationships { get; set; } = null!;
+        public DbSet<StageMobile> StageMobiles { get; set; } = null!;
+
+        // Service entities
+        public DbSet<ServiceCard> ServiceCards { get; set; } = null!;
+        public DbSet<ServiceDetail> ServiceDetails { get; set; } = null!;
+        public DbSet<ServiceLocationRelationship<ServiceDetail>> ServiceLocations { get; set; } = null!;
+
+        //Shopping entities
+        public DbSet<ShoppingCard> ShoppingCards { get; set; } = null!;
+        public DbSet<ShoppingCardDetail> ShoppingDetails { get; set; } = null!;
+        public DbSet<TypicalProduct> TypicalProducts { get; set; } = null!;
+        public DbSet<Owner> Owners { get; set; } = null!;
+
+        //Sleep entities
+        public DbSet<SleepCard> SleepCards { get; set; } = null!;
+        public DbSet<SleepCardDetail> SleepDetails { get; set; } = null!;
+
+        //EatAndDrink entities
+        public DbSet<EatAndDrinkCard> EatAndDrinkCards { get; set; } = null!;
+        public DbSet<EatAndDrinkDetail> EatAndDrinkDetails { get; set; } = null!;
+
+        //Map entities
+        public DbSet<MapData> MapData { get; set; } = null!;
+        public DbSet<MapMarker> MapMarkers { get; set; } = null!;
+
 
     }
 }

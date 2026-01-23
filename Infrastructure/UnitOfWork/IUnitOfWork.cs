@@ -13,6 +13,12 @@ namespace Infrastructure.UnitOfWork
         IOrganizationRepository Organization { get; }
         IPublicEventRepository PublicEvent { get; }
         IEntertainmentLeisureRepository EntertainmentLeisure { get; }
+        IRouteRepository Route { get; }
+        IServiceRepository Service { get; }
+        IShoppingRepository Shopping { get; }
+        ISleepRepository Sleep { get; }
+        IEatAndDrinkRepository EatAndDrink { get; }
+        IMapDataRepository MapData { get; }
 
         Task CompleteAsync();
     }
