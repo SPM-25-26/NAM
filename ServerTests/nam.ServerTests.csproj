@@ -15,10 +15,14 @@
     <PackageReference Include="MSTest" Version="3.6.4" />
     <PackageReference Include="NSubstitute" Version="5.3.0" />
     <PackageReference Include="NUnit" Version="4.4.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\nam.Server\nam.Server.csproj" />
+    <ProjectReference Include="..\DataInjection.Core\DataInjection.Core.csproj" />
+    <ProjectReference Include="..\DataInjection.SQL\DataInjection.SQL.csproj" />
+    <ProjectReference Include="..\Datainjection.Qdrant\Datainjection.Qdrant.csproj" />
   </ItemGroup>
 
   <ItemGroup>
