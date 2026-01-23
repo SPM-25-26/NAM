@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import type { TransitionProps } from "@mui/material/transitions";
 import OpenInFullRoundedIcon from "@mui/icons-material/OpenInFullRounded";
-import { useChat } from "./hooks/UseChatMock";
+import { useChat } from "./hooks/UseChat";
 import ChatPanel from "./ChatPanel";
 import InfoModal from "../InfoModal";
 import { CloseButton } from "../CloseButton";
