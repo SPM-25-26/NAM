@@ -26,6 +26,7 @@ interface InfoModalProps {
   title?: string;
   description?: string;
   buttonText?: string;
+  buttonTextClose?: string;
   items?: InfoItem[];
   isDelete?: boolean;
   onAction?: () => void;
@@ -37,6 +38,7 @@ const InfoModal: React.FC<InfoModalProps> = ({
   title = "Messaggio",
   description = "",
   buttonText = "Procedi",
+  buttonTextClose = "Chiudi",
   items,
   isDelete = false,
   onAction,
@@ -165,7 +167,7 @@ const InfoModal: React.FC<InfoModalProps> = ({
                 "&:hover": { color: "text.secondary" },
               }}
             >
-              Annulla
+              {buttonTextClose}
             </Typography>
           </Box>
 
