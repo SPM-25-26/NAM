@@ -5,10 +5,10 @@ using nam.Server.DTOs;
 using nam.Server.Endpoints.Auth;
 using nam.Server.Services.Interfaces.Auth;
 using nam.Server.Validators;
-using nam.ServerTests.mock;
+using nam.ServerTests.NamServer.Endpoints.Auth.mock;
 using Serilog;
 
-namespace nam.ServerTests
+namespace nam.ServerTests.NamServer.Endpoints.Auth
 {
     [TestClass]
     public sealed class ResetPasswordTest

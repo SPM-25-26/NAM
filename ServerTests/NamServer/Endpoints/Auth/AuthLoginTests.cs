@@ -1,8 +1,8 @@
 ﻿using nam.Server.DTOs;
 using nam.Server.Services.Implemented.Auth;
-using nam.ServerTests.mock;
+using nam.ServerTests.NamServer.Endpoints.Auth.mock;
 
-namespace nam.ServerTests
+namespace nam.ServerTests.NamServer.Endpoints.Auth
 {
     [TestClass]
     public sealed class AuthLoginTests

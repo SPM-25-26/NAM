@@ -10,7 +10,7 @@ using nam.Server.Services.Interfaces.Auth;
 using System.Linq.Expressions;
 using System.Security.Claims;
 
-namespace nam.ServerTests.mock
+namespace nam.ServerTests.NamServer.Endpoints.Auth.mock
 {
     public class AuthServiceTestBuilder : IDisposable
     {

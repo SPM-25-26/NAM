@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using nam.Server.Endpoints.Auth;
 using nam.Server.Services.Interfaces.Auth;
-using nam.ServerTests.mock;
+using nam.ServerTests.NamServer.Endpoints.Auth.mock;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace nam.ServerTests
+namespace nam.ServerTests.NamServer.Endpoints.Auth
 {
     [TestClass]
     public sealed class TokenLogoutTest
