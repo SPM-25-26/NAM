@@ -77,6 +77,7 @@ namespace nam.ServerTests.DataInjection.Sql
                 {
                     Identifier = detailId.ToString(),
                     Title = "Event",
+                    Neighbors = new List<FeatureCardDto> { },
                     MunicipalityData = new MunicipalityForLocalStorageSettingDto { Name = "Milano", LogoPath = "logo" }
                 });
 

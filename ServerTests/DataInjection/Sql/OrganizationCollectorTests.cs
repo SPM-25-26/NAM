@@ -73,6 +73,7 @@ namespace nam.ServerTests.DataInjection.Sql
                 {
                     TaxCode = "TAX123",
                     LegalName = "Org Legal",
+                    Neighbors = new List<FeatureCardDto>(),
                     MunicipalityData = new MunicipalityForLocalStorageSettingDto { Name = "Milano", LogoPath = "logo" }
                 });
 

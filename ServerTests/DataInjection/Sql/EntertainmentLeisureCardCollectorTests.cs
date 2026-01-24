@@ -83,6 +83,7 @@ namespace nam.ServerTests.DataInjection.Sql
                     Latitude = 1.2,
                     Longitude = 3.4,
                     AssociatedServices = new List<AssociatedServiceDto>(),
+                    Neighbors = new List<FeatureCardDto>(),
                     MunicipalityData = new MunicipalityForLocalStorageSettingDto { Name = "Milano", LogoPath = "logo" }
                 });
 

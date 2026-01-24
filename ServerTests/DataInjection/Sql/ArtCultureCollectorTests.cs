@@ -76,6 +76,10 @@ namespace nam.ServerTests.DataInjection.Sql
                 {
                     Identifier = detailId.ToString(),
                     OfficialName = "Museum",
+                    Description = "A great museum",
+                    Latitude = 45.4642,
+                    Longitude = 9.1900,
+                    Neighbors = new List<FeatureCardDto> { new() { EntityId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab" } },
                     MunicipalityData = new MunicipalityForLocalStorageSettingDto { Name = "Milano", LogoPath = "logo" }
                 });
 
