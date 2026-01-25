@@ -1,10 +1,9 @@
-using NUnitAssert = NUnit.Framework.Assert;
-using DataInjection.Core.Interfaces;
 using Datainjection.Qdrant.Sync;
+using DataInjection.Core.Interfaces;
 using DataInjection.Qdrant.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.VectorData;
-using NSubstitute;
+using Moq;
 using NUnit.Framework;
 using Serilog;
 
@@ -13,226 +12,233 @@ namespace nam.ServerTests.DataInjection.Qdrant
     [TestFixture]
     public class QdrantEntitySyncTests
     {
-        private ILogger _logger = null!;
-        private IConfiguration _configuration = null!;
-        private VectorStoreCollection<Guid, POIEntity> _store = null!;
-        private QdrantEntitySync _syncService = null!;
+        private Mock<ILogger> _mockLogger;
+        private Mock<IConfiguration> _mockConfiguration;
+        private Mock<VectorStoreCollection<Guid, POIEntity>> _mockStore;
+        private Mock<IEntityCollector<POIEntity>> _mockCollector1;
+        private Mock<IEntityCollector<POIEntity>> _mockCollector2;
+        private QdrantEntitySync _sut;
 
         [SetUp]
-        public void Setup()
+        public void SetUp()
         {
-            _logger = Substitute.For<ILogger>();
-            _store = Substitute.For<VectorStoreCollection<Guid, POIEntity>>();
+            _mockLogger = new Mock<ILogger>();
+            _mockConfiguration = new Mock<IConfiguration>();
+            _mockStore = new Mock<VectorStoreCollection<Guid, POIEntity>>();
+            _mockCollector1 = new Mock<IEntityCollector<POIEntity>>();
+            _mockCollector2 = new Mock<IEntityCollector<POIEntity>>();
 
-            // Mock configuration with municipalities
-            var configData = new Dictionary<string, string?>
-            {
-                { "Municipalities:0", "Milano" },
-                { "Municipalities:1", "Roma" },
-                { "Municipalities:2", "Napoli" }
-            };
-
-            _configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(configData)
-                .Build();
-
-            _syncService = new QdrantEntitySync(_logger, _configuration, _store);
+            _mockCollector1.Setup(c => c.ToString()).Returns("Collector1");
+            _mockCollector2.Setup(c => c.ToString()).Returns("Collector2");
         }
 
         [Test]
-        public async Task ExecuteSyncAsync_EnsuresCollectionExists()
+        public async Task ExecuteSyncAsync_WithEmptyMunicipalities_LogsWarningAndReturnsEarly()
         {
             // Arrange
-            var entityCollector = Substitute.For<IEntityCollector<POIEntity>>();
-            entityCollector.GetEntities(Arg.Any<string>()).Returns(new List<POIEntity>());
+            var emptyMunicipalities = Array.Empty<string>();
+            SetupMunicipalities(emptyMunicipalities);
+
+            _sut = new QdrantEntitySync(
+                _mockLogger.Object,
+                _mockConfiguration.Object,
+                _mockStore.Object,
+                [_mockCollector1.Object]
+            );
 
             // Act
-            await _syncService.ExecuteSyncAsync(entityCollector);
+            await _sut.ExecuteSyncAsync();
 
             // Assert
-            await _store.Received(1).EnsureCollectionExistsAsync(Arg.Any<CancellationToken>());
+            _mockStore.Verify(s => s.EnsureCollectionExistsAsync(default), Times.Once);
+            _mockLogger.Verify(
+                l => l.Warning(It.Is<string>(s => s.Contains("Empty list of municipalities"))),
+                Times.Once
+            );
+            _mockCollector1.Verify(c => c.GetEntities(It.IsAny<string>()), Times.Never);
         }
 
         [Test]
-        public async Task ExecuteSyncAsync_FetchesEntitiesFromAllMunicipalities()
+        public async Task ExecuteSyncAsync_WithNullMunicipalities_LogsWarningAndReturnsEarly()
         {
             // Arrange
-            var entityCollector = Substitute.For<IEntityCollector<POIEntity>>();
-            entityCollector.GetEntities(Arg.Any<string>()).Returns(new List<POIEntity>());
+            SetupMunicipalities(null);
+
+            _sut = new QdrantEntitySync(
+                _mockLogger.Object,
+                _mockConfiguration.Object,
+                _mockStore.Object,
+                [_mockCollector1.Object]
+            );
 
             // Act
-            await _syncService.ExecuteSyncAsync(entityCollector);
+            await _sut.ExecuteSyncAsync();
 
             // Assert
-            await entityCollector.Received(1).GetEntities("Milano");
-            await entityCollector.Received(1).GetEntities("Roma");
-            await entityCollector.Received(1).GetEntities("Napoli");
+            _mockStore.Verify(s => s.EnsureCollectionExistsAsync(default), Times.Once);
+            _mockLogger.Verify(
+                l => l.Warning(It.Is<string>(s => s.Contains("Empty list of municipalities"))),
+                Times.Once
+            );
         }
 
         [Test]
-        public async Task ExecuteSyncAsync_UpsertsEntities_WhenEntitiesAreFetched()
+        public async Task ExecuteSyncAsync_WithValidMunicipalities_ProcessesAllCollectorsAndMunicipalities()
         {
             // Arrange
-            var entityCollector = Substitute.For<IEntityCollector<POIEntity>>();
-            
-            var entities = new List<POIEntity>
+            var municipalities = new[] { "Trento", "Bolzano" };
+            SetupMunicipalities(municipalities);
+
+            var entities1 = new List<POIEntity>
             {
-                new POIEntity { Id = Guid.NewGuid(), EntityId = "1", city = "Milano", apiEndpoint = "/test" },
-                new POIEntity { Id = Guid.NewGuid(), EntityId = "2", city = "Milano", apiEndpoint = "/test" }
+                new() { Id = Guid.NewGuid(), city = "Trento", EntityId = "1" },
+                new() { Id = Guid.NewGuid(), city = "Trento", EntityId = "2" }
             };
-            
-            entityCollector.GetEntities("Milano").Returns(entities);
-            entityCollector.GetEntities(Arg.Is<string>(s => s != "Milano")).Returns(new List<POIEntity>());
+
+            var entities2 = new List<POIEntity>
+            {
+                new() { Id = Guid.NewGuid(), city = "Bolzano", EntityId = "3" }
+            };
+
+            _mockCollector1.Setup(c => c.GetEntities("Trento")).ReturnsAsync(entities1);
+            _mockCollector1.Setup(c => c.GetEntities("Bolzano")).ReturnsAsync(entities2);
+            _mockCollector2.Setup(c => c.GetEntities("Trento")).ReturnsAsync(entities1);
+            _mockCollector2.Setup(c => c.GetEntities("Bolzano")).ReturnsAsync(entities2);
+
+            _sut = new QdrantEntitySync(
+                _mockLogger.Object,
+                _mockConfiguration.Object,
+                _mockStore.Object,
+                [_mockCollector1.Object, _mockCollector2.Object]
+            );
 
             // Act
-            await _syncService.ExecuteSyncAsync(entityCollector);
+            await _sut.ExecuteSyncAsync();
 
             // Assert
-            await _store.Received(1).UpsertAsync(
-                Arg.Is<IEnumerable<POIEntity>>(e => e.Count() >= 2),
-                Arg.Any<CancellationToken>());
+            _mockStore.Verify(s => s.EnsureCollectionExistsAsync(default), Times.Once);
+            _mockCollector1.Verify(c => c.GetEntities("Trento"), Times.Once);
+            _mockCollector1.Verify(c => c.GetEntities("Bolzano"), Times.Once);
+            _mockCollector2.Verify(c => c.GetEntities("Trento"), Times.Once);
+            _mockCollector2.Verify(c => c.GetEntities("Bolzano"), Times.Once);
+
+            _mockStore.Verify(s => s.UpsertAsync(It.IsAny<IEnumerable<POIEntity>>(), default), Times.Exactly(4));
+
+            _mockLogger.Verify(
+                l => l.Information(It.Is<string>(s => s.Contains("Successfully synced qdrant data")), It.IsAny<object[]>()),
+                Times.Exactly(4)
+            );
+
+            _mockLogger.Verify(
+                l => l.Information(It.Is<string>(s => s.Contains("Successfully injected data of municipality")), It.IsAny<object[]>()),
+                Times.Exactly(2)
+            );
         }
 
         [Test]
-        public async Task ExecuteSyncAsync_LogsWarning_WhenNoEntitiesFetched()
+        public async Task ExecuteSyncAsync_WhenCollectorThrowsException_LogsErrorAndContinues()
         {
             // Arrange
-            var entityCollector = Substitute.For<IEntityCollector<POIEntity>>();
-            entityCollector.GetEntities(Arg.Any<string>()).Returns(new List<POIEntity>());
+            var municipalities = new[] { "Trento", "Bolzano" };
+            SetupMunicipalities(municipalities);
+
+            var validEntities = new List<POIEntity>
+            {
+                new() { Id = Guid.NewGuid(), city = "Bolzano", EntityId = "1" }
+            };
+
+            _mockCollector1.Setup(c => c.GetEntities("Trento"))
+                .ThrowsAsync(new HttpRequestException("Network error"));
+            _mockCollector1.Setup(c => c.GetEntities("Bolzano"))
+                .ReturnsAsync(validEntities);
+
+            _sut = new QdrantEntitySync(
+                _mockLogger.Object,
+                _mockConfiguration.Object,
+                _mockStore.Object,
+                [_mockCollector1.Object]
+            );
 
             // Act
-            await _syncService.ExecuteSyncAsync(entityCollector);
+            await _sut.ExecuteSyncAsync();
 
             // Assert
-            _logger.Received().Warning(Arg.Is<string>(s => s.Contains("No entities were fetched")));
+            _mockLogger.Verify(
+                l => l.Error(
+                    It.Is<string>(s => s.Contains("Error fetching data for municipality")),
+                    "Trento",
+                    It.Is<string>(s => s.Contains("Network error"))
+                ),
+                Times.Once
+            );
+
+            _mockStore.Verify(s => s.UpsertAsync(validEntities, default), Times.Once);
+
+            _mockLogger.Verify(
+                l => l.Information(It.Is<string>(s => s.Contains("Successfully synced qdrant data")), It.IsAny<object[]>()),
+                Times.Exactly(2) // Both for Trento (after error) and Bolzano
+            );
         }
 
         [Test]
-        public async Task ExecuteSyncAsync_DoesNotUpsert_WhenNoEntitiesFetched()
+        public async Task ExecuteSyncAsync_WithMultipleCollectors_ProcessesInOrder()
         {
             // Arrange
-            var entityCollector = Substitute.For<IEntityCollector<POIEntity>>();
-            entityCollector.GetEntities(Arg.Any<string>()).Returns(new List<POIEntity>());
+            var municipalities = new[] { "Trento" };
+            SetupMunicipalities(municipalities);
+
+            var executionOrder = new List<string>();
+
+            _mockCollector1.Setup(c => c.GetEntities("Trento"))
+                .ReturnsAsync(new List<POIEntity>())
+                .Callback(() => executionOrder.Add("Collector1"));
+
+            _mockCollector2.Setup(c => c.GetEntities("Trento"))
+                .ReturnsAsync(new List<POIEntity>())
+                .Callback(() => executionOrder.Add("Collector2"));
+
+            _sut = new QdrantEntitySync(
+                _mockLogger.Object,
+                _mockConfiguration.Object,
+                _mockStore.Object,
+                [_mockCollector1.Object, _mockCollector2.Object]
+            );
 
             // Act
-            await _syncService.ExecuteSyncAsync(entityCollector);
+            await _sut.ExecuteSyncAsync();
 
             // Assert
-            await _store.DidNotReceive().UpsertAsync(
-                Arg.Any<IEnumerable<POIEntity>>(),
-                Arg.Any<CancellationToken>());
+            NUnit.Framework.Assert.That(executionOrder, Is.EqualTo(new[] { "Collector1", "Collector2" }));
         }
 
         [Test]
-        public async Task ExecuteSyncAsync_HandlesExceptionDuringFetch()
+        public async Task ExecuteSyncAsync_AlwaysEnsuresCollectionExists()
         {
             // Arrange
-            var entityCollector = Substitute.For<IEntityCollector<POIEntity>>();
-            
-            // First municipality throws exception
-            entityCollector.GetEntities("Milano")
-                .Returns(Task.FromException<List<POIEntity>>(new Exception("Network error")));
-            
-            // Others succeed with empty lists
-            entityCollector.GetEntities("Roma").Returns(new List<POIEntity>());
-            entityCollector.GetEntities("Napoli").Returns(new List<POIEntity>());
+            SetupMunicipalities(new[] { "Trento" });
 
-            // Act - should not throw
-            await _syncService.ExecuteSyncAsync(entityCollector);
+            _mockCollector1.Setup(c => c.GetEntities(It.IsAny<string>()))
+                .ReturnsAsync(new List<POIEntity>());
 
-            // Assert - verify that Error was called (the exact signature may vary)
-            _logger.Received().Error(
-                Arg.Is<string>(s => s.Contains("Error fetching data")),
-                Arg.Any<string>(),
-                Arg.Any<string>());
-        }
-
-        [Test]
-        public async Task ExecuteSyncAsync_ContinuesFetching_AfterOneFailure()
-        {
-            // Arrange
-            var entityCollector = Substitute.For<IEntityCollector<POIEntity>>();
-            
-            entityCollector.GetEntities("Milano")
-                .Returns(Task.FromException<List<POIEntity>>(new Exception("Network error")));
-            
-            var romaEntities = new List<POIEntity>
-            {
-                new POIEntity { Id = Guid.NewGuid(), EntityId = "1", city = "Roma", apiEndpoint = "/test" }
-            };
-            entityCollector.GetEntities("Roma").Returns(romaEntities);
-            entityCollector.GetEntities("Napoli").Returns(new List<POIEntity>());
+            _sut = new QdrantEntitySync(
+                _mockLogger.Object,
+                _mockConfiguration.Object,
+                _mockStore.Object,
+                [_mockCollector1.Object]
+            );
 
             // Act
-            await _syncService.ExecuteSyncAsync(entityCollector);
+            await _sut.ExecuteSyncAsync();
 
-            // Assert - should still upsert the successful entities
-            await _store.Received(1).UpsertAsync(
-                Arg.Is<IEnumerable<POIEntity>>(e => e.Any()),
-                Arg.Any<CancellationToken>());
+            // Assert
+            _mockStore.Verify(s => s.EnsureCollectionExistsAsync(default), Times.Once);
         }
 
-        [Test]
-        public async Task ExecuteSyncAsync_CombinesEntitiesFromAllMunicipalities()
+        private void SetupMunicipalities(string[]? municipalities)
         {
-            // Arrange
-            var entityCollector = Substitute.For<IEntityCollector<POIEntity>>();
-            
-            var milanoEntities = new List<POIEntity>
-            {
-                new POIEntity { Id = Guid.NewGuid(), EntityId = "1", city = "Milano", apiEndpoint = "/test" }
-            };
-            
-            var romaEntities = new List<POIEntity>
-            {
-                new POIEntity { Id = Guid.NewGuid(), EntityId = "2", city = "Roma", apiEndpoint = "/test" },
-                new POIEntity { Id = Guid.NewGuid(), EntityId = "3", city = "Roma", apiEndpoint = "/test" }
-            };
-            
-            entityCollector.GetEntities("Milano").Returns(milanoEntities);
-            entityCollector.GetEntities("Roma").Returns(romaEntities);
-            entityCollector.GetEntities("Napoli").Returns(new List<POIEntity>());
-
-            // Act
-            await _syncService.ExecuteSyncAsync(entityCollector);
-
-            // Assert - should upsert all 3 entities
-            await _store.Received(1).UpsertAsync(
-                Arg.Is<IEnumerable<POIEntity>>(e => e.Count() == 3),
-                Arg.Any<CancellationToken>());
-        }
-
-        [Test]
-        public async Task ExecuteSyncAsync_HandlesNullEntitiesFromCollector()
-        {
-            // Arrange
-            var entityCollector = Substitute.For<IEntityCollector<POIEntity>>();
-            
-            // Return null for one municipality
-            entityCollector.GetEntities("Milano").Returns((List<POIEntity>)null!);
-            entityCollector.GetEntities("Roma").Returns(new List<POIEntity>());
-            entityCollector.GetEntities("Napoli").Returns(new List<POIEntity>());
-
-            // Act - should handle gracefully
-            await _syncService.ExecuteSyncAsync(entityCollector);
-
-            // Assert - should not crash
-            _logger.Received().Warning(Arg.Is<string>(s => s.Contains("No entities were fetched")));
-        }
-
-        [Test]
-        public async Task ExecuteSyncAsync_HandlesEmptyMunicipalitiesList()
-        {
-            // Arrange
-            var emptyConfig = new ConfigurationBuilder().Build();
-            var syncService = new QdrantEntitySync(_logger, emptyConfig, _store);
-            var entityCollector = Substitute.For<IEntityCollector<POIEntity>>();
-
-            // Act
-            await syncService.ExecuteSyncAsync(entityCollector);
-
-            // Assert - should log warning but not crash
-            _logger.Received().Warning(Arg.Any<string>());
+            var mockSection = new Mock<IConfigurationSection>();
+            mockSection.Setup(s => s.Get<string[]>()).Returns(municipalities);
+            _mockConfiguration.Setup(c => c.GetSection("Municipalities")).Returns(mockSection.Object);
         }
     }
 }

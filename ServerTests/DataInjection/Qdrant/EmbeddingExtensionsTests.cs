@@ -1,5 +1,5 @@
-using DataInjection.Qdrant.Serializers;
 using Domain.Entities.MunicipalityEntities;
+using Infrastructure.Extensions;
 using NUnit.Framework;
 using NUnitAssert = NUnit.Framework.Assert;
 
