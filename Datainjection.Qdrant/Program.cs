@@ -2,6 +2,7 @@ using Datainjection.Qdrant.Collectors;
 using Datainjection.Qdrant.Sync;
 using DataInjection.Core.Interfaces;
 using DataInjection.Qdrant;
+using DataInjection.Qdrant.Collectors;
 using DataInjection.Qdrant.Data;
 using DotNetEnv;
 using Infrastructure;
@@ -39,17 +40,17 @@ try
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
     builder.Services.AddScoped<QdrantEntitySync>();
 
-    //builder.Services.AddScoped<IEntityCollector<POIEntity>, ArtCultureQdrantCollector>();
-    //builder.Services.AddScoped<IEntityCollector<POIEntity>, ArticleQdrantCollector>();
-    //builder.Services.AddScoped<IEntityCollector<POIEntity>, EntertainmentLeisureCardQdrantCollector>();
-    //builder.Services.AddScoped<IEntityCollector<POIEntity>, NatureQdrantCollector>();
-    //builder.Services.AddScoped<IEntityCollector<POIEntity>, OrganizationQdrantCollector>();
-    //builder.Services.AddScoped<IEntityCollector<POIEntity>, PublicEventQdrantCollector>();
-    //builder.Services.AddScoped<IEntityCollector<POIEntity>, EatAndDrinkQdrantCollector>();
-    //builder.Services.AddScoped<IEntityCollector<POIEntity>, SleepQdrantCollector>();
-    //builder.Services.AddScoped<IEntityCollector<POIEntity>, ShoppingQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, ArtCultureQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, ArticleQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, EntertainmentLeisureCardQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, NatureQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, OrganizationQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, PublicEventQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, EatAndDrinkQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, SleepQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, ShoppingQdrantCollector>();
     builder.Services.AddScoped<IEntityCollector<POIEntity>, ServiceQdrantCollector>();
-    //builder.Services.AddScoped<IEntityCollector<POIEntity>, RouteQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, RouteQdrantCollector>();
 
 
     var host = builder.Build();
