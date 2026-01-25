@@ -739,23 +739,35 @@ const MainContentsPage: React.FC = () => {
               mb: 2,
             }}
           >
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <CategorySelect
-                label="Category"
-                value={selectedCategory}
-                options={categoryOptions}
-                onChange={setSelectedCategory}
-              />
-            </Box>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <CategorySelect
+                        label="Category"
+                        value={selectedCategory}
+                        options={categoryOptions}
+                        onChange={(val) => setSelectedCategory(val)}
 
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <CategorySelect
-                label="Badge"
-                value={selectedBadge}
-                options={uniqueBadgeOptions}
-                onChange={setSelectedBadge}
-                accentColor="#9810fa"
-              />
+                />
+
+                </Box>
+                {/* Badge filter */}
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <CategorySelect
+                        label="Badge"
+                        value={selectedBadge}
+                        options={uniqueBadgeOptions}
+                        onChange={(val) => setSelectedBadge(val)}
+                        accentColor="linear-gradient(90deg, rgb(138, 174, 254) 0%, rgb(204, 136, 253) 100%)"
+                />
+                </Box>
+                {/* Distance filter */}
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <CategorySelect
+                        label="Distance"
+                        value={selectedDistance}
+                        options={DISTANCE_OPTIONS}
+                        onChange={(val) => setSelectedDistance(val)}
+                        accentColor="#9810fa"
+               />
             </Box>
           </Box>
         </Container>
@@ -811,8 +823,11 @@ const MainContentsPage: React.FC = () => {
                     xs: "1fr",
                     sm: "repeat(2, minmax(0, 1fr))",
                     md: "repeat(3, minmax(0, 1fr))",
+                    lg: "repeat(3, minmax(0, 1fr))",
                   },
+                  gridAutoRows: "1fr",
                   gap: 2.5,
+                  marginTop: 2,
                 }}
               >
                 {filteredElements.map((item) => (
