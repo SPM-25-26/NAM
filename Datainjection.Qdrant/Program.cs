@@ -47,8 +47,8 @@ try
     //builder.Services.AddScoped<IEntityCollector<POIEntity>, PublicEventQdrantCollector>();
     //builder.Services.AddScoped<IEntityCollector<POIEntity>, EatAndDrinkQdrantCollector>();
     //builder.Services.AddScoped<IEntityCollector<POIEntity>, SleepQdrantCollector>();
-    builder.Services.AddScoped<IEntityCollector<POIEntity>, ShoppingQdrantCollector>();
-    //builder.Services.AddScoped<IEntityCollector<POIEntity>, ServiceQdrantCollector>();
+    //builder.Services.AddScoped<IEntityCollector<POIEntity>, ShoppingQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, ServiceQdrantCollector>();
     //builder.Services.AddScoped<IEntityCollector<POIEntity>, RouteQdrantCollector>();
 
 
