@@ -38,6 +38,7 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
                 .Include(c => c.Offers)
                 .Include(c => c.Events)
                 .Include(c => c.MunicipalityData)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(c => c.TaxCode == entityId, cancellationToken);
         }
 

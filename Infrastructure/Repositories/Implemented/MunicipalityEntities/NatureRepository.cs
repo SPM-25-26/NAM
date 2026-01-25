@@ -44,6 +44,7 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
                 .Include(c => c.NearestCarPark)
                 .Include(c => c.Site)
                 .Include(c => c.MunicipalityData)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(c => c.Identifier == entityId, cancellationToken);
         }
 

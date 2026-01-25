@@ -52,7 +52,6 @@ import { loadingView } from "../../components/loading";
 import { buildApiUrl } from "../../config";
 import MyButton from "../../components/button";
 import { useEffect, useState } from "react";
-import { AssistantAvatar } from "../../components/assistant/components/AssistantAvatar";
 import { AssistantFAB } from "../../components/assistant/AssistantFAB";
 
 const BASE_URL_IMG = buildApiUrl("image/external?imagePath=");
@@ -325,6 +324,75 @@ export function EventDetail() {
       );
     }
   };
+
+  const renderRouteDetails = () => {
+    if (
+      data.pathTheme == undefined &&
+      data.travellingMethod == undefined &&
+      data.securityLevel == undefined &&
+      data.duration == undefined
+    )
+      return null;
+    {
+      return (
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={3}
+          spacing={2}
+        >
+          <Stack direction="column" alignItems="flex-start" spacing={1}>
+            {data.pathTheme && (
+              <Chip
+                label={`Path Theme: ${data.pathTheme}`}
+                variant="outlined"
+                size="small"
+                sx={{
+                  color: "white",
+                  background: colorBrandGradient,
+                }}
+              />
+            )}
+            {data.travellingMethod && (
+              <Chip
+                label={`Travelling Method: ${data.travellingMethod}`}
+                variant="outlined"
+                size="small"
+                sx={{
+                  color: "white",
+                  background: colorBrandGradient,
+                }}
+              />
+            )}
+            {data.securityLevel && (
+              <Chip
+                label={`Security level: ${data.securityLevel}`}
+                variant="outlined"
+                size="small"
+                sx={{
+                  color: "white",
+                  background: colorBrandGradient,
+                }}
+              />
+            )}
+            {data.duration && (
+              <Chip
+                label={`Duration: ${data.duration}`}
+                variant="outlined"
+                size="small"
+                sx={{
+                  color: "white",
+                  background: colorBrandGradient,
+                }}
+              />
+            )}
+          </Stack>
+        </Stack>
+      );
+    }
+  };
+
   const renderAddress = () => {
     if (
       (data.address ?? []).length < 1 &&
@@ -468,7 +536,6 @@ export function EventDetail() {
               {service.imagePath && (
                 <CardMedia
                   component="img"
-                  // Use direct URL for SW caching
                   image={`${BASE_URL_IMG}${cleanPath(service.imagePath)}`}
                   alt={service.name ?? "Service image"}
                   sx={{
@@ -563,6 +630,50 @@ export function EventDetail() {
     );
   };
 
+  const renderingOrgContact = () => {
+    if (
+      (data.organizationEmail ?? "").length == 0 &&
+      (data.organizationTelephone ?? "").length == 0 &&
+      (data.organizationWebsite ?? "").length == 0
+    )
+      return null;
+    return (
+      <Box sx={{ width: "100%" }}>
+        <SectionHeader
+          title="Contact"
+          IconComponent={ContactPage}
+          color={colorBrand}
+        />
+        {data.organizationEmail && (
+          <DetailRow
+            label={"Organization Email:"}
+            value={data.organizationEmail}
+            isLink={true}
+            IconComponent={Email}
+          />
+        )}
+
+        {data.organizationTelephone && (
+          <DetailRow
+            label={"Organization Phone:"}
+            value={data.organizationTelephone}
+            IconComponent={Phone}
+          />
+        )}
+
+        {data.organizationWebsite && (
+          <DetailRow
+            label={"Organization Website:"}
+            value={data.organizationWebsite}
+            isLink={true}
+            IconComponent={WorkRounded}
+          />
+        )}
+        <Divider sx={{ my: 3 }} />
+      </Box>
+    );
+  };
+
   const renderingOrganizer = () => {
     if (
       (data.organizer?.legalName ?? "").length == 0 &&
@@ -603,6 +714,49 @@ export function EventDetail() {
             label={"Instagram:"}
             value={data.instagram}
             text={data.instagram.replace("https://www.instagram.com/", "@")}
+            isLink={true}
+            IconComponent={Instagram}
+          />
+        )}
+        <Divider sx={{ my: 3 }} />
+      </Box>
+    );
+  };
+
+  const renderingOrganizationSocials = () => {
+    if (
+      (data.organizationFacebook ?? "").length == 0 &&
+      (data.organizationInstagram ?? "").length == 0
+    )
+      return null;
+
+    return (
+      <Box sx={{ width: "100%" }}>
+        <SectionHeader
+          title="Organizer Socials"
+          IconComponent={GroupWork}
+          color={colorBrand}
+        />
+        {data.organizationFacebook && (
+          <DetailRow
+            label={"Facebook:"}
+            value={data.organizationFacebook}
+            text={data.organizationFacebook.replace(
+              "https://www.facebook.com/",
+              "@",
+            )}
+            isLink={true}
+            IconComponent={Facebook}
+          />
+        )}
+        {data.organizationInstagram && (
+          <DetailRow
+            label={"Instagram:"}
+            value={data.organizationInstagram}
+            text={data.organizationInstagram.replace(
+              "https://www.instagram.com/",
+              "@",
+            )}
             isLink={true}
             IconComponent={Instagram}
           />
@@ -845,6 +999,86 @@ export function EventDetail() {
     );
   };
 
+  const renderingStages = () => {
+    if ((data.stages ?? []).length < 1) return null;
+
+    return (
+      <Box sx={{ mb: 5, width: "100%" }}>
+        <SectionHeader
+          title={"Stages"}
+          IconComponent={LocationSearching}
+          color={colorBrand}
+        />
+
+        <Grid container spacing={3}>
+          {/* Added index argument */}
+          {(data.stages ?? []).map((stage, index) => (
+            <Card
+              /* Added the key prop */
+              key={`${stage.stageMobile.poiIdentifier}-${index}`}
+              sx={{ height: "100%", width: "100%" }}
+            >
+              <CardActionArea
+                onClick={() =>
+                  navigate("/detail-element", {
+                    state: {
+                      id: stage.stageMobile.poiIdentifier,
+                      category: stringToCategoryAPI(stage.stageMobile.category),
+                    },
+                  })
+                }
+              >
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image={`${BASE_URL_IMG}${cleanPath(stage.stageMobile.poiImagePath)}`}
+                  alt={`Image of ${stage.stageMobile.poiOfficialName}`}
+                  sx={{ objectFit: "cover" }}
+                />
+                <CardContent>
+                  <Typography
+                    gutterBottom
+                    variant="h6"
+                    component="div"
+                    sx={{ lineHeight: 1.4 }}
+                  >
+                    {stage.stageMobile.poiOfficialName}
+                  </Typography>
+                  <Box
+                    sx={{
+                      mt: 1,
+                      display: "flex",
+                      gap: 1,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <Chip
+                      label={stage.stageMobile.category}
+                      size="small"
+                      color="primary"
+                      variant="outlined"
+                    />
+                    {stage.stageMobile.poiAddress && (
+                      <Chip
+                        label={`Address: ${stage.stageMobile.poiAddress}`}
+                        size="small"
+                        sx={{
+                          background:
+                            "linear-gradient(90deg, rgb(138, 174, 254) 0%, rgb(204, 136, 253) 100%)",
+                          color: "white",
+                        }}
+                      />
+                    )}
+                  </Box>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          ))}
+        </Grid>
+      </Box>
+    );
+  };
+
   return (
     <Box
       sx={{
@@ -880,16 +1114,20 @@ export function EventDetail() {
           {renderMainBadgeInformation()}
           {renderParagraphArticle()}
           {renderMainDetails()}
+          {renderRouteDetails()}
           {renderAddress()}
           {renderDescription()}
           {renderingSectionAndTicket()}
           {renderingServices()}
           {renderingContact()}
+          {renderingOrgContact()}
           {renderingOrganizer()}
+          {renderingOrganizationSocials()}
           {renderingCreativeWork()}
           {renderingOffers()}
           {renderingGallery()}
           {renderingNeighbors()}
+          {renderingStages()}
           <AssistantFAB />
         </Box>
       </Container>

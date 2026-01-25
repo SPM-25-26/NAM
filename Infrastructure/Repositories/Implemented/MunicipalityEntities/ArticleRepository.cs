@@ -34,6 +34,7 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
             return await context.ArticleDetails
                 .Include(d => d.Paragraphs)
                 .Include(d => d.MunicipalityData)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(c => c.Identifier == entityId, cancellationToken);
         }
 

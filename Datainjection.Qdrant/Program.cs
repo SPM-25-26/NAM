@@ -1,3 +1,4 @@
+using Datainjection.Qdrant.Collectors;
 using Datainjection.Qdrant.Sync;
 using DataInjection.Core.Interfaces;
 using DataInjection.Qdrant;
@@ -45,6 +46,11 @@ try
     builder.Services.AddScoped<IEntityCollector<POIEntity>, NatureQdrantCollector>();
     builder.Services.AddScoped<IEntityCollector<POIEntity>, OrganizationQdrantCollector>();
     builder.Services.AddScoped<IEntityCollector<POIEntity>, PublicEventQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, EatAndDrinkQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, SleepQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, ShoppingQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, ServiceQdrantCollector>();
+    builder.Services.AddScoped<IEntityCollector<POIEntity>, RouteQdrantCollector>();
 
 
     var host = builder.Build();

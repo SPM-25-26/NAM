@@ -6,6 +6,6 @@
         /// Generates personalized recommendations based on the user's questionnaire and location.
         /// Uses a multi-stage fallback strategy.
         /// </summary>
-        Task<List<Guid>> GetRecommendationsAsync(string userEmail, double? realLat, double? realLon);
+        Task<List<string>> GetRecommendationsAsync(string userEmail, double? realLat, double? realLon);
     }
 }

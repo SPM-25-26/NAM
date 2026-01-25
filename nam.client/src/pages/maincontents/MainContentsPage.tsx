@@ -21,6 +21,18 @@ import { stringToCategoryAPI } from "../detail_element/hooks/IDetailElement";
 import MyAppBar from "../../components/appbar";
 import SimpleBottomNavigation from "../../components/bottom_bar";
 
+// Constants for default location (Matelica) and filter options
+const DEFAULT_LOCATION = { lat: 43.255, lon: 13.0115 };
+
+const DISTANCE_OPTIONS: CategoryOption[] = [
+  { value: null, label: "All Distances" },
+  { value: "0.5", label: "Within 0.5 km" },
+  { value: "1", label: "Within 1 km" },
+  { value: "3", label: "Within 3 km" },
+  { value: "5", label: "Within 5 km" },
+  { value: "10", label: "Within 10 km" },
+];
+
 /**
  * API response shape for card list items
  */
@@ -45,6 +57,24 @@ type ElementItem = {
   imageUrl?: string;
   date?: string;
   category: string;
+  // New properties for location features
+  latitude?: number;
+  longitude?: number;
+  distanceText?: string;
+  distanceValue?: number;
+};
+
+// New Interfaces for the Map API
+type MapMarker = {
+  id: string;
+  latitude: number;
+  longitude: number;
+  // We only need coordinates, but you can add name/typology if needed later
+};
+
+type MapResponse = {
+  name: string;
+  marker: MapMarker[];
 };
 
 /**
@@ -78,7 +108,75 @@ const CATEGORY_CONFIGS: CategoryConfig[] = [
     label: "Entertainment&Leisure",
     endpoint: "entertainment-leisure/card-list",
   },
+  {
+    value: "EatAndDrink",
+    label: "Eat&Drink",
+    endpoint: "eat-and-drink/card-list",
+  },
+  { value: "Shopping", label: "Shopping", endpoint: "shopping/card-list" },
+  { value: "Service", label: "Service", endpoint: "services/card-list" },
+  { value: "Sleep", label: "Sleep", endpoint: "sleep/card-list" },
+  { value: "Route", label: "Route", endpoint: "routes/card-list" },
 ];
+
+// Utility: Haversine formula to calculate distance between two coordinates in km
+const calculateDistance = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number => {
+  const R = 6371; // Earth radius in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+/**
+ * Fetches all coordinates from the map endpoint.
+ * Returns a Map object for O(1) access by ID.
+ */
+const fetchMapCoordinates = async (): Promise<
+  Map<string, { lat: number; lon: number }>
+> => {
+  try {
+    const response = await fetch(
+      buildApiUrl("map?municipality=Matelica&language=it"),
+      {
+        method: "GET",
+        headers: { Accept: "application/json" },
+        credentials: "include",
+      },
+    );
+
+    if (!response.ok) return new Map();
+
+    const data = (await response.json()) as MapResponse;
+
+    const coordsMap = new Map<string, { lat: number; lon: number }>();
+
+    if (data.marker && Array.isArray(data.marker)) {
+      data.marker.forEach((m) => {
+        // Ensure lat/lon are valid numbers
+        if (m.latitude && m.longitude) {
+          coordsMap.set(m.id, { lat: m.latitude, lon: m.longitude });
+        }
+      });
+    }
+
+    return coordsMap;
+  } catch (error) {
+    console.error("Failed to fetch map coordinates:", error);
+    return new Map();
+  }
+};
 
 const MainContentsPage: React.FC = () => {
   const theme = useTheme();
@@ -102,8 +200,17 @@ const MainContentsPage: React.FC = () => {
   );
   const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
 
+  // State for distance filtering
+  const [selectedDistance, setSelectedDistance] = useState<string | null>(null);
+
   // Connectivity state
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
+  // State for User's GPS location. Defaults to null until permission is granted.
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lon: number;
+  } | null>(null);
 
   /**
    * Category options for the dropdown.
@@ -221,11 +328,18 @@ const MainContentsPage: React.FC = () => {
 
           setAuthenticated(true);
         } else {
-          window.location.href = "/login";
+          if (response.status === 401 || response.status === 403) {
+            window.location.href = "/login";
+          } else {
+            console.warn(
+              "Server error validating token, staying on page just in case",
+            );
+            setAuthenticated(true);
+          }
         }
       } catch (err) {
         console.error("Auth check error:", err);
-        window.location.href = "/login";
+        setAuthenticated(true);
       } finally {
         setLoadingAuth(false);
       }
@@ -283,6 +397,8 @@ const MainContentsPage: React.FC = () => {
         imageUrl: imageUrl, // Now a string URL, not a blob URL
         date: item.date,
         category: category,
+        latitude: undefined, // Will be fetched via Hydration
+        longitude: undefined,
       };
     });
   };
@@ -310,7 +426,29 @@ const MainContentsPage: React.FC = () => {
       });
 
       if (response.ok) {
-        return (await response.json()) as string[];
+        const rawData = await response.json();
+
+        // DATA CLEANING:
+        const cleanIds = Array.isArray(rawData)
+          ? rawData.map((item: unknown) => {
+              if (typeof item === "string") {
+                if (item.includes("stringValue")) {
+                  try {
+                    const parsed = JSON.parse(item);
+                    if (parsed.stringValue) return parsed.stringValue;
+                  } catch (e) {
+                    console.warn("Failed to parse ID JSON:", item, e);
+                  }
+                }
+                // If it's a clean string, return it as is
+                return item;
+              }
+
+              return String(item);
+            })
+          : [];
+
+        return cleanIds;
       }
       return [];
     } catch (error) {
@@ -330,34 +468,54 @@ const MainContentsPage: React.FC = () => {
         setLoadingElements(true);
         setElementsError(null);
 
-        // Fetch all categories in parallel
+        // Fetch User Location first
+        const location = await getUserLocation();
+
+        if (location) {
+          setUserLocation(location);
+        } else {
+          setUserLocation(DEFAULT_LOCATION);
+        }
+
+        const locationToUse = location || DEFAULT_LOCATION;
+
+        // 1. Fetch all categories
         const categoryPromises = CATEGORY_CONFIGS.map((config) =>
           fetchCategoryData(config.endpoint, config.value).catch((err) => {
             console.error(`Error fetching ${config.value}:`, err);
-            return []; // Return empty array on error to continue with other categories
+            return [];
           }),
         );
 
-        // This might take a few seconds if the user gets a permission popup
-        const location = await getUserLocation();
-
-        // Fetch personalized IDs in parallel with categories
+        // 2. Fetch personalized IDs
         const personalizedIdsPromise = fetchPersonalizedIds(
-          location?.lat,
-          location?.lon,
+          locationToUse.lat,
+          locationToUse.lon,
         );
 
+        // 3. Fetch Map Coordinates (New)
+        const mapCoordinatesPromise = fetchMapCoordinates();
+
         // Wait for all requests to complete
-        const [idsResult, ...categoryResults] = await Promise.all([
+        const [idsResult, mapData, ...categoryResults] = await Promise.all([
           personalizedIdsPromise,
+          mapCoordinatesPromise,
           ...categoryPromises,
         ]);
 
         // Update the set of personalized IDs
         setPersonalizedIds(idsResult);
 
-        // Flatten all results into a single array
-        const allElements = categoryResults.flat();
+        // Flatten results and merge with coordinates immediately
+        const allElements = categoryResults.flat().map((item) => {
+          const coords = mapData.get(item.id);
+          return {
+            ...item,
+            latitude: coords?.lat, // Undefined if not found, which is fine
+            longitude: coords?.lon,
+          };
+        });
+
         setElements(allElements);
       } catch (err) {
         console.error("Error while fetching elements:", err);
@@ -368,8 +526,6 @@ const MainContentsPage: React.FC = () => {
     };
 
     fetchAllElements();
-
-    // Cleanup: No need to revoke object URLs anymore as we use strings
   }, [authenticated]);
 
   /**
@@ -386,6 +542,13 @@ const MainContentsPage: React.FC = () => {
 
     // Map for quick access
     const elementMap = new Map(elements.map((el) => [el.id, el]));
+
+    const missingIds = personalizedIds.filter((id) => !elementMap.has(id));
+
+    if (missingIds.length > 0) {
+      console.log("Missing IDs:", missingIds);
+      console.groupEnd();
+    }
 
     return personalizedIds
       .map((id) => elementMap.get(id)) // Get object or undefined
@@ -427,102 +590,74 @@ const MainContentsPage: React.FC = () => {
     ];
   }, [elements, selectedCategory, basePersonalizedList]);
 
-  useEffect(() => {
-    if (elements.length === 0 || loadingElements) return;
-
-    const prefetchDetails = async () => {
-      // Do only if we are Online, otherwise it's useless
-      if (!navigator.onLine) return;
-
-      console.log("Prefetch: Inizio scaricamento dettagli in background...");
-
-      // Optimization: Prefetch only the first 40 items to save bandwidth
-      // The Service Worker will cache these responses.
-      const itemsToPrefetch = elements.slice(0, 40);
-
-      for (const item of itemsToPrefetch) {
-        try {
-          let endpointCategory = "";
-          // Mappa Categoria UI -> Path API
-          switch (item.category) {
-            case "Article":
-              endpointCategory = "article";
-              break;
-            case "ArtCulture":
-              endpointCategory = "art-culture";
-              break;
-            case "Events":
-              endpointCategory = "public-event";
-              break;
-            case "Organization":
-              endpointCategory = "organizations";
-              break;
-            case "Nature":
-              endpointCategory = "nature";
-              break;
-            case "EntertainmentLeisure":
-              endpointCategory = "entertainment-leisure";
-              break;
-            default:
-              continue;
-          }
-
-          const detailUrl = buildApiUrl(
-            `${endpointCategory}/detail/${item.id}?language=it`,
-          );
-
-          // Execute the fetch "empty". The Service Worker intercepts it and saves the JSON.
-          await fetch(detailUrl, {
-            method: "GET",
-            credentials: "include",
-          });
-        } catch (e) {
-          // Silent error, we do not want to disturb the user
-        }
-      }
-      console.log("Prefetch: Completato!");
-    };
-
-    // Delay of 3 seconds to avoid slowing down the initial page load
-    const timer = setTimeout(() => {
-      prefetchDetails();
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [elements, loadingElements]);
-
   /**
-   * Filter elements based on selected category and badge.
-   * Logic updated to handle "Personalized" view by filtering IDs.
+   * Filter elements based on selected category, badge, and distance.
+   * Logic updated to handle "Personalized" view and distance calculation.
    */
   const filteredElements = useMemo(() => {
-    // 1. Logic for "Personalized" (For You)
+    // 1. Logic for "Personalized" vs Standard Categories
+    let baseList: ElementItem[] = [];
+
     if (selectedCategory === "Personalized") {
-      // If a badge is selected, filter the list of 15
-      if (selectedBadge) {
-        return basePersonalizedList.filter((el) => el.badge === selectedBadge);
-      }
-      // Otherwise return the 15 calculated before
-      return basePersonalizedList;
-    }
-
-    // 2. Logic Standard (for other categories)
-    let baseList = elements;
-
-    if (selectedCategory !== null) {
+      baseList = basePersonalizedList;
+    } else if (selectedCategory !== null) {
       baseList = elements.filter((el) => el.category === selectedCategory);
+    } else {
+      baseList = elements; // Fallback for "All"
     }
 
-    // Filter Badge
-    const matches = baseList.filter((element) => {
-      return selectedBadge === null || element.badge === selectedBadge;
+    // 2. Filter by Badge
+    if (selectedBadge) {
+      baseList = baseList.filter((element) => element.badge === selectedBadge);
+    }
+
+    // 3. Calculate Distances & Filter
+    // Use user location if available, otherwise fallback to default (Matelica)
+    const refLat = userLocation?.lat ?? DEFAULT_LOCATION.lat;
+    const refLon = userLocation?.lon ?? DEFAULT_LOCATION.lon;
+
+    // Map items to include distance information
+    const listWithDistances = baseList.map((item) => {
+      if (
+        item.latitude !== undefined &&
+        item.longitude !== undefined &&
+        item.latitude !== 0 &&
+        item.longitude !== 0
+      ) {
+        const dist = calculateDistance(
+          refLat,
+          refLon,
+          item.latitude,
+          item.longitude,
+        );
+        return {
+          ...item,
+          distanceValue: dist,
+          distanceText: `${dist.toFixed(1)} km`,
+        };
+      }
+      return item;
     });
 
-    // 3. Deduplication for standard lists
+    // Apply Distance Filter
+    const maxDistance = selectedDistance ? parseFloat(selectedDistance) : null;
+
+    const distanceFiltered = listWithDistances.filter((item) => {
+      // Case A: User selected "All Distances" -> Show everything
+      if (maxDistance === null) return true;
+
+      // Case B: Item has NO coordinates -> ALWAYS Show it (as per requirement)
+      if (item.distanceValue === undefined) return true;
+
+      // Case C: Item has coordinates -> Show only if within range
+      return item.distanceValue <= maxDistance;
+    });
+
+    // 4. Deduplication
     const uniqueIds = new Set();
     const distinctElements: ElementItem[] = [];
 
-    for (const item of matches) {
+    for (const item of distanceFiltered) {
       if (!uniqueIds.has(item.id)) {
         uniqueIds.add(item.id);
         distinctElements.push(item);
@@ -530,7 +665,14 @@ const MainContentsPage: React.FC = () => {
     }
 
     return distinctElements;
-  }, [elements, selectedCategory, selectedBadge, basePersonalizedList]);
+  }, [
+    elements,
+    selectedCategory,
+    selectedBadge,
+    selectedDistance,
+    basePersonalizedList,
+    userLocation,
+  ]);
 
   /**
    * Reset badge filter when category changes
@@ -680,6 +822,7 @@ const MainContentsPage: React.FC = () => {
                     badge={item.badge}
                     address={item.address}
                     imageUrl={item.imageUrl}
+                    distanceText={item.distanceText}
                     date={item.date}
                     onClick={() =>
                       navigate("/detail-element", {

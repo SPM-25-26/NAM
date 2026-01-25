@@ -7,6 +7,7 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 using nam.Server.Services.Interfaces.Chatbot;
 using System.Text.RegularExpressions;
 
@@ -17,6 +18,7 @@ namespace nam.Server.Services.Implemented.Chatbot
         IChatCompletionService chatService,
         IEmbeddingGenerator<string, Embedding<float>> embedder,
         IUnitOfWork unitOfWork,
+        IConfiguration configuration,
         VectorStoreCollection<Guid, POIEntity> store,
         EntityHydrator entityHydrator
         ) : IChatbotService
@@ -66,6 +68,7 @@ namespace nam.Server.Services.Implemented.Chatbot
             ### PROFILO UTENTE (Questionario)
             Di seguito sono riportate le preferenze dell'utente raccolte tramite il questionario:
             {{UserQuestionaire}}
+
             ---
 
             ### DATI RECUPERATI (Punti di Interesse ed Eventi)
@@ -77,6 +80,11 @@ namespace nam.Server.Services.Implemented.Chatbot
             ### RICHIESTA DELL'UTENTE
             "{{UserPrompt}}"
             """;
+
+        private readonly PromptExecutionSettings llmSettings = new OpenAIPromptExecutionSettings
+        {
+            Temperature = configuration.GetValue<ChatbotSettings>("Chatbot")?.Temperature ?? 0.7,
+        };
 
         public async Task<string> GetResponseAsync(ChatRequest request, string userEmail)
         {
@@ -91,7 +99,7 @@ namespace nam.Server.Services.Implemented.Chatbot
             history.RemoveAt(history.Count - 1); // Remove previous user prompt
             history.AddUserMessage(prompt);
 
-            var result = await chatService.GetChatMessageContentAsync(history);
+            var result = await chatService.GetChatMessageContentAsync(history, executionSettings: llmSettings);
             return Regex.Unescape(result.Content);
         }
 
@@ -145,5 +153,6 @@ namespace nam.Server.Services.Implemented.Chatbot
     }
     public record ChatMessageDto(string Role, string Content);
     public record ChatRequest(List<ChatMessageDto> History);
+    public record ChatbotSettings(double Temperature);
 
 }

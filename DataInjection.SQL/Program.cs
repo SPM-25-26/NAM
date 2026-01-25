@@ -4,6 +4,8 @@ using DataInjection.SQL;
 using DataInjection.SQL.Sync;
 using DotNetEnv;
 using Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using nam.ServiceDefaults;
 using Serilog;
 
@@ -17,7 +19,17 @@ try
 
     builder.AddServiceDefaults();
 
-    builder.AddSqlServerDbContext<ApplicationDbContext>("db");
+    builder.AddSqlServerDbContext<ApplicationDbContext>("db",
+    configureDbContextOptions: options => 
+    {
+        // Dobbiamo richiamare UseSqlServer per poter passare le opzioni specifiche (come lo splitting)
+        options.UseSqlServer(builder.Configuration.GetConnectionString("db"), sqlOptions =>
+        {
+            // Abilita lo Splitting Globale
+            sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+        });
+    });
+
     builder.AddSqlServerClient("db");
 
     builder.Services.AddSerilog((services, lc) => lc

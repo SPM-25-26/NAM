@@ -98,6 +98,54 @@ public class Worker(
                     var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
                     await syncService.ExecuteSyncAsync(new MunicipalityCardCollector(fetcher, configuration));
                 }),
+                (nameof(RouteCollector), async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    await syncService.ExecuteSyncAsync(new RouteCollector(fetcher, configuration));
+                }),
+                (nameof(ServiceCollector), async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    await syncService.ExecuteSyncAsync(new ServiceCollector(fetcher, configuration));
+                }),
+                (nameof(ShoppingCollector), async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    await syncService.ExecuteSyncAsync(new ShoppingCollector(fetcher, configuration));
+                }),
+                (nameof(SleepCollector), async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    await syncService.ExecuteSyncAsync(new SleepCollector(fetcher, configuration));
+                }),
+                (nameof(EatAndDrinkCollector), async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    await syncService.ExecuteSyncAsync(new EatAndDrinkCollector(fetcher, configuration));
+                }),
+                (nameof(MapDataCollector), async () =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var fetcher = scope.ServiceProvider.GetRequiredService<IFetcher>();
+                    var syncService = scope.ServiceProvider.GetRequiredService<ISyncService>();
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    await syncService.ExecuteSyncAsync(new MapDataCollector(fetcher, configuration));
+                }),
             };
 
         foreach (var collector in collectors)
