@@ -1,26 +1,23 @@
 import { Paper, BottomNavigation, BottomNavigationAction } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import PersonIcon from "@mui/icons-material/Person";
-import { Link, useLocation } from "react-router-dom"; // Importa Link da qui
-
+import { Link, useLocation } from "react-router-dom";
+import { AssistantAvatar } from "./assistant/components/AssistantAvatar";
 const SimpleBottomNavigation = () => {
   const location = useLocation();
 
-  // Invece di usare uno stato interno, leggiamo il path attuale.
-  // Così se l'utente ricarica la pagina su /profile, l'icona corretta resta accesa.
   const getValue = () => {
-    if (location.pathname === "/profile") return 1;
+    if (location.pathname === "/profile") return 2;
+    if (location.pathname === "/assistant") return 1;
     return 0;
   };
 
   return (
     <Paper
       sx={{
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
+        width: "100%",
         zIndex: 1100,
+        borderTop: (theme) => `1px solid ${theme.palette.divider}`,
       }}
       elevation={3}
     >
@@ -30,6 +27,12 @@ const SimpleBottomNavigation = () => {
           icon={<HomeIcon />}
           component={Link}
           to="/maincontents"
+        />
+        <BottomNavigationAction
+          label={AssistantAvatar.displayName}
+          icon={<AssistantAvatar size={32} />}
+          component={Link}
+          to="/assistant"
         />
         <BottomNavigationAction
           label="Profile"
