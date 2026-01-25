@@ -1,6 +1,8 @@
 ﻿using DataInjection.Core.Interfaces;
 using DataInjection.Qdrant.Data;
-using DataInjection.Qdrant.Serializers;
+using Infrastructure.Extensions;
+using Infrastructure.Repositories.Interfaces.MunicipalityEntities;
+using Infrastructure.UnitOfWork;
 using Microsoft.Extensions.AI;
 using Microsoft.ML.Tokenizers;
 using Microsoft.SemanticKernel.Text;
@@ -8,15 +10,20 @@ using System.Security.Cryptography;
 using System.Text;
 namespace DataInjection.Qdrant.Collectors
 {
-    public abstract class POIVectorEntityCollector<TEntity>(Serilog.ILogger logger, IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : IEntityCollector<POIEntity>
+    public abstract class POIVectorEntityCollector<TEntity, TDetail, TKey>(
+        Serilog.ILogger logger,
+        IEmbeddingGenerator<string, Embedding<float>> embedder,
+        IUnitOfWork unitOfWork
+        )
+        : IEntityCollector<POIEntity>
+        where TEntity : class
     {
 
         // TODO: Use correct tokenizer, this is not the exact one for gemini but is close enough for now
         private readonly TiktokenTokenizer tokenizer = TiktokenTokenizer.CreateForModel("gpt-4o");
 
 
-        public abstract string getEndpoint();
-        public abstract Dictionary<string, string> getQuery();
+        public abstract IMunicipalityEntityRepository<TEntity, TDetail, TKey> GetRepository();
 
         public abstract IDtoMapper<TEntity, POIEntity> getMapper();
 
@@ -51,10 +58,9 @@ namespace DataInjection.Qdrant.Collectors
         async Task<List<POIEntity>> IEntityCollector<POIEntity>.GetEntities(string municipality)
         {
             var mapper = getMapper();
-            var query = getQuery();
-            query["municipality"] = municipality;
-            var entities = await fetcher.Fetch<List<TEntity>>(configuration["SERVER_HTTPS"], getEndpoint(), query);
+            var repository = GetRepository();
 
+            var entities = await repository.GetFullEntityListById(municipality);
             var poiEntities = new List<POIEntity>();
             var allMetadata = new List<ChunkMetadata>();
 

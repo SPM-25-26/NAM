@@ -3,7 +3,7 @@ using System.Collections;
 using System.Reflection;
 using System.Text;
 
-namespace DataInjection.Qdrant.Serializers
+namespace Infrastructure.Extensions
 {
     /// <summary>
     /// Provides extension methods for serializing objects into embedding strings

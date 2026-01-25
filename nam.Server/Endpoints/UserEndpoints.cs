@@ -58,7 +58,7 @@ namespace nam.Server.Endpoints
             }
         }
 
-        public static async Task<IResult> GetQuestionaire(
+        public static async Task<IResult> GetQuestionaireFromContext(
                 [FromServices] IUserService questionaireService,
                 HttpContext httpContext,
                 CancellationToken cancellationToken = default)
@@ -73,6 +73,16 @@ namespace nam.Server.Endpoints
                 _logger.Warning("GetQuestionaire: Il claim email dell'utente è mancante.");
                 return TypedResults.Unauthorized();
             }
+
+            return await GetQuestionaireFromEmail(questionaireService, userEmail, cancellationToken);
+
+        }
+
+        public static async Task<IResult> GetQuestionaireFromEmail(
+                [FromServices] IUserService questionaireService,
+                string userEmail,
+                CancellationToken cancellationToken = default)
+        {
             try
             {
                 var questionaire = await questionaireService.GetQuestionaireByUserMailAsync(userEmail, cancellationToken);
@@ -89,8 +99,8 @@ namespace nam.Server.Endpoints
                 _logger.Error(ex, "GetQuestionaire: Errore durante il recupero del questionario per l'utente {UserEmail}.", userEmail);
                 return TypedResults.InternalServerError("Si è verificato un errore durante il recupero del questionario.");
             }
-
         }
+
 
 
         public static async Task<IResult> QuestionaireCompleted(

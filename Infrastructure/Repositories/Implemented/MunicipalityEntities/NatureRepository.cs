@@ -1,12 +1,16 @@
 ﻿using Domain.Entities.MunicipalityEntities;
+using Infrastructure.Extensions;
+using Infrastructure.Repositories.Interfaces;
 using Infrastructure.Repositories.Interfaces.MunicipalityEntities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
 {
 
-    public class NatureRepository(ApplicationDbContext context) : Repository<Nature, Guid>(context), INatureRepository
+    public class NatureRepository(ApplicationDbContext context) : Repository<Nature, Guid>(context), INatureRepository, IEntitySource
     {
+        public string EntityName => "/api/nature/card";
+        //public string EntityName => "nature";
         public async Task<Nature?> GetByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default)
         {
             return await context.Natures
@@ -59,6 +63,12 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
             var entity = await GetByEntityIdAsync(entityId, cancellationToken);
             entity.Detail = await GetDetailByEntityIdAsync(entityId, cancellationToken);
             return entity;
+        }
+
+        public async Task<string> GetContentAsync(string id, CancellationToken ct = default)
+        {
+            var result = await GetFullEntityByIdAsync(Guid.Parse(id), ct);
+            return result.ToEmbeddingString();
         }
     }
 }
