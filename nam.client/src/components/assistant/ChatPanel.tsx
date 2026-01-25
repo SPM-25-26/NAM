@@ -78,6 +78,55 @@ const ChatPanel: React.FC<ChatInterfaceProps> = ({
       >
         {EMPTY_STATE_CONFIG.description}
       </Typography>
+      <Stack
+        direction="row"
+        spacing={1}
+        flexWrap="wrap"
+        justifyContent="center"
+        gap={1.5}
+      >
+        {[
+          {
+            label: "Sentieri del San Vicino",
+            icon: "⛰️",
+          },
+          {
+            label: "Il centro Storico",
+            icon: "🏰",
+          },
+          {
+            label: "Vino Verdicchio di Matelica",
+            icon: "🍷",
+          },
+        ].map((item) => (
+          <Box
+            key={item.label}
+            onClick={() => sendMessage(item.label)}
+            sx={{
+              px: 2.5,
+              py: 1.2,
+              borderRadius: "100px",
+              border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
+              bgcolor: theme.palette.background.paper,
+              fontSize: "0.85rem",
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              "&:hover": {
+                borderColor: theme.palette.primary.main,
+                bgcolor: alpha(theme.palette.primary.main, 0.04),
+                transform: "translateY(-3px)",
+                boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.08)}`,
+              },
+            }}
+          >
+            <span>{item.icon}</span> {item.label}
+          </Box>
+        ))}
+      </Stack>
     </Box>
   );
 
