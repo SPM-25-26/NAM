@@ -4,16 +4,16 @@
   </a>
 </p>
 
-<p align="center" style="font-size: 2.5em; font-weight: bold; margin: 0;">
-  Nam
-</p>
+<div align="center">
+  <h3>Nam</h3>
+</div>
 
-<p align="center" style="font-size: 1.2em; margin-top: 0;">
+<p align="center" >
   Digitalization and tourism promotion for the village of <a href="https://www.comune.matelica.mc.it">Matelica</a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-1.1.0_beta-orange?style=for-the-badge" alt="Version" />
+  <img src="https://img.shields.io/badge/Version-1.0.0_alpha-orange?style=for-the-badge" alt="Version" />
   <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19" />
   <img src="https://img.shields.io/badge/MUI-%230081CB.svg?style=for-the-badge&logo=mui&logoColor=white" alt="Material UI" />
   <img src="https://img.shields.io/badge/PWA-Ready-31b97a?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA Ready" />
