@@ -1,73 +1,57 @@
-# React + TypeScript + Vite
+<p align="center">
+  <a href="">
+    <img src="./src/assets/logo.webp" alt="Nam App Logo" height="100"/>
+  </a>
+</p>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<p align="center" style="font-size: 2.5em; font-weight: bold; margin: 0;">
+  Nam
+</p>
 
-Currently, two official plugins are available:
+<p align="center" style="font-size: 1.2em; margin-top: 0;">
+  Digitalization and tourism promotion for the village of <a href="https://www.comune.matelica.mc.it">Matelica</a>
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+<p align="center">
+  <img src="https://img.shields.io/badge/Version-1.1.0_beta-orange?style=for-the-badge" alt="Version" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19" />
+  <img src="https://img.shields.io/badge/MUI-%230081CB.svg?style=for-the-badge&logo=mui&logoColor=white" alt="Material UI" />
+  <img src="https://img.shields.io/badge/PWA-Ready-31b97a?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA Ready" />
+</p>
 
-## React Compiler
+**Nam** is a digital platform developed to enhance the cultural and touristic heritage of the Municipality of **Matelica**. The project aims to provide an interactive tool capable of guiding visitors through the historical, artistic, and food-and-wine fabric of the local territory.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Key Features
 
-## Expanding the ESLint configuration
+- **Smart POI Exploration:** An integrated system for identifying and navigating to the main Points of Interest (POI). Each site is accompanied by technical data sheets and in-depth multimedia content.
+- **Experience Personalization:** Filters and suggestions based on user preferences, ensuring a tailor-made exploration of the village.
+- **Mobile-First Interface:** Design optimized for on-the-go use via smartphones, featuring **PWA (Progressive Web App)** support for direct installation.
+- **Sibilla:** Integration of a virtual assistant for informational support and tourist guidance.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## <img src="./src/assets/ia_avatar.webp" width="30" height="30" style="vertical-align: middle;"> Sibilla: Local Virtual Assistant
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+The technological heart of Nam is **Sibilla**. The name refers to the Sibillini Mountains, a cornerstone of the project's territorial and cultural context. In this digital role, Sibilla accompanies the user through the village, acting as a bridge between Matelica's historical memory and the modern visitor.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Main Characteristics:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **Exploration Guide:** Immediate answers regarding historical timelines, architecture, and local food and wine heritage.
+- **Natural Language Interaction:** An assistance system configured to provide precise information and suggestions based on real-time needs.
+- **Cultural Orientation:** Guided storytelling designed to create a common thread between different historical sites and local traditions.
+
+> [!TIP]
+> _Interaction example: "Sibilla, recommend an itinerary that combines the remains of Roman Matelica with the excellence of Verdicchio wine."_
+
+## Local Configuration and Deployment
+
+The **Nam** client is built using the **Vite** environment and requires **Node.js** to run.
+
+Launch in dev mode:
+
+```bash
+ npm install
+ npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Usage via Orchestrator (Recommended)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+To ensure correct integration with the various system components (Backend, services, database, and app) and to fully leverage all features, the application should be started via the project orchestrator.
