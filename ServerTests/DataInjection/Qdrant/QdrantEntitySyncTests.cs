@@ -37,11 +37,11 @@ namespace nam.ServerTests.DataInjection.Qdrant
         {
             // Arrange
             var emptyMunicipalities = Array.Empty<string>();
-            SetupMunicipalities(emptyMunicipalities);
+            var config = BuildConfiguration(emptyMunicipalities);
 
             _sut = new QdrantEntitySync(
                 _mockLogger.Object,
-                _mockConfiguration.Object,
+                config,
                 _mockStore.Object,
                 [_mockCollector1.Object]
             );
@@ -62,11 +62,11 @@ namespace nam.ServerTests.DataInjection.Qdrant
         public async Task ExecuteSyncAsync_WithNullMunicipalities_LogsWarningAndReturnsEarly()
         {
             // Arrange
-            SetupMunicipalities(null);
+            var config = BuildConfiguration(null);
 
             _sut = new QdrantEntitySync(
                 _mockLogger.Object,
-                _mockConfiguration.Object,
+                config,
                 _mockStore.Object,
                 [_mockCollector1.Object]
             );
@@ -87,7 +87,7 @@ namespace nam.ServerTests.DataInjection.Qdrant
         {
             // Arrange
             var municipalities = new[] { "Trento", "Bolzano" };
-            SetupMunicipalities(municipalities);
+            var config = BuildConfiguration(municipalities);
 
             var entities1 = new List<POIEntity>
             {
@@ -107,7 +107,7 @@ namespace nam.ServerTests.DataInjection.Qdrant
 
             _sut = new QdrantEntitySync(
                 _mockLogger.Object,
-                _mockConfiguration.Object,
+                config,
                 _mockStore.Object,
                 [_mockCollector1.Object, _mockCollector2.Object]
             );
@@ -125,12 +125,26 @@ namespace nam.ServerTests.DataInjection.Qdrant
             _mockStore.Verify(s => s.UpsertAsync(It.IsAny<IEnumerable<POIEntity>>(), default), Times.Exactly(4));
 
             _mockLogger.Verify(
-                l => l.Information(It.Is<string>(s => s.Contains("Successfully synced qdrant data")), It.IsAny<object[]>()),
+                l => l.Information(
+                    It.Is<string>(s => s.Contains("Starting qdrant sync")),
+                    It.IsAny<IEntityCollector<POIEntity>>()
+                ),
                 Times.Exactly(4)
             );
 
             _mockLogger.Verify(
-                l => l.Information(It.Is<string>(s => s.Contains("Successfully injected data of municipality")), It.IsAny<object[]>()),
+                l => l.Information(
+                    It.Is<string>(s => s.Contains("Successfully synced qdrant data")),
+                    It.IsAny<IEntityCollector<POIEntity>>()
+                ),
+                Times.Exactly(4)
+            );
+
+            _mockLogger.Verify(
+                l => l.Information(
+                    It.Is<string>(s => s.Contains("Successfully injected data of municipality")),
+                    It.IsAny<string>()
+                ),
                 Times.Exactly(2)
             );
         }
@@ -140,7 +154,7 @@ namespace nam.ServerTests.DataInjection.Qdrant
         {
             // Arrange
             var municipalities = new[] { "Trento", "Bolzano" };
-            SetupMunicipalities(municipalities);
+            var config = BuildConfiguration(municipalities);
 
             var validEntities = new List<POIEntity>
             {
@@ -154,7 +168,7 @@ namespace nam.ServerTests.DataInjection.Qdrant
 
             _sut = new QdrantEntitySync(
                 _mockLogger.Object,
-                _mockConfiguration.Object,
+                config,
                 _mockStore.Object,
                 [_mockCollector1.Object]
             );
@@ -175,8 +189,19 @@ namespace nam.ServerTests.DataInjection.Qdrant
             _mockStore.Verify(s => s.UpsertAsync(validEntities, default), Times.Once);
 
             _mockLogger.Verify(
-                l => l.Information(It.Is<string>(s => s.Contains("Successfully synced qdrant data")), It.IsAny<object[]>()),
-                Times.Exactly(2) // Both for Trento (after error) and Bolzano
+                l => l.Information(
+                    It.Is<string>(s => s.Contains("Starting qdrant sync")),
+                    It.IsAny<IEntityCollector<POIEntity>>()
+                ),
+                Times.Exactly(2)
+            );
+
+            _mockLogger.Verify(
+                l => l.Information(
+                    It.Is<string>(s => s.Contains("Successfully synced qdrant data")),
+                    It.IsAny<IEntityCollector<POIEntity>>()
+                ),
+                Times.Exactly(2)
             );
         }
 
@@ -185,7 +210,7 @@ namespace nam.ServerTests.DataInjection.Qdrant
         {
             // Arrange
             var municipalities = new[] { "Trento" };
-            SetupMunicipalities(municipalities);
+            var config = BuildConfiguration(municipalities);
 
             var executionOrder = new List<string>();
 
@@ -199,7 +224,7 @@ namespace nam.ServerTests.DataInjection.Qdrant
 
             _sut = new QdrantEntitySync(
                 _mockLogger.Object,
-                _mockConfiguration.Object,
+                config,
                 _mockStore.Object,
                 [_mockCollector1.Object, _mockCollector2.Object]
             );
@@ -215,14 +240,14 @@ namespace nam.ServerTests.DataInjection.Qdrant
         public async Task ExecuteSyncAsync_AlwaysEnsuresCollectionExists()
         {
             // Arrange
-            SetupMunicipalities(new[] { "Trento" });
+            var config = BuildConfiguration(new[] { "Trento" });
 
             _mockCollector1.Setup(c => c.GetEntities(It.IsAny<string>()))
                 .ReturnsAsync(new List<POIEntity>());
 
             _sut = new QdrantEntitySync(
                 _mockLogger.Object,
-                _mockConfiguration.Object,
+                config,
                 _mockStore.Object,
                 [_mockCollector1.Object]
             );
@@ -234,11 +259,19 @@ namespace nam.ServerTests.DataInjection.Qdrant
             _mockStore.Verify(s => s.EnsureCollectionExistsAsync(default), Times.Once);
         }
 
-        private void SetupMunicipalities(string[]? municipalities)
+        private IConfiguration BuildConfiguration(string[]? municipalities)
         {
-            var mockSection = new Mock<IConfigurationSection>();
-            mockSection.Setup(s => s.Get<string[]>()).Returns(municipalities);
-            _mockConfiguration.Setup(c => c.GetSection("Municipalities")).Returns(mockSection.Object);
+            var dict = new Dictionary<string, string?>();
+
+            if (municipalities != null)
+            {
+                for (int i = 0; i < municipalities.Length; i++)
+                    dict[$"Municipalities:{i}"] = municipalities[i];
+            }
+
+            return new ConfigurationBuilder()
+                .AddInMemoryCollection(dict)
+                .Build();
         }
     }
 }
