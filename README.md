@@ -8,12 +8,10 @@
 
 * [Introduction](#introduction)
 * [Features](#features)
-* [Architecture](#architecture)
 * [Installation](#installation)
 * [Usage](#usage)
 * [Technology Stack](#technology-stack)
 * [Contributing](#contriguting)
-* [Code of Conduct](#code-of-conduct)
 * [License](#license)
 * [Authors](#authors)
 
