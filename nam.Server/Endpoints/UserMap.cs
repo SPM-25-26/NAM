@@ -12,7 +12,7 @@
             RouteGroupBuilder groupBuilder = builder.MapGroup("/api/user")
             .RequireCors("FrontendWithCredentials")
             .RequireAuthorization()
-            .WithTags("Authentication");
+            .WithTags("User");
 
             groupBuilder.MapPost("/update-questionaire", UserEndpoints.UpdateQuestionaire)
                 .Produces(StatusCodes.Status200OK)
@@ -21,12 +21,13 @@
                 .WithSummary("Aggiorna il questionario utente")
                 .WithDescription("Aggiorna le risposte del questionario per l'utente autenticato.");
 
-            groupBuilder.MapGet("/questionaire", UserEndpoints.GetQuestionaire)
+            groupBuilder.MapGet("/questionaire", UserEndpoints.GetQuestionaireFromContext)
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized)
                 .Produces(StatusCodes.Status500InternalServerError)
                 .WithSummary("Recupera il questionario utente")
                 .WithDescription("Restituisce i dati del questionario per l'utente autenticato.");
+
             groupBuilder.MapGet("/questionaire-completed", UserEndpoints.QuestionaireCompleted)
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized)

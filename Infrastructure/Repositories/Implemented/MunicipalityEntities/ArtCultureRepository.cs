@@ -1,12 +1,17 @@
 ﻿
 using Domain.Entities.MunicipalityEntities;
+using Infrastructure.Extensions;
+using Infrastructure.Repositories.Interfaces;
 using Infrastructure.Repositories.Interfaces.MunicipalityEntities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
 {
-    public class ArtCultureRepository(ApplicationDbContext context) : Repository<ArtCultureNatureCard, Guid>(context), IArtCultureRepository
+    public class ArtCultureRepository(ApplicationDbContext context) : Repository<ArtCultureNatureCard, Guid>(context), IArtCultureRepository, IEntitySource
     {
+        public string EntityName => "/api/art-culture/card";
+        //public string EntityName => "art-culture";
+
         public async Task<ArtCultureNatureCard?> GetByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default)
         {
             return await context.ArtCultureNatureCards
@@ -61,6 +66,12 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
             var entity = await GetByEntityIdAsync(entityId, cancellationToken);
             entity.Detail = await GetDetailByEntityIdAsync(entityId, cancellationToken);
             return entity;
+        }
+
+        public async Task<string> GetContentAsync(string id, CancellationToken ct = default)
+        {
+            var result = await GetFullEntityByIdAsync(Guid.Parse(id), ct);
+            return result.ToEmbeddingString();
         }
     }
 }

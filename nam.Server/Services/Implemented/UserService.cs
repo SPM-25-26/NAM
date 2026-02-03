@@ -1,11 +1,20 @@
 ﻿using Domain.Entities;
+using Infrastructure.Extensions;
 using Infrastructure.UnitOfWork;
+using Microsoft.Extensions.AI;
+using Microsoft.SemanticKernel.ChatCompletion;
 using nam.Server.Services.Interfaces;
 
 namespace nam.Server.Services.Implemented
 {
-    public class UserService(IUnitOfWork unitOfWork) : IUserService
+    public class UserService(
+        IUnitOfWork unitOfWork,
+        IEmbeddingGenerator<string, Embedding<float>> embedder,
+        IChatCompletionService chatService
+        ) : IUserService
     {
+        private readonly QuestionaireEmbeddingStringImprover questionaireEmbeddingImprover = new(chatService);
+
         public async Task<Questionaire?> GetQuestionaireByUserMailAsync(string userEmail, CancellationToken cancellationToken = default)
         {
             var user = await unitOfWork.Users.GetByEmailAsync(userEmail, cancellationToken)
@@ -15,6 +24,9 @@ namespace nam.Server.Services.Implemented
 
         public async Task<bool> UpdateQuestionaireAsync(Questionaire questionaire, string userEmail, CancellationToken cancellationToken = default)
         {
+            var questionaireImproved = await questionaireEmbeddingImprover.ImproveEmbeddingStringAsync(questionaire.ToEmbeddingString(), cancellationToken);
+            var vector = await embedder.GenerateVectorAsync(questionaireImproved, cancellationToken: cancellationToken);
+            questionaire.Vector = vector.ToArray();
             var result = await unitOfWork.Users.UpdateQuestionaireByEmailAsync(questionaire, userEmail, cancellationToken);
             return result;
         }

@@ -2,25 +2,22 @@
 using DataInjection.Qdrant.Data;
 using DataInjection.Qdrant.Mappers;
 using Domain.Entities.MunicipalityEntities;
+using Infrastructure.Repositories.Interfaces.MunicipalityEntities;
+using Infrastructure.UnitOfWork;
 using Microsoft.Extensions.AI;
 
 namespace DataInjection.Qdrant.Collectors
 {
-    public class ArticleQdrantCollector(Serilog.ILogger logger, IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : POIVectorEntityCollector<ArticleCard>(logger, embedder, configuration, fetcher)
+    public class ArticleQdrantCollector(Serilog.ILogger logger, IEmbeddingGenerator<string, Embedding<float>> embedder, IUnitOfWork unitOfWork) : POIVectorEntityCollector<ArticleCard, ArticleDetail, Guid>(logger, embedder, unitOfWork)
     {
-        public override string getEndpoint()
-        {
-            return "/api/article/full-card-list";
-        }
-
         public override IDtoMapper<ArticleCard, POIEntity> getMapper()
         {
             return new ArticleQdrantMapper();
         }
 
-        public override Dictionary<string, string> getQuery()
+        public override IMunicipalityEntityRepository<ArticleCard, ArticleDetail, Guid> GetRepository()
         {
-            return [];
+            return unitOfWork.Article;
         }
     }
 }

@@ -1,7 +1,4 @@
-﻿using Domain.Entities;
-using Microsoft.AspNetCore.Mvc;
-using nam.Server.DTOs;
-using nam.Server.Services.Interfaces;
+﻿using Microsoft.AspNetCore.Mvc;
 using nam.Server.Services.Interfaces.RecSys;
 using System.Security.Claims;
 

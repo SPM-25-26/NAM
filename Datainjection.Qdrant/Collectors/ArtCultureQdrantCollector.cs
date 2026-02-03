@@ -2,26 +2,26 @@
 using DataInjection.Qdrant.Data;
 using DataInjection.Qdrant.Mappers;
 using Domain.Entities.MunicipalityEntities;
+using Infrastructure.Repositories.Interfaces.MunicipalityEntities;
+using Infrastructure.UnitOfWork;
 using Microsoft.Extensions.AI;
 
 namespace DataInjection.Qdrant.Collectors
 {
-    public class ArtCultureQdrantCollector(Serilog.ILogger logger, IEmbeddingGenerator<string, Embedding<float>> embedder, IConfiguration configuration, IFetcher fetcher) : POIVectorEntityCollector<ArtCultureNatureCard>(logger, embedder, configuration, fetcher)
+    public class ArtCultureQdrantCollector(
+        Serilog.ILogger logger,
+        IEmbeddingGenerator<string, Embedding<float>> embedder,
+        IUnitOfWork unitOfWork
+        ) : POIVectorEntityCollector<ArtCultureNatureCard, ArtCultureNatureDetail, Guid>(logger, embedder, unitOfWork)
     {
-
-        public override string getEndpoint()
-        {
-            return "/api/art-culture/full-card-list";
-        }
-
         public override IDtoMapper<ArtCultureNatureCard, POIEntity> getMapper()
         {
             return new ArtCultureQdrantMapper();
         }
 
-        public override Dictionary<string, string> getQuery()
+        public override IMunicipalityEntityRepository<ArtCultureNatureCard, ArtCultureNatureDetail, Guid> GetRepository()
         {
-            return [];
+            return unitOfWork.ArtCulture;
         }
     }
 }

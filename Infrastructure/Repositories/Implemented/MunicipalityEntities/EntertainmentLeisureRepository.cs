@@ -1,11 +1,15 @@
 ﻿using Domain.Entities.MunicipalityEntities;
+using Infrastructure.Extensions;
+using Infrastructure.Repositories.Interfaces;
 using Infrastructure.Repositories.Interfaces.MunicipalityEntities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
 {
-    public class EntertainmentLeisureRepository(ApplicationDbContext context) : Repository<EntertainmentLeisureCard, Guid>(context), IEntertainmentLeisureRepository
+    public class EntertainmentLeisureRepository(ApplicationDbContext context) : Repository<EntertainmentLeisureCard, Guid>(context), IEntertainmentLeisureRepository, IEntitySource
     {
+        public string EntityName => "/api/entertainment-leisure/card";
+
         public async Task<EntertainmentLeisureCard?> GetByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default)
         {
             return await context.EntertainmentLeisureCards
@@ -51,6 +55,12 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
             var entity = await GetByEntityIdAsync(entityId, cancellationToken);
             entity.Detail = await GetDetailByEntityIdAsync(entityId, cancellationToken);
             return entity;
+        }
+
+        public async Task<string> GetContentAsync(string id, CancellationToken ct = default)
+        {
+            var result = await GetFullEntityByIdAsync(Guid.Parse(id), ct);
+            return result.ToEmbeddingString();
         }
     }
 }

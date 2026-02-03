@@ -51,6 +51,7 @@ namespace Infrastructure.Repositories.Implemented
             user.Questionaire.TravelRange = questionaire.TravelRange;
             user.Questionaire.TravelCompanions = questionaire.TravelCompanions;
             user.Questionaire.DiscoveryMode = questionaire.DiscoveryMode;
+            user.Questionaire.Vector = questionaire.Vector;
 
             try
             {

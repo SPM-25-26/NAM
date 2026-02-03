@@ -1,11 +1,16 @@
 ﻿using Domain.Entities.MunicipalityEntities;
+using Infrastructure.Extensions;
+using Infrastructure.Repositories.Interfaces;
 using Infrastructure.Repositories.Interfaces.MunicipalityEntities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
 {
-    public class PublicEventRepository(ApplicationDbContext context) : Repository<PublicEventCard, Guid>(context), IPublicEventRepository
+    public class PublicEventRepository(ApplicationDbContext context) : Repository<PublicEventCard, Guid>(context), IPublicEventRepository, IEntitySource
     {
+        public string EntityName => "/api/public-event/card";
+        //public string EntityName => "public-event";
+
         public async Task<PublicEventCard?> GetByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default)
         {
             return await context.PublicEventCards
@@ -32,6 +37,7 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
                 .Include(c => c.Organizer)
                 .Include(c => c.TicketsAndCosts)
                 .Include(c => c.MunicipalityData)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(c => c.Identifier == entityId, cancellationToken);
         }
 
@@ -50,6 +56,12 @@ namespace Infrastructure.Repositories.Implemented.MunicipalityEntities
             var entity = await GetByEntityIdAsync(entityId, cancellationToken);
             entity.Detail = await GetDetailByEntityIdAsync(entityId, cancellationToken);
             return entity;
+        }
+
+        public async Task<string> GetContentAsync(string id, CancellationToken ct = default)
+        {
+            var result = await GetFullEntityByIdAsync(Guid.Parse(id), ct);
+            return result.ToEmbeddingString();
         }
     }
 }

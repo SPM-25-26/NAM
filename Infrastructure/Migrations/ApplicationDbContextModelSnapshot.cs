@@ -290,6 +290,9 @@ namespace nam.Server.Migrations
                     b.Property<Guid?>("ArtCultureNatureDetailIdentifier")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("EatAndDrinkDetailIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("EntertainmentLeisureDetailIdentifier")
                         .HasColumnType("uniqueidentifier");
 
@@ -303,11 +306,28 @@ namespace nam.Server.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<Guid?>("ServiceDetailIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ShoppingCardDetailIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("SleepCardDetailIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Identifier");
 
                     b.HasIndex("ArtCultureNatureDetailIdentifier");
 
+                    b.HasIndex("EatAndDrinkDetailIdentifier");
+
                     b.HasIndex("EntertainmentLeisureDetailIdentifier");
+
+                    b.HasIndex("ServiceDetailIdentifier");
+
+                    b.HasIndex("ShoppingCardDetailIdentifier");
+
+                    b.HasIndex("SleepCardDetailIdentifier");
 
                     b.ToTable("AssociatedServices");
                 });
@@ -417,6 +437,127 @@ namespace nam.Server.Migrations
                     b.HasIndex("ArtCultureNatureDetailIdentifier");
 
                     b.ToTable("CulturalSiteServices");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.EatAndDrinkCard", b =>
+                {
+                    b.Property<Guid>("EntityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("BadgeText")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("DetailIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("EntityId");
+
+                    b.HasIndex("DetailIdentifier");
+
+                    b.ToTable("EatAndDrinkCards");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.EatAndDrinkDetail", b =>
+                {
+                    b.Property<Guid>("Identifier")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(255)
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.PrimitiveCollection<string>("DietaryNeeds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
+                    b.Property<string>("Facebook")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.PrimitiveCollection<string>("Gallery")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Instagram")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<Guid?>("MunicipalityDataId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("NearestCarParkId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OfficialName")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("OwnerTaxCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PrimaryImagePath")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Telephone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Type")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.PrimitiveCollection<string>("VirtualTours")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("Identifier");
+
+                    b.HasIndex("MunicipalityDataId");
+
+                    b.HasIndex("NearestCarParkId");
+
+                    b.HasIndex("OwnerTaxCode");
+
+                    b.ToTable("EatAndDrinkDetails");
                 });
 
             modelBuilder.Entity("Domain.Entities.MunicipalityEntities.EntertainmentLeisureCard", b =>
@@ -554,6 +695,27 @@ namespace nam.Server.Migrations
                     b.ToTable("FeatureCardArtCultureRelationships");
                 });
 
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.FeatureCardRelationship<Domain.Entities.MunicipalityEntities.EatAndDrinkDetail>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FeatureCardEntityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RelatedEntityIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FeatureCardEntityId");
+
+                    b.HasIndex("RelatedEntityIdentifier");
+
+                    b.ToTable("FeatureCardRelationship<EatAndDrinkDetail>");
+                });
+
             modelBuilder.Entity("Domain.Entities.MunicipalityEntities.FeatureCardRelationship<Domain.Entities.MunicipalityEntities.EntertainmentLeisureDetail>", b =>
                 {
                     b.Property<Guid>("Id")
@@ -646,6 +808,148 @@ namespace nam.Server.Migrations
                     b.HasIndex("RelatedEntityIdentifier");
 
                     b.ToTable("FeatureCardRelationship<PublicEventMobileDetail>");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.FeatureCardRelationship<Domain.Entities.MunicipalityEntities.RouteDetail>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FeatureCardEntityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RelatedEntityIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FeatureCardEntityId");
+
+                    b.HasIndex("RelatedEntityIdentifier");
+
+                    b.ToTable("RouteFeatureCardRelationships");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.FeatureCardRelationship<Domain.Entities.MunicipalityEntities.ServiceDetail>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FeatureCardEntityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RelatedEntityIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FeatureCardEntityId");
+
+                    b.HasIndex("RelatedEntityIdentifier");
+
+                    b.ToTable("FeatureCardRelationship<ServiceDetail>");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.FeatureCardRelationship<Domain.Entities.MunicipalityEntities.ShoppingCardDetail>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FeatureCardEntityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RelatedEntityIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FeatureCardEntityId");
+
+                    b.HasIndex("RelatedEntityIdentifier");
+
+                    b.ToTable("FeatureCardRelationship<ShoppingCardDetail>");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.FeatureCardRelationship<Domain.Entities.MunicipalityEntities.SleepCardDetail>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FeatureCardEntityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RelatedEntityIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FeatureCardEntityId");
+
+                    b.HasIndex("RelatedEntityIdentifier");
+
+                    b.ToTable("FeatureCardRelationship<SleepCardDetail>");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.MapData", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<double>("CenterLatitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("CenterLongitude")
+                        .HasColumnType("float");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("MapData");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.MapMarker", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("MapDataName")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Typology")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MapDataName");
+
+                    b.ToTable("MapMarkers");
                 });
 
             modelBuilder.Entity("Domain.Entities.MunicipalityEntities.MobileCategoryDetail", b =>
@@ -878,6 +1182,9 @@ namespace nam.Server.Migrations
                     b.Property<Guid?>("PublicEventMobileDetailIdentifier")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("SleepCardDetailIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("TicketDescription")
                         .HasColumnType("nvarchar(max)");
 
@@ -901,6 +1208,8 @@ namespace nam.Server.Migrations
                     b.HasIndex("OrganizationMobileDetailTaxCode");
 
                     b.HasIndex("PublicEventMobileDetailIdentifier");
+
+                    b.HasIndex("SleepCardDetailIdentifier");
 
                     b.ToTable("Offers");
                 });
@@ -1061,6 +1370,23 @@ namespace nam.Server.Migrations
                     b.ToTable("OwnedPois");
                 });
 
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.Owner", b =>
+                {
+                    b.Property<string>("TaxCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("LegalName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WebSite")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("TaxCode");
+
+                    b.ToTable("Owners");
+                });
+
             modelBuilder.Entity("Domain.Entities.MunicipalityEntities.Paragraph", b =>
                 {
                     b.Property<string>("Title")
@@ -1112,6 +1438,22 @@ namespace nam.Server.Migrations
                     b.HasIndex("ArticleDetailIdentifier");
 
                     b.ToTable("Paragraphs");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.Point", b =>
+                {
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
+                    b.HasKey("Address");
+
+                    b.ToTable("RoutePoints");
                 });
 
             modelBuilder.Entity("Domain.Entities.MunicipalityEntities.PublicEventCard", b =>
@@ -1245,6 +1587,440 @@ namespace nam.Server.Migrations
                     b.ToTable("PublicEventMobileDetails");
                 });
 
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.RouteCard", b =>
+                {
+                    b.Property<Guid>("EntityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("BadgeText")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("DetailIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("EntityId");
+
+                    b.HasIndex("DetailIdentifier");
+
+                    b.ToTable("RouteCards");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.RouteDetail", b =>
+                {
+                    b.Property<Guid>("Identifier")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(255)
+                        .HasColumnType("uniqueidentifier");
+
+                    b.PrimitiveCollection<string>("BestWhen")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Duration")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.PrimitiveCollection<string>("Gallery")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImagePath")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid?>("MunicipalityDataId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Number")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("NumberOfStages")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OrganizationEmail")
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
+                    b.Property<string>("OrganizationFacebook")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("OrganizationInstagram")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("OrganizationTelephone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("OrganizationWebsite")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("PathTheme")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("QuantifiedPathwayPaving")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RouteLength")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("SecurityLevel")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ShortName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("StartingPointAddress")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("TravellingMethod")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.PrimitiveCollection<string>("VirtualTours")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("Identifier");
+
+                    b.HasIndex("MunicipalityDataId");
+
+                    b.HasIndex("StartingPointAddress");
+
+                    b.ToTable("RouteDetails");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.ServiceCard", b =>
+                {
+                    b.Property<Guid>("EntityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("BadgeText")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("DetailIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("EntityId");
+
+                    b.HasIndex("DetailIdentifier");
+
+                    b.ToTable("ServiceCards");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.ServiceDetail", b =>
+                {
+                    b.Property<Guid>("Identifier")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(255)
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("AvailableParkingSpaces")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
+                    b.Property<string>("Facebook")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.PrimitiveCollection<string>("Gallery")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Instagram")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<Guid?>("MunicipalityDataId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("NearestCarParkId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("PayingParkingSpaces")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PostiAutoVenduti")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Price")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("PrimaryImage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ReservationUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<int?>("SpacesForDisabled")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Telephone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("TotalNumberOfCarParkSpaces")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Typology")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("Identifier");
+
+                    b.HasIndex("MunicipalityDataId");
+
+                    b.HasIndex("NearestCarParkId");
+
+                    b.ToTable("ServiceDetails");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.ServiceLocation", b =>
+                {
+                    b.Property<string>("Identifier")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OfficialName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Identifier");
+
+                    b.ToTable("ServiceLocation");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.ServiceLocationRelationship<Domain.Entities.MunicipalityEntities.ServiceDetail>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RelatedEntityIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ServiceLocationIdentifier")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RelatedEntityIdentifier");
+
+                    b.HasIndex("ServiceLocationIdentifier");
+
+                    b.ToTable("ServiceLocations");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.ShoppingCard", b =>
+                {
+                    b.Property<Guid>("EntityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("BadgeText")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("DetailIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("EntityId");
+
+                    b.HasIndex("DetailIdentifier");
+
+                    b.ToTable("ShoppingCards");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.ShoppingCardDetail", b =>
+                {
+                    b.Property<Guid>("Identifier")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(255)
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
+                    b.Property<string>("Facebook")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.PrimitiveCollection<string>("Gallery")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImagePath")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Instagram")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<Guid?>("MunicipalityDataId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("NearestCarParkId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OfficialName")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("OwnerTaxCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PoiCategory")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Telephone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.PrimitiveCollection<string>("VirtualTours")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("Identifier");
+
+                    b.HasIndex("MunicipalityDataId");
+
+                    b.HasIndex("NearestCarParkId");
+
+                    b.HasIndex("OwnerTaxCode");
+
+                    b.ToTable("ShoppingDetails");
+                });
+
             modelBuilder.Entity("Domain.Entities.MunicipalityEntities.SiteCard", b =>
                 {
                     b.Property<Guid>("Identifier")
@@ -1269,6 +2045,255 @@ namespace nam.Server.Migrations
                     b.HasKey("Identifier");
 
                     b.ToTable("SiteCards");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.SleepCard", b =>
+                {
+                    b.Property<Guid>("EntityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("BadgeText")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("DetailIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("EntityId");
+
+                    b.HasIndex("DetailIdentifier");
+
+                    b.ToTable("SleepCards");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.SleepCardDetail", b =>
+                {
+                    b.Property<Guid>("Identifier")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(255)
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Classification")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
+                    b.Property<string>("Facebook")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.PrimitiveCollection<string>("Gallery")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Instagram")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<Guid?>("MunicipalityDataId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("NearestCarParkId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OfficialName")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("OwnerTaxCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PrimaryImage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.PrimitiveCollection<string>("RoomTypologies")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.PrimitiveCollection<string>("Services")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShortAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Telephone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Typology")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.PrimitiveCollection<string>("VirtualTours")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("Identifier");
+
+                    b.HasIndex("MunicipalityDataId");
+
+                    b.HasIndex("NearestCarParkId");
+
+                    b.HasIndex("OwnerTaxCode");
+
+                    b.ToTable("SleepDetails");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.StageMobile", b =>
+                {
+                    b.Property<Guid>("PoiIdentifier")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PoiAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("PoiImagePath")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("PoiImageThumbPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<double>("PoiLatitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("PoiLongitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("PoiOfficialName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Signposting")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("SupportService")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.HasKey("PoiIdentifier");
+
+                    b.ToTable("StageMobiles");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.StageMobileRelationship<Domain.Entities.MunicipalityEntities.RouteDetail>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RelatedEntityIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("StageMobilePoiIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RelatedEntityIdentifier");
+
+                    b.HasIndex("StageMobilePoiIdentifier");
+
+                    b.ToTable("RouteStageMobileRelationships");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.TypicalProduct", b =>
+                {
+                    b.Property<string>("Identifier")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("Certification")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CityName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid?>("ShoppingCardDetailIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Identifier");
+
+                    b.HasIndex("ShoppingCardDetailIdentifier");
+
+                    b.ToTable("TypicalProducts");
                 });
 
             modelBuilder.Entity("Domain.Entities.Questionaire", b =>
@@ -1298,6 +2323,10 @@ namespace nam.Server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.PrimitiveCollection<string>("TravelStyle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.PrimitiveCollection<string>("Vector")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -1392,9 +2421,25 @@ namespace nam.Server.Migrations
                         .WithMany("AssociatedServices")
                         .HasForeignKey("ArtCultureNatureDetailIdentifier");
 
+                    b.HasOne("Domain.Entities.MunicipalityEntities.EatAndDrinkDetail", null)
+                        .WithMany("AssociatedServices")
+                        .HasForeignKey("EatAndDrinkDetailIdentifier");
+
                     b.HasOne("Domain.Entities.MunicipalityEntities.EntertainmentLeisureDetail", null)
                         .WithMany("AssociatedServices")
                         .HasForeignKey("EntertainmentLeisureDetailIdentifier");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.ServiceDetail", null)
+                        .WithMany("AssociatedServices")
+                        .HasForeignKey("ServiceDetailIdentifier");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.ShoppingCardDetail", null)
+                        .WithMany("AssociatedServices")
+                        .HasForeignKey("ShoppingCardDetailIdentifier");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.SleepCardDetail", null)
+                        .WithMany("AssociatedServices")
+                        .HasForeignKey("SleepCardDetailIdentifier");
                 });
 
             modelBuilder.Entity("Domain.Entities.MunicipalityEntities.Catalogue", b =>
@@ -1423,6 +2468,275 @@ namespace nam.Server.Migrations
                     b.HasOne("Domain.Entities.MunicipalityEntities.ArtCultureNatureDetail", null)
                         .WithMany("Services")
                         .HasForeignKey("ArtCultureNatureDetailIdentifier");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.EatAndDrinkCard", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.EatAndDrinkDetail", "Detail")
+                        .WithMany()
+                        .HasForeignKey("DetailIdentifier");
+
+                    b.Navigation("Detail");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.EatAndDrinkDetail", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.MunicipalityForLocalStorageSetting", "MunicipalityData")
+                        .WithMany()
+                        .HasForeignKey("MunicipalityDataId");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.NearestCarPark", "NearestCarPark")
+                        .WithMany()
+                        .HasForeignKey("NearestCarParkId");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.Owner", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerTaxCode");
+
+                    b.OwnsOne("Domain.Entities.MunicipalityEntities.Booking", "Booking", b1 =>
+                        {
+                            b1.Property<Guid>("EatAndDrinkDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<int>("Name")
+                                .HasColumnType("int");
+
+                            b1.HasKey("EatAndDrinkDetailIdentifier");
+
+                            b1.ToTable("EatAndDrinkDetails");
+
+                            b1.WithOwner()
+                                .HasForeignKey("EatAndDrinkDetailIdentifier");
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.TimeInterval", "TimeIntervalDto", b2 =>
+                                {
+                                    b2.Property<Guid>("BookingEatAndDrinkDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.HasKey("BookingEatAndDrinkDetailIdentifier");
+
+                                    b2.ToTable("EatAndDrinkDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("BookingEatAndDrinkDetailIdentifier");
+                                });
+
+                            b1.Navigation("TimeIntervalDto")
+                                .IsRequired();
+                        });
+
+                    b.OwnsOne("Domain.Entities.MunicipalityEntities.OpeningHoursSpecification", "OpeningHours", b1 =>
+                        {
+                            b1.Property<Guid>("EatAndDrinkDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<TimeOnly>("Closes")
+                                .HasColumnType("time");
+
+                            b1.Property<int?>("Day")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<TimeOnly>("Opens")
+                                .HasColumnType("time");
+
+                            b1.HasKey("EatAndDrinkDetailIdentifier");
+
+                            b1.ToTable("EatAndDrinkDetails");
+
+                            b1.WithOwner()
+                                .HasForeignKey("EatAndDrinkDetailIdentifier");
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.AdmissionType", "AdmissionType", b2 =>
+                                {
+                                    b2.Property<Guid>("OpeningHoursSpecificationEatAndDrinkDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<string>("Description")
+                                        .HasMaxLength(1000)
+                                        .HasColumnType("nvarchar(1000)");
+
+                                    b2.Property<int?>("Name")
+                                        .HasColumnType("int");
+
+                                    b2.HasKey("OpeningHoursSpecificationEatAndDrinkDetailIdentifier");
+
+                                    b2.ToTable("EatAndDrinkDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("OpeningHoursSpecificationEatAndDrinkDetailIdentifier");
+                                });
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.TimeInterval", "TimeInterval", b2 =>
+                                {
+                                    b2.Property<Guid>("OpeningHoursSpecificationEatAndDrinkDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.HasKey("OpeningHoursSpecificationEatAndDrinkDetailIdentifier");
+
+                                    b2.ToTable("EatAndDrinkDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("OpeningHoursSpecificationEatAndDrinkDetailIdentifier");
+                                });
+
+                            b1.Navigation("AdmissionType")
+                                .IsRequired();
+
+                            b1.Navigation("TimeInterval")
+                                .IsRequired();
+                        });
+
+                    b.OwnsOne("Domain.Entities.MunicipalityEntities.TemporaryClosure", "TemporaryClosure", b1 =>
+                        {
+                            b1.Property<Guid>("EatAndDrinkDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<TimeOnly?>("Closes")
+                                .HasColumnType("time");
+
+                            b1.Property<int?>("Day")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<TimeOnly?>("Opens")
+                                .HasColumnType("time");
+
+                            b1.Property<string>("ReasonForClosure")
+                                .IsRequired()
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.HasKey("EatAndDrinkDetailIdentifier");
+
+                            b1.ToTable("EatAndDrinkDetails");
+
+                            b1.WithOwner()
+                                .HasForeignKey("EatAndDrinkDetailIdentifier");
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.TimeInterval", "TimeInterval", b2 =>
+                                {
+                                    b2.Property<Guid>("TemporaryClosureEatAndDrinkDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.HasKey("TemporaryClosureEatAndDrinkDetailIdentifier");
+
+                                    b2.ToTable("EatAndDrinkDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("TemporaryClosureEatAndDrinkDetailIdentifier");
+                                });
+
+                            b1.Navigation("TimeInterval")
+                                .IsRequired();
+                        });
+
+                    b.OwnsMany("Domain.Entities.MunicipalityEntities.OntoremaService", "Services", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<Guid>("EatAndDrinkDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Name")
+                                .HasMaxLength(255)
+                                .HasColumnType("nvarchar(255)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("EatAndDrinkDetailIdentifier");
+
+                            b1.ToTable("OntoremaService");
+
+                            b1.WithOwner()
+                                .HasForeignKey("EatAndDrinkDetailIdentifier");
+                        });
+
+                    b.OwnsMany("Domain.Entities.MunicipalityEntities.TypicalProductMobile", "TypicalProducts", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<Guid>("EatAndDrinkDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Name")
+                                .HasMaxLength(255)
+                                .HasColumnType("nvarchar(255)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("EatAndDrinkDetailIdentifier");
+
+                            b1.ToTable("TypicalProductMobile");
+
+                            b1.WithOwner()
+                                .HasForeignKey("EatAndDrinkDetailIdentifier");
+                        });
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("MunicipalityData");
+
+                    b.Navigation("NearestCarPark");
+
+                    b.Navigation("OpeningHours");
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("Services");
+
+                    b.Navigation("TemporaryClosure");
+
+                    b.Navigation("TypicalProducts");
                 });
 
             modelBuilder.Entity("Domain.Entities.MunicipalityEntities.EntertainmentLeisureCard", b =>
@@ -1456,6 +2770,21 @@ namespace nam.Server.Migrations
                         .HasForeignKey("FeatureCardEntityId");
 
                     b.HasOne("Domain.Entities.MunicipalityEntities.ArtCultureNatureDetail", "RelatedEntity")
+                        .WithMany("Neighbors")
+                        .HasForeignKey("RelatedEntityIdentifier");
+
+                    b.Navigation("FeatureCard");
+
+                    b.Navigation("RelatedEntity");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.FeatureCardRelationship<Domain.Entities.MunicipalityEntities.EatAndDrinkDetail>", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.FeatureCard", "FeatureCard")
+                        .WithMany("EatAndDrinkRelations")
+                        .HasForeignKey("FeatureCardEntityId");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.EatAndDrinkDetail", "RelatedEntity")
                         .WithMany("Neighbors")
                         .HasForeignKey("RelatedEntityIdentifier");
 
@@ -1534,6 +2863,73 @@ namespace nam.Server.Migrations
                     b.Navigation("RelatedEntity");
                 });
 
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.FeatureCardRelationship<Domain.Entities.MunicipalityEntities.RouteDetail>", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.FeatureCard", "FeatureCard")
+                        .WithMany("RouteRelations")
+                        .HasForeignKey("FeatureCardEntityId");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.RouteDetail", "RelatedEntity")
+                        .WithMany("StagesPoi")
+                        .HasForeignKey("RelatedEntityIdentifier");
+
+                    b.Navigation("FeatureCard");
+
+                    b.Navigation("RelatedEntity");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.FeatureCardRelationship<Domain.Entities.MunicipalityEntities.ServiceDetail>", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.FeatureCard", "FeatureCard")
+                        .WithMany("ServiceRelations")
+                        .HasForeignKey("FeatureCardEntityId");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.ServiceDetail", "RelatedEntity")
+                        .WithMany("Neighbors")
+                        .HasForeignKey("RelatedEntityIdentifier");
+
+                    b.Navigation("FeatureCard");
+
+                    b.Navigation("RelatedEntity");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.FeatureCardRelationship<Domain.Entities.MunicipalityEntities.ShoppingCardDetail>", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.FeatureCard", "FeatureCard")
+                        .WithMany("ShoppingRelations")
+                        .HasForeignKey("FeatureCardEntityId");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.ShoppingCardDetail", "RelatedEntity")
+                        .WithMany("Neighbors")
+                        .HasForeignKey("RelatedEntityIdentifier");
+
+                    b.Navigation("FeatureCard");
+
+                    b.Navigation("RelatedEntity");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.FeatureCardRelationship<Domain.Entities.MunicipalityEntities.SleepCardDetail>", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.FeatureCard", "FeatureCard")
+                        .WithMany("SleepRelations")
+                        .HasForeignKey("FeatureCardEntityId");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.SleepCardDetail", "RelatedEntity")
+                        .WithMany("Neighbors")
+                        .HasForeignKey("RelatedEntityIdentifier");
+
+                    b.Navigation("FeatureCard");
+
+                    b.Navigation("RelatedEntity");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.MapMarker", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.MapData", null)
+                        .WithMany("Marker")
+                        .HasForeignKey("MapDataName");
+                });
+
             modelBuilder.Entity("Domain.Entities.MunicipalityEntities.MunicipalityCard", b =>
                 {
                     b.HasOne("Domain.Entities.MunicipalityEntities.MunicipalityHomeInfo", "Detail")
@@ -1570,6 +2966,10 @@ namespace nam.Server.Migrations
                     b.HasOne("Domain.Entities.MunicipalityEntities.PublicEventMobileDetail", "PublicEventMobileDetail")
                         .WithMany("TicketsAndCosts")
                         .HasForeignKey("PublicEventMobileDetailIdentifier");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.SleepCardDetail", null)
+                        .WithMany("Offers")
+                        .HasForeignKey("SleepCardDetailIdentifier");
 
                     b.Navigation("PublicEventMobileDetail");
                 });
@@ -1652,6 +3052,723 @@ namespace nam.Server.Migrations
                     b.Navigation("Organizer");
                 });
 
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.RouteCard", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.RouteDetail", "Detail")
+                        .WithMany()
+                        .HasForeignKey("DetailIdentifier");
+
+                    b.Navigation("Detail");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.RouteDetail", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.MunicipalityForLocalStorageSetting", "MunicipalityData")
+                        .WithMany()
+                        .HasForeignKey("MunicipalityDataId");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.Point", "StartingPoint")
+                        .WithMany()
+                        .HasForeignKey("StartingPointAddress");
+
+                    b.Navigation("MunicipalityData");
+
+                    b.Navigation("StartingPoint");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.ServiceCard", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.ServiceDetail", "Detail")
+                        .WithMany()
+                        .HasForeignKey("DetailIdentifier");
+
+                    b.Navigation("Detail");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.ServiceDetail", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.MunicipalityForLocalStorageSetting", "MunicipalityData")
+                        .WithMany()
+                        .HasForeignKey("MunicipalityDataId");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.NearestCarPark", "NearestCarPark")
+                        .WithMany()
+                        .HasForeignKey("NearestCarParkId");
+
+                    b.OwnsOne("Domain.Entities.MunicipalityEntities.Booking", "Booking", b1 =>
+                        {
+                            b1.Property<Guid>("ServiceDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<int>("Name")
+                                .HasColumnType("int");
+
+                            b1.HasKey("ServiceDetailIdentifier");
+
+                            b1.ToTable("ServiceDetails");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ServiceDetailIdentifier");
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.TimeInterval", "TimeIntervalDto", b2 =>
+                                {
+                                    b2.Property<Guid>("BookingServiceDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.HasKey("BookingServiceDetailIdentifier");
+
+                                    b2.ToTable("ServiceDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("BookingServiceDetailIdentifier");
+                                });
+
+                            b1.Navigation("TimeIntervalDto")
+                                .IsRequired();
+                        });
+
+                    b.OwnsOne("Domain.Entities.MunicipalityEntities.OpeningHoursSpecification", "OpeningHours", b1 =>
+                        {
+                            b1.Property<Guid>("ServiceDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<TimeOnly>("Closes")
+                                .HasColumnType("time");
+
+                            b1.Property<int?>("Day")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<TimeOnly>("Opens")
+                                .HasColumnType("time");
+
+                            b1.HasKey("ServiceDetailIdentifier");
+
+                            b1.ToTable("ServiceDetails");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ServiceDetailIdentifier");
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.AdmissionType", "AdmissionType", b2 =>
+                                {
+                                    b2.Property<Guid>("OpeningHoursSpecificationServiceDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<string>("Description")
+                                        .HasMaxLength(1000)
+                                        .HasColumnType("nvarchar(1000)");
+
+                                    b2.Property<int?>("Name")
+                                        .HasColumnType("int");
+
+                                    b2.HasKey("OpeningHoursSpecificationServiceDetailIdentifier");
+
+                                    b2.ToTable("ServiceDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("OpeningHoursSpecificationServiceDetailIdentifier");
+                                });
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.TimeInterval", "TimeInterval", b2 =>
+                                {
+                                    b2.Property<Guid>("OpeningHoursSpecificationServiceDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.HasKey("OpeningHoursSpecificationServiceDetailIdentifier");
+
+                                    b2.ToTable("ServiceDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("OpeningHoursSpecificationServiceDetailIdentifier");
+                                });
+
+                            b1.Navigation("AdmissionType")
+                                .IsRequired();
+
+                            b1.Navigation("TimeInterval")
+                                .IsRequired();
+                        });
+
+                    b.OwnsOne("Domain.Entities.MunicipalityEntities.TemporaryClosure", "TemporaryClosure", b1 =>
+                        {
+                            b1.Property<Guid>("ServiceDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<TimeOnly?>("Closes")
+                                .HasColumnType("time");
+
+                            b1.Property<int?>("Day")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<TimeOnly?>("Opens")
+                                .HasColumnType("time");
+
+                            b1.Property<string>("ReasonForClosure")
+                                .IsRequired()
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.HasKey("ServiceDetailIdentifier");
+
+                            b1.ToTable("ServiceDetails");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ServiceDetailIdentifier");
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.TimeInterval", "TimeInterval", b2 =>
+                                {
+                                    b2.Property<Guid>("TemporaryClosureServiceDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.HasKey("TemporaryClosureServiceDetailIdentifier");
+
+                                    b2.ToTable("ServiceDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("TemporaryClosureServiceDetailIdentifier");
+                                });
+
+                            b1.Navigation("TimeInterval")
+                                .IsRequired();
+                        });
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("MunicipalityData");
+
+                    b.Navigation("NearestCarPark");
+
+                    b.Navigation("OpeningHours");
+
+                    b.Navigation("TemporaryClosure");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.ServiceLocationRelationship<Domain.Entities.MunicipalityEntities.ServiceDetail>", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.ServiceDetail", "RelatedEntity")
+                        .WithMany("Locations")
+                        .HasForeignKey("RelatedEntityIdentifier");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.ServiceLocation", "ServiceLocation")
+                        .WithMany()
+                        .HasForeignKey("ServiceLocationIdentifier");
+
+                    b.Navigation("RelatedEntity");
+
+                    b.Navigation("ServiceLocation");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.ShoppingCard", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.ShoppingCardDetail", "Detail")
+                        .WithMany()
+                        .HasForeignKey("DetailIdentifier");
+
+                    b.Navigation("Detail");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.ShoppingCardDetail", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.MunicipalityForLocalStorageSetting", "MunicipalityData")
+                        .WithMany()
+                        .HasForeignKey("MunicipalityDataId");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.NearestCarPark", "NearestCarPark")
+                        .WithMany()
+                        .HasForeignKey("NearestCarParkId");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.Owner", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerTaxCode");
+
+                    b.OwnsMany("Domain.Entities.MunicipalityEntities.PointOfSaleService", "Services", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<string>("Name")
+                                .HasMaxLength(255)
+                                .HasColumnType("nvarchar(255)");
+
+                            b1.Property<Guid>("ShoppingCardDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("ShoppingCardDetailIdentifier");
+
+                            b1.ToTable("PointOfSaleService");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ShoppingCardDetailIdentifier");
+                        });
+
+                    b.OwnsOne("Domain.Entities.MunicipalityEntities.Booking", "Booking", b1 =>
+                        {
+                            b1.Property<Guid>("ShoppingCardDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<int>("Name")
+                                .HasColumnType("int");
+
+                            b1.HasKey("ShoppingCardDetailIdentifier");
+
+                            b1.ToTable("ShoppingDetails");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ShoppingCardDetailIdentifier");
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.TimeInterval", "TimeIntervalDto", b2 =>
+                                {
+                                    b2.Property<Guid>("BookingShoppingCardDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.HasKey("BookingShoppingCardDetailIdentifier");
+
+                                    b2.ToTable("ShoppingDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("BookingShoppingCardDetailIdentifier");
+                                });
+
+                            b1.Navigation("TimeIntervalDto")
+                                .IsRequired();
+                        });
+
+                    b.OwnsOne("Domain.Entities.MunicipalityEntities.OpeningHoursSpecification", "OpeningHours", b1 =>
+                        {
+                            b1.Property<Guid>("ShoppingCardDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<TimeOnly>("Closes")
+                                .HasColumnType("time");
+
+                            b1.Property<int?>("Day")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<TimeOnly>("Opens")
+                                .HasColumnType("time");
+
+                            b1.HasKey("ShoppingCardDetailIdentifier");
+
+                            b1.ToTable("ShoppingDetails");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ShoppingCardDetailIdentifier");
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.AdmissionType", "AdmissionType", b2 =>
+                                {
+                                    b2.Property<Guid>("OpeningHoursSpecificationShoppingCardDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<string>("Description")
+                                        .HasMaxLength(1000)
+                                        .HasColumnType("nvarchar(1000)");
+
+                                    b2.Property<int?>("Name")
+                                        .HasColumnType("int");
+
+                                    b2.HasKey("OpeningHoursSpecificationShoppingCardDetailIdentifier");
+
+                                    b2.ToTable("ShoppingDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("OpeningHoursSpecificationShoppingCardDetailIdentifier");
+                                });
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.TimeInterval", "TimeInterval", b2 =>
+                                {
+                                    b2.Property<Guid>("OpeningHoursSpecificationShoppingCardDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.HasKey("OpeningHoursSpecificationShoppingCardDetailIdentifier");
+
+                                    b2.ToTable("ShoppingDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("OpeningHoursSpecificationShoppingCardDetailIdentifier");
+                                });
+
+                            b1.Navigation("AdmissionType")
+                                .IsRequired();
+
+                            b1.Navigation("TimeInterval")
+                                .IsRequired();
+                        });
+
+                    b.OwnsOne("Domain.Entities.MunicipalityEntities.TemporaryClosure", "TemporaryClosure", b1 =>
+                        {
+                            b1.Property<Guid>("ShoppingCardDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<TimeOnly?>("Closes")
+                                .HasColumnType("time");
+
+                            b1.Property<int?>("Day")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<TimeOnly?>("Opens")
+                                .HasColumnType("time");
+
+                            b1.Property<string>("ReasonForClosure")
+                                .IsRequired()
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.HasKey("ShoppingCardDetailIdentifier");
+
+                            b1.ToTable("ShoppingDetails");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ShoppingCardDetailIdentifier");
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.TimeInterval", "TimeInterval", b2 =>
+                                {
+                                    b2.Property<Guid>("TemporaryClosureShoppingCardDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.HasKey("TemporaryClosureShoppingCardDetailIdentifier");
+
+                                    b2.ToTable("ShoppingDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("TemporaryClosureShoppingCardDetailIdentifier");
+                                });
+
+                            b1.Navigation("TimeInterval")
+                                .IsRequired();
+                        });
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("MunicipalityData");
+
+                    b.Navigation("NearestCarPark");
+
+                    b.Navigation("OpeningHours");
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("Services");
+
+                    b.Navigation("TemporaryClosure");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.SleepCard", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.SleepCardDetail", "Detail")
+                        .WithMany()
+                        .HasForeignKey("DetailIdentifier");
+
+                    b.Navigation("Detail");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.SleepCardDetail", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.MunicipalityForLocalStorageSetting", "MunicipalityData")
+                        .WithMany()
+                        .HasForeignKey("MunicipalityDataId");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.NearestCarPark", "NearestCarPark")
+                        .WithMany()
+                        .HasForeignKey("NearestCarParkId");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.Owner", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerTaxCode");
+
+                    b.OwnsOne("Domain.Entities.MunicipalityEntities.Booking", "Booking", b1 =>
+                        {
+                            b1.Property<Guid>("SleepCardDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<int>("Name")
+                                .HasColumnType("int");
+
+                            b1.HasKey("SleepCardDetailIdentifier");
+
+                            b1.ToTable("SleepDetails");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SleepCardDetailIdentifier");
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.TimeInterval", "TimeIntervalDto", b2 =>
+                                {
+                                    b2.Property<Guid>("BookingSleepCardDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.HasKey("BookingSleepCardDetailIdentifier");
+
+                                    b2.ToTable("SleepDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("BookingSleepCardDetailIdentifier");
+                                });
+
+                            b1.Navigation("TimeIntervalDto")
+                                .IsRequired();
+                        });
+
+                    b.OwnsOne("Domain.Entities.MunicipalityEntities.OpeningHoursSpecification", "OpeningHours", b1 =>
+                        {
+                            b1.Property<Guid>("SleepCardDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<TimeOnly>("Closes")
+                                .HasColumnType("time");
+
+                            b1.Property<int?>("Day")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<TimeOnly>("Opens")
+                                .HasColumnType("time");
+
+                            b1.HasKey("SleepCardDetailIdentifier");
+
+                            b1.ToTable("SleepDetails");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SleepCardDetailIdentifier");
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.AdmissionType", "AdmissionType", b2 =>
+                                {
+                                    b2.Property<Guid>("OpeningHoursSpecificationSleepCardDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<string>("Description")
+                                        .HasMaxLength(1000)
+                                        .HasColumnType("nvarchar(1000)");
+
+                                    b2.Property<int?>("Name")
+                                        .HasColumnType("int");
+
+                                    b2.HasKey("OpeningHoursSpecificationSleepCardDetailIdentifier");
+
+                                    b2.ToTable("SleepDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("OpeningHoursSpecificationSleepCardDetailIdentifier");
+                                });
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.TimeInterval", "TimeInterval", b2 =>
+                                {
+                                    b2.Property<Guid>("OpeningHoursSpecificationSleepCardDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.HasKey("OpeningHoursSpecificationSleepCardDetailIdentifier");
+
+                                    b2.ToTable("SleepDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("OpeningHoursSpecificationSleepCardDetailIdentifier");
+                                });
+
+                            b1.Navigation("AdmissionType")
+                                .IsRequired();
+
+                            b1.Navigation("TimeInterval")
+                                .IsRequired();
+                        });
+
+                    b.OwnsOne("Domain.Entities.MunicipalityEntities.TemporaryClosure", "TemporaryClosure", b1 =>
+                        {
+                            b1.Property<Guid>("SleepCardDetailIdentifier")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<TimeOnly?>("Closes")
+                                .HasColumnType("time");
+
+                            b1.Property<int?>("Day")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Description")
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.Property<TimeOnly?>("Opens")
+                                .HasColumnType("time");
+
+                            b1.Property<string>("ReasonForClosure")
+                                .IsRequired()
+                                .HasMaxLength(1000)
+                                .HasColumnType("nvarchar(1000)");
+
+                            b1.HasKey("SleepCardDetailIdentifier");
+
+                            b1.ToTable("SleepDetails");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SleepCardDetailIdentifier");
+
+                            b1.OwnsOne("Domain.Entities.MunicipalityEntities.TimeInterval", "TimeInterval", b2 =>
+                                {
+                                    b2.Property<Guid>("TemporaryClosureSleepCardDetailIdentifier")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("datetime2");
+
+                                    b2.HasKey("TemporaryClosureSleepCardDetailIdentifier");
+
+                                    b2.ToTable("SleepDetails");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("TemporaryClosureSleepCardDetailIdentifier");
+                                });
+
+                            b1.Navigation("TimeInterval")
+                                .IsRequired();
+                        });
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("MunicipalityData");
+
+                    b.Navigation("NearestCarPark");
+
+                    b.Navigation("OpeningHours");
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("TemporaryClosure");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.StageMobileRelationship<Domain.Entities.MunicipalityEntities.RouteDetail>", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.RouteDetail", "RelatedEntity")
+                        .WithMany("Stages")
+                        .HasForeignKey("RelatedEntityIdentifier");
+
+                    b.HasOne("Domain.Entities.MunicipalityEntities.StageMobile", "StageMobile")
+                        .WithMany("RouteRelations")
+                        .HasForeignKey("StageMobilePoiIdentifier");
+
+                    b.Navigation("RelatedEntity");
+
+                    b.Navigation("StageMobile");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.TypicalProduct", b =>
+                {
+                    b.HasOne("Domain.Entities.MunicipalityEntities.ShoppingCardDetail", null)
+                        .WithMany("SellingTypicalProducts")
+                        .HasForeignKey("ShoppingCardDetailIdentifier");
+                });
+
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
                     b.HasOne("Domain.Entities.Questionaire", "Questionaire")
@@ -1683,6 +3800,13 @@ namespace nam.Server.Migrations
                     b.Navigation("Paragraphs");
                 });
 
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.EatAndDrinkDetail", b =>
+                {
+                    b.Navigation("AssociatedServices");
+
+                    b.Navigation("Neighbors");
+                });
+
             modelBuilder.Entity("Domain.Entities.MunicipalityEntities.EntertainmentLeisureDetail", b =>
                 {
                     b.Navigation("AssociatedServices");
@@ -1694,11 +3818,26 @@ namespace nam.Server.Migrations
                 {
                     b.Navigation("ArtCultureRelations");
 
+                    b.Navigation("EatAndDrinkRelations");
+
                     b.Navigation("EntertainmentLeisureRelations");
 
                     b.Navigation("OrganizationMobileDetailRelations");
 
                     b.Navigation("PublicEventMobileDetailRelations");
+
+                    b.Navigation("RouteRelations");
+
+                    b.Navigation("ServiceRelations");
+
+                    b.Navigation("ShoppingRelations");
+
+                    b.Navigation("SleepRelations");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.MapData", b =>
+                {
+                    b.Navigation("Marker");
                 });
 
             modelBuilder.Entity("Domain.Entities.MunicipalityEntities.MunicipalityHomeInfo", b =>
@@ -1726,6 +3865,45 @@ namespace nam.Server.Migrations
                     b.Navigation("Neighbors");
 
                     b.Navigation("TicketsAndCosts");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.RouteDetail", b =>
+                {
+                    b.Navigation("Stages");
+
+                    b.Navigation("StagesPoi");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.ServiceDetail", b =>
+                {
+                    b.Navigation("AssociatedServices");
+
+                    b.Navigation("Locations");
+
+                    b.Navigation("Neighbors");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.ShoppingCardDetail", b =>
+                {
+                    b.Navigation("AssociatedServices");
+
+                    b.Navigation("Neighbors");
+
+                    b.Navigation("SellingTypicalProducts");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.SleepCardDetail", b =>
+                {
+                    b.Navigation("AssociatedServices");
+
+                    b.Navigation("Neighbors");
+
+                    b.Navigation("Offers");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MunicipalityEntities.StageMobile", b =>
+                {
+                    b.Navigation("RouteRelations");
                 });
 #pragma warning restore 612, 618
         }

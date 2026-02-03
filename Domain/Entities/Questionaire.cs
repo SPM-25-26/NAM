@@ -25,5 +25,7 @@ namespace Domain.Entities
 
         [Embeddable]
         public string DiscoveryMode { get; set; } = string.Empty;
+
+        public float[] Vector { get; set; } = [];
     }
 }

@@ -8,6 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Serializers\**" />
+    <Content Remove="Serializers\**" />
+    <EmbeddedResource Remove="Serializers\**" />
+    <None Remove="Serializers\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Aspire.Microsoft.Data.SqlClient" Version="13.1.0" />
+	  <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.1.0" />
 	  <PackageReference Include="Aspire.Qdrant.Client" Version="13.1.0" />
 	  <PackageReference Include="DotNetEnv" Version="3.1.1" />
 	  <PackageReference Include="Microsoft.ML.Tokenizers" Version="2.0.0" />
