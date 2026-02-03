@@ -115,7 +115,7 @@ Please ensure your code adheres to the project's coding standards.
 
 ## License
 
-This project is licensed under the **MIT License** - see the [LICENSE](https://www.google.com/search?q=LICENSE) file for details.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ## Authors
 
