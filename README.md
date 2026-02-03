@@ -1,6 +1,10 @@
-# eppoi
+# Eppoi
+![.NET 9](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)
+![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
+![Status](https://img.shields.io/badge/Status-In--Development-yellow)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
-**eppoi** is a Progressive Web App (PWA) designed to transform the tourism experience in the city of **Matelica**. By leveraging Artificial Intelligence, the app provides personalized itinerary recommendations and an intelligent virtual assistant to guide visitors through the city's cultural, gastronomic, and scenic highlights.
+**Eppoi** is a Progressive Web App (PWA) designed to transform the tourism experience in the city of **Matelica**. By leveraging Artificial Intelligence, the app provides personalized itinerary recommendations and an intelligent virtual assistant to guide visitors through the city's cultural, gastronomic, and scenic highlights.
 
 > *Discover Matelica like never before—personalized, intelligent, and always with you.*
 
@@ -17,7 +21,7 @@
 
 ## Introduction
 
-Tourism in Matelica has a rich history, but finding the right experiences can be overwhelming. **eppoi** solves this by acting as a smart travel companion. Whether a user is looking for the best Verdicchio wine tasting, a historical tour of the Palazzo Ottoni, or a hidden nature trail, **eppoi** learns from their preferences to suggest the perfect activity.
+Tourism in Matelica has a rich history, but finding the right experiences can be overwhelming. **Eppoi** solves this by acting as a smart travel companion. Whether a user is looking for the best Verdicchio wine tasting, a historical tour of the Palazzo Ottoni, or a hidden nature trail, **Eppoi** learns from their preferences to suggest the perfect activity.
 
 This repository contains the source code for the **NAM** group for the academic year 2025-2026.
 
@@ -82,7 +86,7 @@ dotnet run --project nam/nam.AppHost
 5. **Access the Dashboard:**
 Once running, the console will provide a link to the **.NET Aspire Dashboard** (usually `https://localhost:17149`). From there, you can view logs, traces, and access the PWA endpoint.
 
-6. **Access the App**: The terminal will show the local address for the frontend (usually `http://localhost:5173`). Open this link in your browser to use **eppoi**.
+6. **Access the App**: The terminal will show the local address for the frontend (usually `http://localhost:5173`). Open this link in your browser to use **Eppoi**.
 
 ## Usage
 
@@ -105,7 +109,7 @@ Once running, the console will provide a link to the **.NET Aspire Dashboard** (
 
 ## Contributing
 
-We welcome contributions to make **eppoi** better for everyone!
+We welcome contributions to make **Eppoi** better for everyone!
 
 1. **Fork** the repository.
 2. Create a **Feature Branch** (`git checkout -b feature/AmazingFeature`).
