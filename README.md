@@ -74,7 +74,7 @@ dotnet dev-certs https --trust
 Launch the **AppHost** project. This will orchestrate all frontend, backend, and database containers.
 ```bash
 # Run from the root solution folder, targeting the AppHost project
-dotnet run --project nam.AppHost
+dotnet run --project nam/nam.AppHost
 
 ```
 
@@ -119,8 +119,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](https://w
 
 ## Authors
 
-* **[Nicol Buratti]** - *Role* - [@nicol-buratti](https://github.com/nicol-buratti)
-* **[Antonio Marseglia]** - *Role* - [@AntoMars14](https://github.com/AntoMars14)
-* **[Matteo Brachetta]** - *Role* - [@BrachettaMatteo](https://github.com/BrachettaMatteo)
+* **[Nicol Buratti]** - *Backend* - [@nicol-buratti](https://github.com/nicol-buratti)
+* **[Antonio Marseglia]** - *Backend/Frontend* - [@AntoMars14](https://github.com/AntoMars14)
+* **[Matteo Brachetta]** - *Frontend* - [@BrachettaMatteo](https://github.com/BrachettaMatteo)
 
 **SPM-25-26** - *University Of Camerino*
