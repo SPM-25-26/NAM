@@ -82,6 +82,8 @@ dotnet run --project nam/nam.AppHost
 5. **Access the Dashboard:**
 Once running, the console will provide a link to the **.NET Aspire Dashboard** (usually `https://localhost:17149`). From there, you can view logs, traces, and access the PWA endpoint.
 
+6. **Access the App**: The terminal will show the local address for the frontend (usually `http://localhost:5173`). Open this link in your browser to use **eppoi**.
+
 ## Usage
 
 1. **Onboarding:** Open the app and complete the initial preference survey to help the AI understand your interests.
