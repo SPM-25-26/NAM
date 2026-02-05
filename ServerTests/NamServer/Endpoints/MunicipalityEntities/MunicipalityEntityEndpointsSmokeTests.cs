@@ -16,7 +16,6 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
     {
         private const string MunicipalityName = "TestTown";
         private static readonly object _seedLock = new();
-        private static bool _seeded;
         private NamTestFactory? _factory;
         private HttpClient? _client;
 
@@ -70,12 +69,6 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             {
                 if (context.MunicipalityCards.Any(card =>
                         card.LegalName != null && card.LegalName.Contains(MunicipalityName, StringComparison.Ordinal)))
-                {
-                    _seeded = true;
-                    return;
-                }
-
-                if (_seeded)
                 {
                     return;
                 }
@@ -266,7 +259,6 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
                     municipalityCard);
 
                 context.SaveChanges();
-                _seeded = true;
             }
         }
 
