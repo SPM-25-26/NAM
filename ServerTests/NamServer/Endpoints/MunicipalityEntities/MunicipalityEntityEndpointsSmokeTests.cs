@@ -3,6 +3,7 @@ using NUnit.Framework;
 using NUnitAssert = NUnit.Framework.Assert;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 
 namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
 {
@@ -26,16 +27,16 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             _factory.Dispose();
         }
 
-        [TestCase("/api/art-culture/card-list?municipality=TestTown")]
-        [TestCase("/api/article/card-list?municipality=TestTown")]
-        [TestCase("/api/eat-and-drink/card-list?municipality=TestTown")]
-        [TestCase("/api/entertainment-leisure/card-list?municipality=TestTown")]
-        [TestCase("/api/nature/card-list?municipality=TestTown")]
-        [TestCase("/api/organizations/card-list?municipality=TestTown")]
-        [TestCase("/api/public-event/card-list?municipality=TestTown")]
-        [TestCase("/api/routes/card-list?municipality=TestTown")]
-        [TestCase("/api/services/card-list?municipality=TestTown")]
-        [TestCase("/api/shopping/card-list?municipality=TestTown")]
+        [TestCase("/api/art-culture/card-list?municipality=TestTown&language=it")]
+        [TestCase("/api/article/card-list?municipality=TestTown&language=it")]
+        [TestCase("/api/eat-and-drink/card-list?municipality=TestTown&language=it")]
+        [TestCase("/api/entertainment-leisure/card-list?municipality=TestTown&language=it")]
+        [TestCase("/api/nature/card-list?municipality=TestTown&language=it")]
+        [TestCase("/api/organizations/card-list?municipality=TestTown&language=it")]
+        [TestCase("/api/public-event/card-list?municipality=TestTown&language=it")]
+        [TestCase("/api/routes/card-list?municipality=TestTown&language=it")]
+        [TestCase("/api/services/card-list?municipality=TestTown&language=it")]
+        [TestCase("/api/shopping/card-list?municipality=TestTown&language=it")]
         public async Task Get_CardList_Returns_Data(string url)
         {
             var response = await _client.GetAsync(url);
@@ -43,7 +44,8 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             NUnitAssert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
             var content = await response.Content.ReadAsStringAsync();
-            NUnitAssert.That(content, Does.StartWith("["));
+            using var document = JsonDocument.Parse(content);
+            NUnitAssert.That(document.RootElement.ValueKind, Is.EqualTo(JsonValueKind.Array));
         }
     }
 }
