@@ -15,7 +15,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
     public class MunicipalityEntityEndpointsSmokeTests
     {
         private const string MunicipalityName = "TestTown";
-        private static bool _seeded;
+        private static readonly object SeedLock = new();
         private NamTestFactory? _factory;
         private HttpClient? _client;
 
@@ -65,197 +65,200 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             using var scope = factory.Services.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            if (_seeded)
+            lock (SeedLock)
             {
-                return;
+                if (context.MunicipalityCards.Any(card =>
+                        card.LegalName != null && card.LegalName.Contains(MunicipalityName, StringComparison.Ordinal)))
+                {
+                    return;
+                }
+
+                var municipalityData = CreateMunicipalityData();
+
+                var artCultureDetail = new ArtCultureNatureDetail
+                {
+                    Identifier = Guid.NewGuid(),
+                    OfficialName = "Art Culture",
+                    MunicipalityData = municipalityData
+                };
+                var artCultureCard = new ArtCultureNatureCard
+                {
+                    EntityId = Guid.NewGuid(),
+                    EntityName = "Art Culture",
+                    BadgeText = "Badge",
+                    ImagePath = "image.png",
+                    Detail = artCultureDetail
+                };
+
+                var articleDetail = new ArticleDetail
+                {
+                    Identifier = Guid.NewGuid(),
+                    Title = "Article Title",
+                    Script = "Script",
+                    ImagePath = "image.png",
+                    UpdatedAt = DateTime.UtcNow,
+                    MunicipalityData = municipalityData
+                };
+                var articleCard = new ArticleCard
+                {
+                    EntityId = Guid.NewGuid(),
+                    EntityName = "Article",
+                    BadgeText = "Badge",
+                    ImagePath = "image.png",
+                    Detail = articleDetail
+                };
+
+                var eatAndDrinkDetail = new EatAndDrinkDetail
+                {
+                    Identifier = Guid.NewGuid(),
+                    OfficialName = "Eat & Drink",
+                    MunicipalityData = municipalityData
+                };
+                var eatAndDrinkCard = new EatAndDrinkCard
+                {
+                    EntityId = Guid.NewGuid(),
+                    EntityName = "Eat & Drink",
+                    BadgeText = "Badge",
+                    ImagePath = "image.png",
+                    Detail = eatAndDrinkDetail
+                };
+
+                var entertainmentDetail = new EntertainmentLeisureDetail
+                {
+                    Identifier = Guid.NewGuid(),
+                    OfficialName = "Entertainment",
+                    MunicipalityData = municipalityData
+                };
+                var entertainmentCard = new EntertainmentLeisureCard
+                {
+                    EntityId = Guid.NewGuid(),
+                    EntityName = "Entertainment",
+                    BadgeText = "Badge",
+                    ImagePath = "image.png",
+                    Detail = entertainmentDetail
+                };
+
+                var natureDetail = new ArtCultureNatureDetail
+                {
+                    Identifier = Guid.NewGuid(),
+                    OfficialName = "Nature",
+                    MunicipalityData = municipalityData
+                };
+                var natureCard = new Nature
+                {
+                    EntityId = Guid.NewGuid(),
+                    EntityName = "Nature",
+                    BadgeText = "Badge",
+                    ImagePath = "image.png",
+                    Detail = natureDetail
+                };
+
+                var organizationDetail = new OrganizationMobileDetail
+                {
+                    TaxCode = "ORG001",
+                    LegalName = "Organization",
+                    MunicipalityData = municipalityData
+                };
+                var organizationCard = new OrganizationCard
+                {
+                    TaxCode = "ORG001",
+                    EntityName = "Organization",
+                    Detail = organizationDetail
+                };
+
+                var publicEventDetail = new PublicEventMobileDetail
+                {
+                    Identifier = Guid.NewGuid(),
+                    Title = "Public Event",
+                    MunicipalityData = municipalityData
+                };
+
+                var routeDetail = new RouteDetail
+                {
+                    Identifier = Guid.NewGuid(),
+                    Name = "Route",
+                    MunicipalityData = municipalityData
+                };
+                var routeCard = new RouteCard
+                {
+                    EntityId = routeDetail.Identifier,
+                    EntityName = "Route",
+                    BadgeText = "Badge",
+                    ImagePath = "image.png",
+                    Detail = routeDetail
+                };
+                var publicEventCard = new PublicEventCard
+                {
+                    EntityId = publicEventDetail.Identifier,
+                    EntityName = "Public Event",
+                    BadgeText = "Badge",
+                    ImagePath = "image.png",
+                    Address = "Address",
+                    Date = "2026-02-05",
+                    Detail = publicEventDetail
+                };
+
+                var serviceDetail = new ServiceDetail
+                {
+                    Identifier = Guid.NewGuid(),
+                    Name = "Service",
+                    MunicipalityData = municipalityData
+                };
+                var serviceCard = new ServiceCard
+                {
+                    EntityId = serviceDetail.Identifier,
+                    EntityName = "Service",
+                    BadgeText = "Badge",
+                    ImagePath = "image.png",
+                    Detail = serviceDetail
+                };
+
+                var shoppingDetail = new ShoppingCardDetail
+                {
+                    Identifier = Guid.NewGuid(),
+                    OfficialName = "Shopping",
+                    MunicipalityData = municipalityData
+                };
+                var shoppingCard = new ShoppingCard
+                {
+                    EntityId = shoppingDetail.Identifier,
+                    EntityName = "Shopping",
+                    BadgeText = "Badge",
+                    ImagePath = "image.png",
+                    Detail = shoppingDetail
+                };
+
+                var municipalityCard = new MunicipalityCard
+                {
+                    LegalName = $"{MunicipalityName} Municipality",
+                    ImagePath = "image.png"
+                };
+
+                context.MunicipalityForLocalStorageSettings.Add(municipalityData);
+                context.ArtCultureNatureDetails.Add(artCultureDetail);
+                context.ArtCultureNatureCards.Add(artCultureCard);
+                context.ArtCultureNatureDetails.Add(natureDetail);
+                context.Natures.Add(natureCard);
+                context.ArticleDetails.Add(articleDetail);
+                context.ArticleCards.Add(articleCard);
+                context.EatAndDrinkDetails.Add(eatAndDrinkDetail);
+                context.EatAndDrinkCards.Add(eatAndDrinkCard);
+                context.EntertainmentLeisureDetails.Add(entertainmentDetail);
+                context.EntertainmentLeisureCards.Add(entertainmentCard);
+                context.OrganizationMobileDetails.Add(organizationDetail);
+                context.OrganizationCards.Add(organizationCard);
+                context.PublicEventMobileDetails.Add(publicEventDetail);
+                context.PublicEventCards.Add(publicEventCard);
+                context.RouteDetails.Add(routeDetail);
+                context.RouteCards.Add(routeCard);
+                context.ServiceDetails.Add(serviceDetail);
+                context.ServiceCards.Add(serviceCard);
+                context.ShoppingDetails.Add(shoppingDetail);
+                context.ShoppingCards.Add(shoppingCard);
+                context.MunicipalityCards.Add(municipalityCard);
+
+                context.SaveChanges();
             }
-
-            var municipalityData = CreateMunicipalityData();
-
-            var artCultureDetail = new ArtCultureNatureDetail
-            {
-                Identifier = Guid.NewGuid(),
-                OfficialName = "Art Culture",
-                MunicipalityData = municipalityData
-            };
-            var artCultureCard = new ArtCultureNatureCard
-            {
-                EntityId = Guid.NewGuid(),
-                EntityName = "Art Culture",
-                BadgeText = "Badge",
-                ImagePath = "image.png",
-                Detail = artCultureDetail
-            };
-
-            var articleDetail = new ArticleDetail
-            {
-                Identifier = Guid.NewGuid(),
-                Title = "Article Title",
-                Script = "Script",
-                ImagePath = "image.png",
-                UpdatedAt = DateTime.UtcNow,
-                MunicipalityData = municipalityData
-            };
-            var articleCard = new ArticleCard
-            {
-                EntityId = Guid.NewGuid(),
-                EntityName = "Article",
-                BadgeText = "Badge",
-                ImagePath = "image.png",
-                Detail = articleDetail
-            };
-
-            var eatAndDrinkDetail = new EatAndDrinkDetail
-            {
-                Identifier = Guid.NewGuid(),
-                OfficialName = "Eat & Drink",
-                MunicipalityData = municipalityData
-            };
-            var eatAndDrinkCard = new EatAndDrinkCard
-            {
-                EntityId = Guid.NewGuid(),
-                EntityName = "Eat & Drink",
-                BadgeText = "Badge",
-                ImagePath = "image.png",
-                Detail = eatAndDrinkDetail
-            };
-
-            var entertainmentDetail = new EntertainmentLeisureDetail
-            {
-                Identifier = Guid.NewGuid(),
-                OfficialName = "Entertainment",
-                MunicipalityData = municipalityData
-            };
-            var entertainmentCard = new EntertainmentLeisureCard
-            {
-                EntityId = Guid.NewGuid(),
-                EntityName = "Entertainment",
-                BadgeText = "Badge",
-                ImagePath = "image.png",
-                Detail = entertainmentDetail
-            };
-
-            var natureDetail = new ArtCultureNatureDetail
-            {
-                Identifier = Guid.NewGuid(),
-                OfficialName = "Nature",
-                MunicipalityData = municipalityData
-            };
-            var natureCard = new Nature
-            {
-                EntityId = Guid.NewGuid(),
-                EntityName = "Nature",
-                BadgeText = "Badge",
-                ImagePath = "image.png",
-                Detail = natureDetail
-            };
-
-            var organizationDetail = new OrganizationMobileDetail
-            {
-                TaxCode = "ORG001",
-                LegalName = "Organization",
-                MunicipalityData = municipalityData
-            };
-            var organizationCard = new OrganizationCard
-            {
-                TaxCode = "ORG001",
-                EntityName = "Organization",
-                Detail = organizationDetail
-            };
-
-            var publicEventDetail = new PublicEventMobileDetail
-            {
-                Identifier = Guid.NewGuid(),
-                Title = "Public Event",
-                MunicipalityData = municipalityData
-            };
-
-            var routeDetail = new RouteDetail
-            {
-                Identifier = Guid.NewGuid(),
-                Name = "Route",
-                MunicipalityData = municipalityData
-            };
-            var routeCard = new RouteCard
-            {
-                EntityId = routeDetail.Identifier,
-                EntityName = "Route",
-                BadgeText = "Badge",
-                ImagePath = "image.png",
-                Detail = routeDetail
-            };
-            var publicEventCard = new PublicEventCard
-            {
-                EntityId = publicEventDetail.Identifier,
-                EntityName = "Public Event",
-                BadgeText = "Badge",
-                ImagePath = "image.png",
-                Address = "Address",
-                Date = "2026-02-05",
-                Detail = publicEventDetail
-            };
-
-            var serviceDetail = new ServiceDetail
-            {
-                Identifier = Guid.NewGuid(),
-                Name = "Service",
-                MunicipalityData = municipalityData
-            };
-            var serviceCard = new ServiceCard
-            {
-                EntityId = serviceDetail.Identifier,
-                EntityName = "Service",
-                BadgeText = "Badge",
-                ImagePath = "image.png",
-                Detail = serviceDetail
-            };
-
-            var shoppingDetail = new ShoppingCardDetail
-            {
-                Identifier = Guid.NewGuid(),
-                OfficialName = "Shopping",
-                MunicipalityData = municipalityData
-            };
-            var shoppingCard = new ShoppingCard
-            {
-                EntityId = shoppingDetail.Identifier,
-                EntityName = "Shopping",
-                BadgeText = "Badge",
-                ImagePath = "image.png",
-                Detail = shoppingDetail
-            };
-
-            var municipalityCard = new MunicipalityCard
-            {
-                LegalName = $"{MunicipalityName} Municipality",
-                ImagePath = "image.png"
-            };
-
-            context.MunicipalityForLocalStorageSettings.Add(municipalityData);
-            context.ArtCultureNatureDetails.Add(artCultureDetail);
-            context.ArtCultureNatureCards.Add(artCultureCard);
-            context.ArtCultureNatureDetails.Add(natureDetail);
-            context.Natures.Add(natureCard);
-            context.ArticleDetails.Add(articleDetail);
-            context.ArticleCards.Add(articleCard);
-            context.EatAndDrinkDetails.Add(eatAndDrinkDetail);
-            context.EatAndDrinkCards.Add(eatAndDrinkCard);
-            context.EntertainmentLeisureDetails.Add(entertainmentDetail);
-            context.EntertainmentLeisureCards.Add(entertainmentCard);
-            context.OrganizationMobileDetails.Add(organizationDetail);
-            context.OrganizationCards.Add(organizationCard);
-            context.PublicEventMobileDetails.Add(publicEventDetail);
-            context.PublicEventCards.Add(publicEventCard);
-            context.RouteDetails.Add(routeDetail);
-            context.RouteCards.Add(routeCard);
-            context.ServiceDetails.Add(serviceDetail);
-            context.ServiceCards.Add(serviceCard);
-            context.ShoppingDetails.Add(shoppingDetail);
-            context.ShoppingCards.Add(shoppingCard);
-            context.MunicipalityCards.Add(municipalityCard);
-
-            context.SaveChanges();
-            _seeded = true;
         }
 
         private MunicipalityForLocalStorageSetting CreateMunicipalityData()
