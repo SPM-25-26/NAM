@@ -6,24 +6,24 @@ using nam.Server.Endpoints.Auth;
 using nam.Server.Services.Interfaces.Auth;
 using nam.Server.Validators;
 using nam.ServerTests.NamServer.Endpoints.Auth.mock;
+using NUnit.Framework;
 using Serilog;
+using Assert = NUnit.Framework.Assert;
 
 namespace nam.ServerTests.NamServer.Endpoints.Auth
 {
-    [TestClass]
+    [TestFixture]
     public sealed class RegistrationTests
     {
         private AuthServiceTestBuilder _builder = null!;
         private IAuthService _authService = null!;
 
-        [TestInitialize]
+        [SetUp]
         public void Setup()
         {
-            // 1. Use the Builder to configure in-memory DB and fake dependencies
             _builder = new AuthServiceTestBuilder();
             _authService = _builder.Build();
 
-            // Configure Serilog
             var logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Console()
@@ -32,17 +32,16 @@ namespace nam.ServerTests.NamServer.Endpoints.Auth
             AuthEndpoints.ConfigureLogger(logger);
         }
 
-        [TestCleanup]
+        [TearDown]
         public void Cleanup()
         {
             _builder.Dispose();
             Log.CloseAndFlush();
         }
 
-        [TestMethod]
+        [Test]
         public async Task RegisterUser_ReturnsOk_WhenRegistrationIsSuccessfulAsync()
         {
-            // Arrange
             RegisterUserValidator validator = new();
             RegisterUserDto registrationData = new()
             {
@@ -51,31 +50,23 @@ namespace nam.ServerTests.NamServer.Endpoints.Auth
                 ConfirmPassword = "ValidPassword123!"
             };
 
-            // Act
-            // Assume that the endpoint now accepts IAuthService
             var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
 
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(Ok<MessageResponse>));
+            Assert.That(result, Is.InstanceOf<Ok<MessageResponse>>());
 
-            // Verify in the DB (via the builder's context)
             var userInDb = await _builder.Context.Users.FirstOrDefaultAsync(u => u.Email == registrationData.Email);
 
-            Assert.IsNotNull(userInDb, "User should exist in the database");
-            Assert.AreEqual("validmail@gmail.com", userInDb.Email);
-
-            // Optional verification: password hashed?
-            Assert.AreNotEqual("ValidPassword123!", userInDb.PasswordHash);
+            Assert.That(userInDb, Is.Not.Null);
+            Assert.That(userInDb!.Email, Is.EqualTo("validmail@gmail.com"));
+            Assert.That(userInDb.PasswordHash, Is.Not.EqualTo("ValidPassword123!"));
         }
 
-        [TestMethod]
+        [Test]
         public async Task RegisterUser_ReturnsConflict_WhenEmailAlreadyExists()
         {
-            // Arrange
             RegisterUserValidator validator = new();
             var existingEmail = "existing@example.com";
 
-            // Seed of the DB using the builder's helper method
             await _builder.SeedUserAsync(existingEmail, "SomePassword123!");
 
             RegisterUserDto registrationData = new()
@@ -85,38 +76,30 @@ namespace nam.ServerTests.NamServer.Endpoints.Auth
                 ConfirmPassword = "ValidPassword123!"
             };
 
-            // Act
             var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
 
-            // Assert
-            // Assume that AuthService returns false if exists, and the endpoint returns Conflict
-            Assert.IsInstanceOfType(result, typeof(Conflict<MessageResponse>));
+            Assert.That(result, Is.InstanceOf<Conflict<MessageResponse>>());
         }
 
-        [TestMethod]
+        [Test]
         public async Task RegisterUser_ReturnsValidationProblem_WhenPasswordsDoNotMatch()
         {
-            // Arrange
             RegisterUserValidator validator = new();
             RegisterUserDto registrationData = new()
             {
                 Email = "newuser@example.com",
                 Password = "ValidPasswordA123!",
-                ConfirmPassword = "ValidPasswordB123!" // Mismatch
+                ConfirmPassword = "ValidPasswordB123!"
             };
 
-            // Act
-            // The validator triggers before calling the service, so _authService will not actually be invoked
             var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
 
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(ValidationProblem));
+            Assert.That(result, Is.InstanceOf<ValidationProblem>());
         }
 
-        [TestMethod]
+        [Test]
         public async Task RegisterUser_ReturnsValidationProblem_WhenEmailIsInvalid()
         {
-            // Arrange
             RegisterUserValidator validator = new();
             RegisterUserDto registrationData = new()
             {
@@ -125,30 +108,25 @@ namespace nam.ServerTests.NamServer.Endpoints.Auth
                 ConfirmPassword = "ValidPassword123!"
             };
 
-            // Act
             var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
 
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(ValidationProblem));
+            Assert.That(result, Is.InstanceOf<ValidationProblem>());
         }
 
-        [TestMethod]
+        [Test]
         public async Task RegisterUser_ReturnsValidationProblem_WhenPasswordIsTooWeak()
         {
-            // Arrange
             RegisterUserValidator validator = new();
             RegisterUserDto registrationData = new()
             {
                 Email = "valid@example.com",
-                Password = "123", // Too short/simple
+                Password = "123",
                 ConfirmPassword = "123"
             };
 
-            // Act
             var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
 
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(ValidationProblem));
+            Assert.That(result, Is.InstanceOf<ValidationProblem>());
         }
     }
 }

@@ -1,100 +1,238 @@
+using Domain.Entities;
+using Domain.Entities.Auth;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-using nam.Server.ApiResponse;
 using nam.Server.DTOs;
 using nam.Server.Endpoints.Auth;
 using nam.Server.Services.Interfaces.Auth;
-using nam.Server.Validators;
 using nam.ServerTests.NamServer.Endpoints.Auth.mock;
-using Serilog;
+using NSubstitute;
+using NUnit.Framework;
+using Assert = NUnit.Framework.Assert;
 
 namespace nam.ServerTests.NamServer.Endpoints.Auth
 {
-    [TestClass]
-    public sealed class ResetPasswordTest
+    [TestFixture]
+    public sealed class PasswordResetTests
     {
-
         private AuthServiceTestBuilder _builder = null!;
         private IAuthService _authService = null!;
+        private const string StaticAuthCode = "123456";
 
-        [TestInitialize]
+        [SetUp]
         public void Setup()
         {
             _builder = new AuthServiceTestBuilder();
             _authService = _builder.Build();
-
-            var logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.Console()
-                .CreateLogger();
-
-            AuthEndpoints.ConfigureLogger(logger);
         }
 
-        [TestCleanup]
+        [TearDown]
         public void Cleanup()
         {
             _builder.Dispose();
-            Log.CloseAndFlush();
         }
 
-        [TestMethod]
-        public async Task RegisterUser_ReturnsOk_WhenRegistrationIsSuccessfulAsync()
+        private PasswordResetResponseDto GetDtoFromAnonymousResult(object result)
         {
-            RegisterUserValidator validator = new();
-            RegisterUserDto registrationData = new()
-            {
-                Email = "validmail@gmail.com",
-                Password = "ValidPassword123!",
-                ConfirmPassword = "ValidPassword123!"
-            };
+            
+            Assert.That(result.GetType().Name, Does.StartWith("Ok"), "Il risultato non è un Ok Result");
 
-            var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
+            
+            var valueProp = result.GetType().GetProperty("Value");
+            var anonymousValue = valueProp?.GetValue(result);
+            Assert.That(anonymousValue, Is.Not.Null, "Il valore della risposta è nullo");
 
-            Assert.IsInstanceOfType(result, typeof(Ok<MessageResponse>));
+            
+            var dataProp = anonymousValue!.GetType().GetProperty("data");
+            Assert.That(dataProp, Is.Not.Null, "La risposta non contiene la proprietà 'data'");
 
-            var userInDb = await _builder.Context.Users.FirstOrDefaultAsync(u => u.Email == registrationData.Email);
-
-            Assert.IsNotNull(userInDb, "User should exist in the database");
-            Assert.AreEqual("validmail@gmail.com", userInDb.Email);
-
-            Assert.AreNotEqual("ValidPassword123!", userInDb.PasswordHash);
+            return (PasswordResetResponseDto)dataProp!.GetValue(anonymousValue)!;
         }
 
-        [TestMethod]
-        public async Task RegisterUser_ReturnsConflict_WhenEmailAlreadyExists()
+        [Test]
+        public async Task RequestPasswordReset_EmailNotExists_ReturnsNotFound()
         {
-            RegisterUserValidator validator = new();
-            var existingEmail = "existing@example.com";
+            var request = new PasswordResetRequestDto { Email = "nonexistent@example.com" };
 
-            await _builder.SeedUserAsync(existingEmail, "SomePassword123!");
+            var result = await AuthEndpoints.RequestPasswordReset(request, _authService);
 
-            RegisterUserDto registrationData = new()
-            {
-                Email = existingEmail,
-                Password = "ValidPassword123!",
-                ConfirmPassword = "ValidPassword123!"
-            };
+            
+            Assert.That(result, Is.InstanceOf<ProblemHttpResult>());
+            var problem = (ProblemHttpResult)result;
 
-            var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
+            Assert.That(problem.StatusCode, Is.EqualTo(404));
+            Assert.That(problem.ProblemDetails.Detail, Is.EqualTo("The email not found"));
 
-            Assert.IsInstanceOfType(result, typeof(Conflict<MessageResponse>));
+            var codesCount = await _builder.Context.ResetPasswordAuth.CountAsync();
+            Assert.That(codesCount, Is.EqualTo(0));
         }
 
-        [TestMethod]
-        public async Task RegisterUser_ReturnsValidationProblem_WhenPasswordsDoNotMatch()
+        [Test]
+        public async Task RequestPasswordReset_EmailExists_CodeIsCreatedAndSaved()
         {
-            RegisterUserValidator validator = new();
-            RegisterUserDto registrationData = new()
+            const string testEmail = "test@example.com";
+            Guid testUserId = Guid.NewGuid();
+
+            _builder.Context.Users.Add(new User
             {
-                Email = "newuser@example.com",
-                Password = "ValidPasswordA123! ",
-                ConfirmPassword = "ValidPasswordB123!"
+                Id = testUserId,
+                Email = testEmail,
+                PasswordHash = "dummyhash",
+                IsEmailVerified = true
+            });
+            await _builder.Context.SaveChangesAsync();
+
+            var request = new PasswordResetRequestDto { Email = testEmail };
+            var beforeRequest = DateTime.UtcNow;
+
+            var result = await AuthEndpoints.RequestPasswordReset(request, _authService);
+
+            
+            if (result is ProblemHttpResult problem) Assert.Fail($"Server Error: {problem.ProblemDetails.Detail}");
+
+            
+            var responseDto = GetDtoFromAnonymousResult(result);
+            Assert.That(responseDto.Success, Is.True);
+
+            
+            var savedCode = await _builder.Context.ResetPasswordAuth
+                                    .FirstOrDefaultAsync(c => c.UserId == testUserId.ToString());
+
+            Assert.That(savedCode, Is.Not.Null);
+            Assert.That(savedCode!.AuthCode, Is.EqualTo(StaticAuthCode));
+            Assert.That(savedCode.ExpiresAt, Is.GreaterThan(beforeRequest.AddMinutes(14)));
+            Assert.That(savedCode.UserId, Is.EqualTo(testUserId.ToString()));
+
+            await _builder.EmailService.Received(1).SendEmailAsync(testEmail, Arg.Any<string>(), Arg.Any<string>());
+        }
+
+        [Test]
+        public async Task RequestPasswordReset_ExistingCodeIsOverwritten()
+        {
+            const string testEmail = "overwrite@example.com";
+            Guid testUserId = Guid.NewGuid();
+
+            _builder.Context.Users.Add(new User
+            {
+                Id = testUserId,
+                Email = testEmail,
+                PasswordHash = "dummyhash",
+                IsEmailVerified = true
+            });
+
+            var oldAuthCode = "999999";
+            var oldExpiration = DateTime.UtcNow.AddMinutes(5);
+
+            _builder.Context.ResetPasswordAuth.Add(new PasswordResetCode
+            {
+                UserId = testUserId.ToString(),
+                AuthCode = oldAuthCode,
+                ExpiresAt = oldExpiration,
+                CreatedAt = DateTime.UtcNow.AddMinutes(-10)
+            });
+            await _builder.Context.SaveChangesAsync();
+
+            var request = new PasswordResetRequestDto { Email = testEmail };
+            var beforeSecondRequest = DateTime.UtcNow;
+
+            var result = await AuthEndpoints.RequestPasswordReset(request, _authService);
+
+            
+            var responseDto = GetDtoFromAnonymousResult(result);
+            Assert.That(responseDto.Success, Is.True);
+
+            var codesCount = await _builder.Context.ResetPasswordAuth.CountAsync();
+            Assert.That(codesCount, Is.EqualTo(1));
+
+            var updatedCode = await _builder.Context.ResetPasswordAuth.SingleAsync();
+            Assert.That(updatedCode.AuthCode, Is.EqualTo(StaticAuthCode));
+            Assert.That(updatedCode.ExpiresAt, Is.GreaterThan(beforeSecondRequest.AddMinutes(14)));
+        }
+
+        [Test]
+        public async Task ResetPassword_ExpiredCode_ReturnsBadRequest()
+        {
+            const string testEmail = "expired@example.com";
+            Guid testUserId = Guid.NewGuid();
+
+            _builder.Context.Users.Add(new User
+            {
+                Id = testUserId,
+                Email = testEmail,
+                PasswordHash = "dummyhash",
+                IsEmailVerified = true
+            });
+
+            var expiredTime = DateTime.UtcNow.AddMinutes(-5);
+            _builder.Context.ResetPasswordAuth.Add(new PasswordResetCode
+            {
+                UserId = testUserId.ToString(),
+                AuthCode = StaticAuthCode,
+                CreatedAt = expiredTime.AddMinutes(-15),
+                ExpiresAt = expiredTime
+            });
+            await _builder.Context.SaveChangesAsync();
+
+            var request = new PasswordResetConfirmDto
+            {
+                AuthCode = StaticAuthCode,
+                NewPassword = "mock_password_1",
+                ConfirmPassword = "mock_password_1",
             };
 
-            var result = await AuthEndpoints.RegisterUser(registrationData, _authService, validator);
+            var result = await AuthEndpoints.ResetPassword(request, _authService);
 
-            Assert.IsInstanceOfType(result, typeof(ValidationProblem));
+            
+            Assert.That(result, Is.InstanceOf<ProblemHttpResult>());
+            var problem = (ProblemHttpResult)result;
+
+            Assert.That(problem.StatusCode, Is.EqualTo(400));
+            Assert.That(problem.ProblemDetails.Detail.ToLower(), Does.Contain("expired"));
+        }
+
+        [Test]
+        public async Task ResetPassword_IncorrectCode_ReturnsBadRequest()
+        {
+            const string testEmail = "wrongcode@example.com";
+            Guid testUserId = Guid.NewGuid();
+
+            _builder.Context.Users.Add(new User
+            {
+                Id = testUserId,
+                Email = testEmail,
+                PasswordHash = "dummyhash",
+                IsEmailVerified = true
+            });
+
+            var correctCode = "555555";
+            var validTime = DateTime.UtcNow.AddMinutes(5);
+            _builder.Context.ResetPasswordAuth.Add(new PasswordResetCode
+            {
+                UserId = testUserId.ToString(),
+                AuthCode = correctCode,
+                ExpiresAt = validTime,
+                CreatedAt = DateTime.UtcNow
+            });
+            await _builder.Context.SaveChangesAsync();
+
+            var request = new PasswordResetConfirmDto
+            {
+                AuthCode = "999999",
+                NewPassword = "new",
+                ConfirmPassword = "new"
+            };
+
+            var result = await AuthEndpoints.ResetPassword(request, _authService);
+
+            // L'endpoint usa TypedResults.Problem(400)
+            Assert.That(result, Is.InstanceOf<ProblemHttpResult>());
+            var problem = (ProblemHttpResult)result;
+
+            Assert.That(problem.StatusCode, Is.EqualTo(400));
+            Assert.That(problem.ProblemDetails.Detail.ToLower(), Does.Match(".*(invalid|not found).*"));
+
+            var codeExists = await _builder.Context.ResetPasswordAuth.AnyAsync();
+            Assert.That(codeExists, Is.True);
         }
     }
 }
