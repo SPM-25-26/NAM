@@ -24,8 +24,8 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
         [OneTimeTearDown]
         public void TearDown()
         {
-            _client.Dispose();
-            _factory.Dispose();
+            _client?.Dispose();
+            _factory?.Dispose();
         }
 
         [TestCase("/api/art-culture/card-list?municipality=TestTown&language=it")]
