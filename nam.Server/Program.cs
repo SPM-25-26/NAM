@@ -95,3 +95,7 @@ app.MapQuestionaire();
 app.ReccomandationMap();
 app.MapChatbot();
 app.Run();
+
+public partial class Program
+{
+}
