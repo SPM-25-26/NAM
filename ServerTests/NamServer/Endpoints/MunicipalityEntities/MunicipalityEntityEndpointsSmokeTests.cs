@@ -1,3 +1,6 @@
+using Domain.Entities.MunicipalityEntities;
+using Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using nam.ServerTests.Integration.Shared;
 using NUnit.Framework;
 using NUnitAssert = NUnit.Framework.Assert;
@@ -11,6 +14,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
     [TestFixture]
     public class MunicipalityEntityEndpointsSmokeTests
     {
+        private const string MunicipalityName = "TestTown";
         private NamTestFactory? _factory;
         private HttpClient? _client;
 
@@ -18,6 +22,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
         public void Setup()
         {
             _factory = new NamTestFactory();
+            SeedMunicipalityData();
             _client = _factory.CreateClient();
         }
 
@@ -28,17 +33,17 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             _factory?.Dispose();
         }
 
-        [TestCase("/api/art-culture/card-list?municipality=TestTown&language=it")]
-        [TestCase("/api/article/card-list?municipality=TestTown&language=it")]
-        [TestCase("/api/eat-and-drink/card-list?municipality=TestTown&language=it")]
-        [TestCase("/api/entertainment-leisure/card-list?municipality=TestTown&language=it")]
-        [TestCase("/api/nature/card-list?municipality=TestTown&language=it")]
-        [TestCase("/api/organizations/card-list?municipality=TestTown&language=it")]
-        [TestCase("/api/public-event/card-list?municipality=TestTown&language=it")]
-        [TestCase("/api/routes/card-list?municipality=TestTown&language=it")]
-        [TestCase("/api/services/card-list?municipality=TestTown&language=it")]
-        [TestCase("/api/shopping/card-list?municipality=TestTown&language=it")]
-        public async Task Get_CardList_Returns_Data(string url)
+        [TestCase("/api/art-culture/card-list?municipality=TestTown&language=it", "entityName")]
+        [TestCase("/api/article/card-list?municipality=TestTown&language=it", "entityName")]
+        [TestCase("/api/eat-and-drink/card-list?municipality=TestTown&language=it", "entityName")]
+        [TestCase("/api/entertainment-leisure/card-list?municipality=TestTown&language=it", "entityName")]
+        [TestCase("/api/nature/card-list?municipality=TestTown&language=it", "entityName")]
+        [TestCase("/api/organizations/card-list?municipality=TestTown&language=it", "entityName")]
+        [TestCase("/api/public-event/card-list?municipality=TestTown&language=it", "entityName")]
+        [TestCase("/api/services/card-list?municipality=TestTown&language=it", "entityName")]
+        [TestCase("/api/shopping/card-list?municipality=TestTown&language=it", "entityName")]
+        [TestCase("/api/organizations/municipalities?search=TestTown&language=it", "legalName")]
+        public async Task Get_CardList_Returns_Data(string url, string expectedField)
         {
             var client = _client ?? throw new InvalidOperationException("HTTP client was not initialized.");
             var response = await client.GetAsync(url);
@@ -48,13 +53,195 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             var content = await response.Content.ReadAsStringAsync();
             using var document = JsonDocument.Parse(content);
             NUnitAssert.That(document.RootElement.ValueKind, Is.EqualTo(JsonValueKind.Array));
+            NUnitAssert.That(document.RootElement.GetArrayLength(), Is.GreaterThan(0));
+            NUnitAssert.That(content, Does.Contain(expectedField));
+        }
 
-            if (document.RootElement.GetArrayLength() > 0)
+        private void SeedMunicipalityData()
+        {
+            var factory = _factory ?? throw new InvalidOperationException("Factory was not initialized.");
+            using var scope = factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            if (context.ArtCultureNatureCards.Any())
             {
-                var firstElement = document.RootElement[0];
-                NUnitAssert.That(firstElement.ValueKind, Is.EqualTo(JsonValueKind.Object));
-                NUnitAssert.That(firstElement.EnumerateObject().Any(), Is.True);
+                return;
             }
+
+            var artCultureDetail = new ArtCultureNatureDetail
+            {
+                Identifier = Guid.NewGuid(),
+                OfficialName = "Art Culture",
+                MunicipalityData = CreateMunicipalityData()
+            };
+            var artCultureCard = new ArtCultureNatureCard
+            {
+                EntityId = Guid.NewGuid(),
+                EntityName = "Art Culture",
+                BadgeText = "Badge",
+                ImagePath = "image.png",
+                Detail = artCultureDetail
+            };
+
+            var articleDetail = new ArticleDetail
+            {
+                Identifier = Guid.NewGuid(),
+                Title = "Article Title",
+                Script = "Script",
+                ImagePath = "image.png",
+                UpdatedAt = DateTime.UtcNow,
+                MunicipalityData = CreateMunicipalityData()
+            };
+            var articleCard = new ArticleCard
+            {
+                EntityId = Guid.NewGuid(),
+                EntityName = "Article",
+                BadgeText = "Badge",
+                ImagePath = "image.png",
+                Detail = articleDetail
+            };
+
+            var eatAndDrinkDetail = new EatAndDrinkDetail
+            {
+                Identifier = Guid.NewGuid(),
+                OfficialName = "Eat & Drink",
+                MunicipalityData = CreateMunicipalityData()
+            };
+            var eatAndDrinkCard = new EatAndDrinkCard
+            {
+                EntityId = Guid.NewGuid(),
+                EntityName = "Eat & Drink",
+                BadgeText = "Badge",
+                ImagePath = "image.png",
+                Detail = eatAndDrinkDetail
+            };
+
+            var entertainmentDetail = new EntertainmentLeisureDetail
+            {
+                Identifier = Guid.NewGuid(),
+                OfficialName = "Entertainment",
+                MunicipalityData = CreateMunicipalityData()
+            };
+            var entertainmentCard = new EntertainmentLeisureCard
+            {
+                EntityId = Guid.NewGuid(),
+                EntityName = "Entertainment",
+                BadgeText = "Badge",
+                ImagePath = "image.png",
+                Detail = entertainmentDetail
+            };
+
+            var natureDetail = new ArtCultureNatureDetail
+            {
+                Identifier = Guid.NewGuid(),
+                OfficialName = "Nature",
+                MunicipalityData = CreateMunicipalityData()
+            };
+            var natureCard = new Nature
+            {
+                EntityId = Guid.NewGuid(),
+                EntityName = "Nature",
+                BadgeText = "Badge",
+                ImagePath = "image.png",
+                Detail = natureDetail
+            };
+
+            var organizationDetail = new OrganizationMobileDetail
+            {
+                TaxCode = "ORG001",
+                LegalName = "Organization",
+                MunicipalityData = CreateMunicipalityData()
+            };
+            var organizationCard = new OrganizationCard
+            {
+                TaxCode = "ORG001",
+                EntityName = "Organization",
+                Detail = organizationDetail
+            };
+
+            var publicEventDetail = new PublicEventMobileDetail
+            {
+                Identifier = Guid.NewGuid(),
+                Title = "Public Event",
+                MunicipalityData = CreateMunicipalityData()
+            };
+            var publicEventCard = new PublicEventCard
+            {
+                EntityId = publicEventDetail.Identifier,
+                EntityName = "Public Event",
+                BadgeText = "Badge",
+                ImagePath = "image.png",
+                Address = "Address",
+                Date = "2026-02-05",
+                Detail = publicEventDetail
+            };
+
+            var serviceDetail = new ServiceDetail
+            {
+                Identifier = Guid.NewGuid(),
+                Name = "Service",
+                MunicipalityData = CreateMunicipalityData()
+            };
+            var serviceCard = new ServiceCard
+            {
+                EntityId = serviceDetail.Identifier,
+                EntityName = "Service",
+                BadgeText = "Badge",
+                ImagePath = "image.png",
+                Detail = serviceDetail
+            };
+
+            var shoppingDetail = new ShoppingCardDetail
+            {
+                Identifier = Guid.NewGuid(),
+                OfficialName = "Shopping",
+                MunicipalityData = CreateMunicipalityData()
+            };
+            var shoppingCard = new ShoppingCard
+            {
+                EntityId = shoppingDetail.Identifier,
+                EntityName = "Shopping",
+                BadgeText = "Badge",
+                ImagePath = "image.png",
+                Detail = shoppingDetail
+            };
+
+            var municipalityCard = new MunicipalityCard
+            {
+                LegalName = $"{MunicipalityName} Municipality",
+                ImagePath = "image.png"
+            };
+
+            context.ArtCultureNatureDetails.Add(artCultureDetail);
+            context.ArtCultureNatureCards.Add(artCultureCard);
+            context.ArtCultureNatureDetails.Add(natureDetail);
+            context.Natures.Add(natureCard);
+            context.ArticleDetails.Add(articleDetail);
+            context.ArticleCards.Add(articleCard);
+            context.EatAndDrinkDetails.Add(eatAndDrinkDetail);
+            context.EatAndDrinkCards.Add(eatAndDrinkCard);
+            context.EntertainmentLeisureDetails.Add(entertainmentDetail);
+            context.EntertainmentLeisureCards.Add(entertainmentCard);
+            context.OrganizationMobileDetails.Add(organizationDetail);
+            context.OrganizationCards.Add(organizationCard);
+            context.PublicEventMobileDetails.Add(publicEventDetail);
+            context.PublicEventCards.Add(publicEventCard);
+            context.ServiceDetails.Add(serviceDetail);
+            context.ServiceCards.Add(serviceCard);
+            context.ShoppingDetails.Add(shoppingDetail);
+            context.ShoppingCards.Add(shoppingCard);
+            context.MunicipalityCards.Add(municipalityCard);
+
+            context.SaveChanges();
+        }
+
+        private static MunicipalityForLocalStorageSetting CreateMunicipalityData()
+        {
+            return new MunicipalityForLocalStorageSetting
+            {
+                Name = MunicipalityName,
+                LogoPath = "logo.png"
+            };
         }
     }
 }
