@@ -26,7 +26,8 @@ public sealed class BasicReachabilityTests
     [TestMethod]
     public async Task Health_endpoint_is_reachable_async()
     {
-        var response = await _client!.GetAsync("/health");
+        var client = _client ?? throw new InvalidOperationException("HTTP client was not initialized.");
+        var response = await client.GetAsync("/health");
 
         response.EnsureSuccessStatusCode();
     }
