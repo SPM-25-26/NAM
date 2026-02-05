@@ -15,7 +15,8 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
     public class MunicipalityEntityEndpointsSmokeTests
     {
         private const string MunicipalityName = "TestTown";
-        private static readonly object SeedLock = new();
+        private static readonly object _seedLock = new();
+        private static bool _seeded;
         private NamTestFactory? _factory;
         private HttpClient? _client;
 
@@ -65,10 +66,16 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             using var scope = factory.Services.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            lock (SeedLock)
+            lock (_seedLock)
             {
                 if (context.MunicipalityCards.Any(card =>
                         card.LegalName != null && card.LegalName.Contains(MunicipalityName, StringComparison.Ordinal)))
+                {
+                    _seeded = true;
+                    return;
+                }
+
+                if (_seeded)
                 {
                     return;
                 }
@@ -259,6 +266,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
                     municipalityCard);
 
                 context.SaveChanges();
+                _seeded = true;
             }
         }
 
