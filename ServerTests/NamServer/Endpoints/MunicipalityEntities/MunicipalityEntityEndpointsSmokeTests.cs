@@ -234,28 +234,29 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
                     ImagePath = "image.png"
                 };
 
-                context.MunicipalityForLocalStorageSettings.Add(municipalityData);
-                context.ArtCultureNatureDetails.Add(artCultureDetail);
-                context.ArtCultureNatureCards.Add(artCultureCard);
-                context.ArtCultureNatureDetails.Add(natureDetail);
-                context.Natures.Add(natureCard);
-                context.ArticleDetails.Add(articleDetail);
-                context.ArticleCards.Add(articleCard);
-                context.EatAndDrinkDetails.Add(eatAndDrinkDetail);
-                context.EatAndDrinkCards.Add(eatAndDrinkCard);
-                context.EntertainmentLeisureDetails.Add(entertainmentDetail);
-                context.EntertainmentLeisureCards.Add(entertainmentCard);
-                context.OrganizationMobileDetails.Add(organizationDetail);
-                context.OrganizationCards.Add(organizationCard);
-                context.PublicEventMobileDetails.Add(publicEventDetail);
-                context.PublicEventCards.Add(publicEventCard);
-                context.RouteDetails.Add(routeDetail);
-                context.RouteCards.Add(routeCard);
-                context.ServiceDetails.Add(serviceDetail);
-                context.ServiceCards.Add(serviceCard);
-                context.ShoppingDetails.Add(shoppingDetail);
-                context.ShoppingCards.Add(shoppingCard);
-                context.MunicipalityCards.Add(municipalityCard);
+                context.AddRange(
+                    municipalityData,
+                    artCultureDetail,
+                    artCultureCard,
+                    natureDetail,
+                    natureCard,
+                    articleDetail,
+                    articleCard,
+                    eatAndDrinkDetail,
+                    eatAndDrinkCard,
+                    entertainmentDetail,
+                    entertainmentCard,
+                    organizationDetail,
+                    organizationCard,
+                    publicEventDetail,
+                    publicEventCard,
+                    routeDetail,
+                    routeCard,
+                    serviceDetail,
+                    serviceCard,
+                    shoppingDetail,
+                    shoppingCard,
+                    municipalityCard);
 
                 context.SaveChanges();
             }
