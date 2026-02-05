@@ -40,6 +40,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
         [TestCase("/api/nature/card-list?municipality=TestTown&language=it", "entityName")]
         [TestCase("/api/organizations/card-list?municipality=TestTown&language=it", "entityName")]
         [TestCase("/api/public-event/card-list?municipality=TestTown&language=it", "entityName")]
+        [TestCase("/api/routes/card-list?municipality=TestTown&language=it", "entityName")]
         [TestCase("/api/services/card-list?municipality=TestTown&language=it", "entityName")]
         [TestCase("/api/shopping/card-list?municipality=TestTown&language=it", "entityName")]
         [TestCase("/api/organizations/municipalities?search=TestTown&language=it", "legalName")]
@@ -68,11 +69,13 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
                 return;
             }
 
+            var municipalityData = CreateMunicipalityData();
+
             var artCultureDetail = new ArtCultureNatureDetail
             {
                 Identifier = Guid.NewGuid(),
                 OfficialName = "Art Culture",
-                MunicipalityData = CreateMunicipalityData()
+                MunicipalityData = municipalityData
             };
             var artCultureCard = new ArtCultureNatureCard
             {
@@ -90,7 +93,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
                 Script = "Script",
                 ImagePath = "image.png",
                 UpdatedAt = DateTime.UtcNow,
-                MunicipalityData = CreateMunicipalityData()
+                MunicipalityData = municipalityData
             };
             var articleCard = new ArticleCard
             {
@@ -105,7 +108,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             {
                 Identifier = Guid.NewGuid(),
                 OfficialName = "Eat & Drink",
-                MunicipalityData = CreateMunicipalityData()
+                MunicipalityData = municipalityData
             };
             var eatAndDrinkCard = new EatAndDrinkCard
             {
@@ -120,7 +123,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             {
                 Identifier = Guid.NewGuid(),
                 OfficialName = "Entertainment",
-                MunicipalityData = CreateMunicipalityData()
+                MunicipalityData = municipalityData
             };
             var entertainmentCard = new EntertainmentLeisureCard
             {
@@ -135,7 +138,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             {
                 Identifier = Guid.NewGuid(),
                 OfficialName = "Nature",
-                MunicipalityData = CreateMunicipalityData()
+                MunicipalityData = municipalityData
             };
             var natureCard = new Nature
             {
@@ -150,7 +153,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             {
                 TaxCode = "ORG001",
                 LegalName = "Organization",
-                MunicipalityData = CreateMunicipalityData()
+                MunicipalityData = municipalityData
             };
             var organizationCard = new OrganizationCard
             {
@@ -163,7 +166,22 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             {
                 Identifier = Guid.NewGuid(),
                 Title = "Public Event",
-                MunicipalityData = CreateMunicipalityData()
+                MunicipalityData = municipalityData
+            };
+
+            var routeDetail = new RouteDetail
+            {
+                Identifier = Guid.NewGuid(),
+                Name = "Route",
+                MunicipalityData = municipalityData
+            };
+            var routeCard = new RouteCard
+            {
+                EntityId = routeDetail.Identifier,
+                EntityName = "Route",
+                BadgeText = "Badge",
+                ImagePath = "image.png",
+                Detail = routeDetail
             };
             var publicEventCard = new PublicEventCard
             {
@@ -180,7 +198,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             {
                 Identifier = Guid.NewGuid(),
                 Name = "Service",
-                MunicipalityData = CreateMunicipalityData()
+                MunicipalityData = municipalityData
             };
             var serviceCard = new ServiceCard
             {
@@ -195,7 +213,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             {
                 Identifier = Guid.NewGuid(),
                 OfficialName = "Shopping",
-                MunicipalityData = CreateMunicipalityData()
+                MunicipalityData = municipalityData
             };
             var shoppingCard = new ShoppingCard
             {
@@ -212,6 +230,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
                 ImagePath = "image.png"
             };
 
+            context.MunicipalityForLocalStorageSettings.Add(municipalityData);
             context.ArtCultureNatureDetails.Add(artCultureDetail);
             context.ArtCultureNatureCards.Add(artCultureCard);
             context.ArtCultureNatureDetails.Add(natureDetail);
@@ -226,6 +245,8 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             context.OrganizationCards.Add(organizationCard);
             context.PublicEventMobileDetails.Add(publicEventDetail);
             context.PublicEventCards.Add(publicEventCard);
+            context.RouteDetails.Add(routeDetail);
+            context.RouteCards.Add(routeCard);
             context.ServiceDetails.Add(serviceDetail);
             context.ServiceCards.Add(serviceCard);
             context.ShoppingDetails.Add(shoppingDetail);
