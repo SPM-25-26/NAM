@@ -3,22 +3,31 @@ using Domain.Entities.MunicipalityEntities;
 using Infrastructure;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using NUnit.Framework;
 
 namespace nam.ServerTests.Integration.Database
 {
-    [TestClass]
+    [TestFixture]
     public sealed class PersistenceTests
     {
-        [TestMethod]
+        
+        private DbContextOptions<ApplicationDbContext> GetOptions(SqliteConnection connection)
+        {
+            return new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseSqlite(connection)
+                .Options;
+        }
+
+        [Test]
         public async Task User_is_persisted_across_contexts_async()
         {
+            
             await using var connection = new SqliteConnection("DataSource=:memory:");
             await connection.OpenAsync();
 
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseSqlite(connection)
-                .Options;
+            var options = GetOptions(connection);
 
+            
             await using (var context = new ApplicationDbContext(options))
             {
                 await context.Database.EnsureCreatedAsync();
@@ -26,30 +35,30 @@ namespace nam.ServerTests.Integration.Database
                 context.Users.Add(new User
                 {
                     Email = "persisted@example.com",
-                    PasswordHash = "hash"
+                    PasswordHash = "hash",
+                    IsEmailVerified = true 
                 });
 
                 await context.SaveChangesAsync();
             }
 
+            
             await using (var context = new ApplicationDbContext(options))
             {
                 var user = await context.Users.SingleOrDefaultAsync(u => u.Email == "persisted@example.com");
 
-                Assert.IsNotNull(user, "Expected user to be persisted across contexts.");
-                Assert.AreEqual("persisted@example.com", user.Email);
+                Assert.That(user, Is.Not.Null, "Expected user to be persisted across contexts.");
+                Assert.That(user!.Email, Is.EqualTo("persisted@example.com"));
             }
         }
 
-        [TestMethod]
+        [Test]
         public async Task Map_marker_is_persisted_across_contexts_async()
         {
             await using var connection = new SqliteConnection("DataSource=:memory:");
             await connection.OpenAsync();
 
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseSqlite(connection)
-                .Options;
+            var options = GetOptions(connection);
 
             await using (var context = new ApplicationDbContext(options))
             {
@@ -69,20 +78,18 @@ namespace nam.ServerTests.Integration.Database
             {
                 var marker = await context.MapMarkers.SingleOrDefaultAsync(m => m.Name == "Marker One");
 
-                Assert.IsNotNull(marker, "Expected map marker to be persisted across contexts.");
-                Assert.AreEqual("marker.png", marker.ImagePath);
+                Assert.That(marker, Is.Not.Null, "Expected map marker to be persisted across contexts.");
+                Assert.That(marker!.ImagePath, Is.EqualTo("marker.png"));
             }
         }
 
-        [TestMethod]
+        [Test]
         public async Task Map_data_is_persisted_across_contexts_async()
         {
             await using var connection = new SqliteConnection("DataSource=:memory:");
             await connection.OpenAsync();
 
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseSqlite(connection)
-                .Options;
+            var options = GetOptions(connection);
 
             await using (var context = new ApplicationDbContext(options))
             {
@@ -102,20 +109,18 @@ namespace nam.ServerTests.Integration.Database
             {
                 var mapData = await context.MapData.SingleOrDefaultAsync(m => m.Name == "Test Map");
 
-                Assert.IsNotNull(mapData, "Expected map data to be persisted across contexts.");
-                Assert.AreEqual(45.123, mapData.CenterLatitude);
+                Assert.That(mapData, Is.Not.Null, "Expected map data to be persisted across contexts.");
+                Assert.That(mapData!.CenterLatitude, Is.EqualTo(45.123));
             }
         }
 
-        [TestMethod]
+        [Test]
         public async Task Municipality_card_is_persisted_across_contexts_async()
         {
             await using var connection = new SqliteConnection("DataSource=:memory:");
             await connection.OpenAsync();
 
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseSqlite(connection)
-                .Options;
+            var options = GetOptions(connection);
 
             await using (var context = new ApplicationDbContext(options))
             {
@@ -134,8 +139,8 @@ namespace nam.ServerTests.Integration.Database
             {
                 var card = await context.MunicipalityCards.SingleOrDefaultAsync(m => m.LegalName == "Test Municipality");
 
-                Assert.IsNotNull(card, "Expected municipality card to be persisted across contexts.");
-                Assert.AreEqual("municipality.png", card.ImagePath);
+                Assert.That(card, Is.Not.Null, "Expected municipality card to be persisted across contexts.");
+                Assert.That(card!.ImagePath, Is.EqualTo("municipality.png"));
             }
         }
     }

@@ -1,38 +1,71 @@
 ﻿using Domain.Entities;
 using Infrastructure;
 using Infrastructure.Repositories.Interfaces;
-using Infrastructure.Repositories.Interfaces.MunicipalityEntities;
 using Infrastructure.UnitOfWork;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using nam.Server.Services.Implemented.Auth;
 using nam.Server.Services.Interfaces.Auth;
+using NSubstitute;
 using System.Linq.Expressions;
-using System.Security.Claims;
 
 namespace nam.ServerTests.NamServer.Endpoints.Auth.mock
 {
     public class AuthServiceTestBuilder : IDisposable
     {
+        private readonly SqliteConnection _connection;
         public ApplicationDbContext Context { get; }
-
-        public FakeEmailService EmailService { get; } = new();
-        public FakeCodeService CodeService { get; } = new();
+        public IEmailService EmailService { get; }
+        public ICodeService CodeService { get; }
+        public ITokenGeneration TokenService { get; }
+        public IUnitOfWork UnitOfWork { get; }
 
         public AuthServiceTestBuilder()
         {
+            
+            _connection = new SqliteConnection("DataSource=:memory:");
+            _connection.Open();
+
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase(databaseName: $"AuthDb_{Guid.NewGuid()}")
+                .UseSqlite(_connection)
                 .Options;
 
             Context = new ApplicationDbContext(options);
+            Context.Database.EnsureCreated();
+
+            
+            EmailService = Substitute.For<IEmailService>();
+            CodeService = Substitute.For<ICodeService>();
+            TokenService = Substitute.For<ITokenGeneration>();
+
+            
+            CodeService.GenerateAuthCode().Returns("123456");
+            CodeService.TimeToLiveMinutes.Returns(15);
+            EmailService.SendEmailAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
+                        .Returns(Task.CompletedTask);
+            TokenService.GenerateTokenAsync(Arg.Any<string>(), Arg.Any<string>())
+                        .Returns("fake-jwt-token-generated");
+
+            
+            var fakePrincipal = new System.Security.Claims.ClaimsPrincipal(
+                new System.Security.Claims.ClaimsIdentity(new[] {
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Email, "valid@example.com")
+                }));
+            TokenService.ValidateEmailVerificationToken(Arg.Is("valid-token")).Returns(fakePrincipal);
+
+
+            UnitOfWork = Substitute.For<IUnitOfWork>();
+
+            
+            var userRepository = new TestUserRepository(Context);
+            UnitOfWork.Users.Returns(userRepository);
+
+            UnitOfWork.CompleteAsync().Returns(async x => await Context.SaveChangesAsync());
         }
 
         public AuthService Build()
         {
-            var unitOfWork = new FakeUnitOfWork(Context);
-            var tokenGen = new FakeTokenGeneration();
-
             var myConfiguration = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string?>
                 {
@@ -41,10 +74,10 @@ namespace nam.ServerTests.NamServer.Endpoints.Auth.mock
                 .Build();
 
             return new AuthService(
-                unitOfWork,
-                tokenGen,
+                UnitOfWork,
+                TokenService,
                 myConfiguration,
-                Context,
+                Context,         
                 EmailService,
                 CodeService
             );
@@ -65,165 +98,52 @@ namespace nam.ServerTests.NamServer.Endpoints.Auth.mock
 
         public void Dispose()
         {
-            Context.Database.EnsureDeleted();
             Context.Dispose();
+            _connection.Close();
+            _connection.Dispose();
         }
     }
 
-    public class FakeUnitOfWork : IUnitOfWork
-    {
-        private readonly ApplicationDbContext _context;
-
-        public FakeUnitOfWork(ApplicationDbContext context)
-        {
-            _context = context;
-            Users = new FakeUserRepository(_context);
-            ArtCulture = null!;
-            Article = null!;
-            MunicipalityCard = null!;
-            Nature = null!;
-            Organization = null!;
-            PublicEvent = null!;
-            EntertainmentLeisure = null!;
-        }
-
-        public IUserRepository Users { get; }
-
-        public IArtCultureRepository ArtCulture { get; }
-
-        public IArticleRepository Article { get; }
-
-        public IMunicipalityCardRepository MunicipalityCard { get; }
-
-        public INatureRepository Nature { get; }
-
-        public IOrganizationRepository Organization { get; }
-
-        public IPublicEventRepository PublicEvent { get; }
-
-        public IEntertainmentLeisureRepository EntertainmentLeisure { get; }
-
-        public IUserRepository Questionaires => throw new NotImplementedException();
-
-        public IRouteRepository Route => throw new NotImplementedException();
-
-        public IServiceRepository Service => throw new NotImplementedException();
-
-        public IShoppingRepository Shopping => throw new NotImplementedException();
-
-        public ISleepRepository Sleep => throw new NotImplementedException();
-        public IEatAndDrinkRepository EatAndDrink => throw new NotImplementedException();
-        public IMapDataRepository MapData => throw new NotImplementedException();
-        public Task CompleteAsync()
-        {
-            return _context.SaveChangesAsync();
-        }
-    }
-
-    public class FakeUserRepository : IUserRepository
+    // Repository Concreto per i test: evita problemi con Mock asincroni
+    public class TestUserRepository : IUserRepository
     {
         private readonly ApplicationDbContext _context;
         private readonly DbSet<User> _dbSet;
 
-        public FakeUserRepository(ApplicationDbContext context)
+        public TestUserRepository(ApplicationDbContext context)
         {
             _context = context;
             _dbSet = context.Set<User>();
         }
 
-        public async Task<User?> GetAsync(Guid id, CancellationToken cancellationToken = default)
+        // Metodi usati da AuthService
+        public async Task<User?> GetByEmailAsync(string email, CancellationToken ct = default)
+            => await _dbSet.FirstOrDefaultAsync(u => u.Email == email, ct);
+
+        public async Task<bool> EmailExistsAsync(string email, CancellationToken ct = default)
+            => await _dbSet.AnyAsync(u => u.Email == email, ct);
+
+        public async Task<bool> AddAsync(User user, CancellationToken ct = default)
         {
-            return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
+            await _dbSet.AddAsync(user, ct);
+            return await _context.SaveChangesAsync(ct) > 0;
         }
 
-        public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken = default)
-        {
-            return await _dbSet.ToListAsync(cancellationToken);
-        }
-
-        public IEnumerable<User> Find(Expression<Func<User, bool>> predicate)
-        {
-            return _dbSet.Where(predicate).ToList();
-        }
-
-        public void Add(User entity)
-        {
-            _dbSet.Add(entity);
-        }
-
-        public void Remove(User entity)
-        {
-            _dbSet.Remove(entity);
-        }
-
-        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            return _context.SaveChangesAsync(cancellationToken);
-        }
-
-        public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
-        {
-            return _dbSet.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
-        }
-
-        public Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default)
-        {
-            return _dbSet.AnyAsync(u => u.Email == email, cancellationToken);
-        }
-
-        public async Task<bool> AddAsync(User user, CancellationToken cancellationToken = default)
-        {
-            await _dbSet.AddAsync(user, cancellationToken);
-            var changes = await _context.SaveChangesAsync(cancellationToken);
-            return changes > 0;
-        }
-
-        public async Task<bool> UpdateAsync(User user, CancellationToken cancellationToken = default)
+        public async Task<bool> UpdateAsync(User user, CancellationToken ct = default)
         {
             _dbSet.Update(user);
-            var changes = await _context.SaveChangesAsync(cancellationToken);
-            return changes >= 0;
+            return await _context.SaveChangesAsync(ct) >= 0;
         }
 
-        public Task<bool> UpdateQuestionaireByEmailAsync(Questionaire questionaire, string email, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-    }
 
-    public class FakeTokenGeneration : ITokenGeneration
-    {
-        public Task<string> GenerateTokenAsync(string userId, string email)
-        {
-            return Task.FromResult("fake-jwt-token-generated");
-        }
+        public async Task<User?> GetAsync(Guid id, CancellationToken ct = default) => await _dbSet.FindAsync(new object[] { id }, ct);
+        public async Task<IEnumerable<User>> GetAllAsync(CancellationToken ct = default) => await _dbSet.ToListAsync(ct);
+        public IEnumerable<User> Find(Expression<Func<User, bool>> predicate) => _dbSet.Where(predicate).ToList();
+        public void Add(User entity) => _dbSet.Add(entity);
+        public void Remove(User entity) => _dbSet.Remove(entity);
+        public Task<int> SaveChangesAsync(CancellationToken ct = default) => _context.SaveChangesAsync(ct);
 
-        public ClaimsPrincipal? ValidateEmailVerificationToken(string token)
-        {
-            if (token == "valid-token")
-            {
-                var claims = new List<Claim> { new Claim(ClaimTypes.Email, "user@example.com") };
-                var identity = new ClaimsIdentity(claims, "TestAuth");
-                return new ClaimsPrincipal(identity);
-            }
-            return null;
-        }
-    }
-
-    public class FakeEmailService : IEmailService
-    {
-        public List<(string to, string subject, string body)> SentEmails { get; } = new();
-
-        public Task SendEmailAsync(string to, string subject, string body)
-        {
-            SentEmails.Add((to, subject, body));
-            return Task.CompletedTask;
-        }
-    }
-
-    public class FakeCodeService : ICodeService
-    {
-        public int TimeToLiveMinutes => 15;
-        public string GenerateAuthCode() => "123456";
+        public Task<bool> UpdateQuestionaireByEmailAsync(Questionaire questionaire, string email, CancellationToken ct = default)
+            => throw new NotImplementedException("Not needed for Auth tests");
     }
 }

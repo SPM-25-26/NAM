@@ -25,6 +25,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             _factory = new NamTestFactory();
             SeedMunicipalityData();
             _client = _factory.CreateClient();
+            _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Test");
         }
 
         [OneTimeTearDown]
@@ -54,8 +55,13 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
 
             var content = await response.Content.ReadAsStringAsync();
             using var document = JsonDocument.Parse(content);
+
+            
             NUnitAssert.That(document.RootElement.ValueKind, Is.EqualTo(JsonValueKind.Array));
-            NUnitAssert.That(document.RootElement.GetArrayLength(), Is.GreaterThan(0));
+
+            
+            NUnitAssert.That(document.RootElement.GetArrayLength(), Is.GreaterThan(0), "L'API ha restituito un array vuoto, il Seed non ha funzionato o il filtro fallisce.");
+
             NUnitAssert.That(content, Does.Contain(expectedField));
         }
 
@@ -68,7 +74,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             lock (s_seedLock)
             {
                 if (context.MunicipalityCards.Any(card =>
-                        card.LegalName != null && card.LegalName.Contains(MunicipalityName, StringComparison.Ordinal)))
+                        card.LegalName != null && card.LegalName.Contains(MunicipalityName)))
                 {
                     return;
                 }

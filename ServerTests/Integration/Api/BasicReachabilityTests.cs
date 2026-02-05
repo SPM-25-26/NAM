@@ -1,34 +1,36 @@
-using System.Net.Http;
+using NUnit.Framework;
 using nam.ServerTests.Integration.Shared;
 
-namespace nam.ServerTests.Integration.Api;
-
-[TestClass]
-public sealed class BasicReachabilityTests
+namespace nam.ServerTests.Integration.Api
 {
-    private NamTestFactory? _factory;
-    private HttpClient? _client;
-
-    [TestInitialize]
-    public void Setup()
+    [TestFixture]
+    public sealed class BasicReachabilityTests
     {
-        _factory = new NamTestFactory();
-        _client = _factory.CreateClient();
-    }
+        private NamTestFactory? _factory;
+        private HttpClient? _client;
 
-    [TestCleanup]
-    public void Cleanup()
-    {
-        _client?.Dispose();
-        _factory?.Dispose();
-    }
+        [SetUp]
+        public void Setup()
+        {
+            _factory = new NamTestFactory();
+            _client = _factory.CreateClient();
+        }
 
-    [TestMethod]
-    public async Task Health_endpoint_is_reachable_async()
-    {
-        var client = _client ?? throw new InvalidOperationException("HTTP client was not initialized.");
-        var response = await client.GetAsync("/health");
+        [TearDown]
+        public void TearDown()
+        {
+            _client?.Dispose();
+            _factory?.Dispose();
+        }
 
-        response.EnsureSuccessStatusCode();
+        [Test]
+        public async Task Health_endpoint_is_reachable_async()
+        {
+            var client = _client ?? throw new System.InvalidOperationException("HTTP client was not initialized.");
+
+            var response = await client.GetAsync("/health");
+
+            NUnit.Framework.Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+        }
     }
 }
