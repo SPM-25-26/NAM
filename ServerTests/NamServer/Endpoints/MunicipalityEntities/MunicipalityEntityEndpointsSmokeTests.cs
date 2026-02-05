@@ -15,6 +15,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
     public class MunicipalityEntityEndpointsSmokeTests
     {
         private const string MunicipalityName = "TestTown";
+        private static bool _seeded;
         private NamTestFactory? _factory;
         private HttpClient? _client;
 
@@ -64,7 +65,7 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             using var scope = factory.Services.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            if (context.ArtCultureNatureCards.Any())
+            if (_seeded)
             {
                 return;
             }
@@ -254,9 +255,10 @@ namespace nam.ServerTests.NamServer.Endpoints.MunicipalityEntities
             context.MunicipalityCards.Add(municipalityCard);
 
             context.SaveChanges();
+            _seeded = true;
         }
 
-        private static MunicipalityForLocalStorageSetting CreateMunicipalityData()
+        private MunicipalityForLocalStorageSetting CreateMunicipalityData()
         {
             return new MunicipalityForLocalStorageSetting
             {
